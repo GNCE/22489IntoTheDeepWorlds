@@ -21,8 +21,10 @@ public class Outtake {
         clamp.setDirection(Servo.Direction.REVERSE);
     }
     public void updatePivPosition(){
+        if (pivpos != rpivhigh.getPosition()){
         rpivhigh.setPosition(pivpos);
         lpivhigh.setPosition(pivpos);
+        }
     }
     public void pivotToScore (){
         pivpos = 0;

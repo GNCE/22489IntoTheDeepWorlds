@@ -31,6 +31,7 @@ public class Teleop_26111 extends OpMode {
     public void start() {
         follower.startTeleopDrive();
         intake.initiate();
+        outtakeLift.HoldLift();
     }
     @Override
     public void loop() {
@@ -50,12 +51,16 @@ public class Teleop_26111 extends OpMode {
             outtakeLift.LiftTarget(100);
             outtake.pivotToPickup();
         }
+        if (gamepad1.x){
+            outtakeLift.LiftTarget(700);
+
+        }
         if (gamepad1.dpad_up){
             outtake.openClaw();
         } else {
             outtake.closeClaw();
         }
-        outtakeLift.HoldLift();
+        outtake.updatePivPosition();
         intake.moveThings();
         follower.setTeleOpMovementVectors(
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
@@ -69,7 +74,4 @@ public class Teleop_26111 extends OpMode {
 
     }
 
-    @Override
-    public void stop() {
-    }
 }

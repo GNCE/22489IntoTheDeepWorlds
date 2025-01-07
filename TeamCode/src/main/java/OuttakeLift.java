@@ -27,6 +27,7 @@ public class OuttakeLift {
         this.lopMode = opMode;
     }
     public void HoldLift(){
+        while (true){
         if (!usePID){
             rlift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
             llift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
@@ -48,6 +49,7 @@ public class OuttakeLift {
             llift.setPower(power);
         }
         usePID = !(Math.abs(lopMode.gamepad2.left_stick_y)>0.3);
+        }
     }
     public void LiftTarget(int input){
         target = input;
