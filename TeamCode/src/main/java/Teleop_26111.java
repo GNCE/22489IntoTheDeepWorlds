@@ -10,11 +10,12 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@TeleOp(name = "Example Robot-Centric Teleop", group = "Examples")
+@TeleOp(name = "Red TeleOp", group = "Real OpModes")
 public class Teleop_26111 extends OpMode {
     private Follower follower;
     private Outtake outtake;
     private Intake intake;
+    private OuttakeLift outtakeLift;
     private final Pose startPose = new Pose(0,0,0);
     @Override
     public void init() {
@@ -23,17 +24,43 @@ public class Teleop_26111 extends OpMode {
         follower.setStartingPose(startPose);
         outtake = new Outtake(hardwareMap);
         intake = new Intake(hardwareMap,this);
+        outtakeLift = new OuttakeLift(hardwareMap, this);
     }
 
     @Override
     public void start() {
         follower.startTeleopDrive();
+        intake.initiate();
     }
     @Override
     public void loop() {
 
-
-        follower.setTeleOpMovementVectors(0.48 * Math.tan(1.12 * -gamepad1.left_stick_y), 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -gamepad1.right_stick_x, true);
+        if (gamepad1.left_bumper){
+            intake.flipDown();
+        } //left trigger extendo
+        //right bumper cancels flipdown
+        if (gamepad1.right_trigger > 0.2){
+            intake.deposit();
+        }
+        if (gamepad1.y){
+            outtakeLift.LiftTarget(250);
+            outtake.pivotToScore();
+        }
+        if (gamepad1.b){
+            outtakeLift.LiftTarget(100);
+            outtake.pivotToPickup();
+        }
+        if (gamepad1.dpad_up){
+            outtake.openClaw();
+        } else {
+            outtake.closeClaw();
+        }
+        outtakeLift.HoldLift();
+        intake.moveThings();
+        follower.setTeleOpMovementVectors(
+                0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                -gamepad1.right_stick_x, true);
         follower.update();
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
@@ -42,7 +69,6 @@ public class Teleop_26111 extends OpMode {
 
     }
 
-    /** We do not use this because everything automatically should disable **/
     @Override
     public void stop() {
     }

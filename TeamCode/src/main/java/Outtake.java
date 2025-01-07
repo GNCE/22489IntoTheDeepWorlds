@@ -1,6 +1,4 @@
 
-
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -37,5 +35,9 @@ public class Outtake {
     public void openClaw(){
         clamp.setPosition(1);
     }
+    public void closeClaw(){
+        clamp.setPosition(0);
+    }
+
 
 }
