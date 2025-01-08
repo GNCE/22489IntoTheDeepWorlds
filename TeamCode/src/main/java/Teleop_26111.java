@@ -16,7 +16,7 @@ public class Teleop_26111 extends OpMode {
     private Outtake outtake;
     private Intake intake;
     private OuttakeLift outtakeLift;
-    private final Pose startPose = new Pose(0,0,0);
+    private final Pose startPose = PoseStorage.CurrentPose;
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -38,7 +38,8 @@ public class Teleop_26111 extends OpMode {
 
         if (gamepad1.left_bumper){
             intake.flipDown();
-        } //left trigger extendo
+        }
+        intake.TeleopExtend();
         //right bumper cancels flipdown
         if (gamepad1.right_trigger > 0.2){
             intake.deposit();

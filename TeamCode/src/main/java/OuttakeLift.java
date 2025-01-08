@@ -54,5 +54,8 @@ public class OuttakeLift {
     public void LiftTarget(int input){
         target = input;
     }
+    public void Auton(){
+        usePID = true;
+    }
 
 }

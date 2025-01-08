@@ -4,10 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
 public class Intake{
     private Servo frintake;
     private Servo flintake;
@@ -15,6 +13,7 @@ public class Intake{
     private CRServo rintake;
     private DcMotor extendo;
     ColorSensor colorSensor;
+
     OpMode opMode;
     double fr = 0;
     double ip = 0;
@@ -35,6 +34,16 @@ public class Intake{
         extendo.setDirection(DcMotor.Direction.FORWARD);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
+    public boolean isRed(){
+        if (colorSensor.red()>300){
+            return true;
+        } else return false;
+    }
+    public boolean isBlue(){
+        if (colorSensor.blue()>300){
+            return true;
+        } else return false;
+    }
     public void initiate(){
         extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extendo.setPower(.8);
@@ -48,20 +57,28 @@ public class Intake{
             rintake.setPower(ip);
             lintake.setPower(ip);
         }
-        ex = opMode.gamepad1.left_trigger;
         if (extendo.getTargetPosition()!=ex){
             extendo.setTargetPosition((int)Math.round(ex));
         }
 
     }
+    public void ManualExtend(){
+        ex = 250;
+    }
+    public void ManualRetract(){
+        ex = 0;
+    }
+    public void TeleopExtend(){
+        ex = opMode.gamepad1.left_trigger;
+    }
     public void deposit(){
-        while (!(colorSensor.red() < 300)){
+        while ((isRed())){
             ip = -1;
         }
         ip = 0;
     }
     public void flipDown(){
-        while (colorSensor.red() < 300 && !opMode.gamepad1.right_bumper){
+        while (!isRed() && !opMode.gamepad1.right_bumper){
             fr = .7075;
             ip = .7;
         }
