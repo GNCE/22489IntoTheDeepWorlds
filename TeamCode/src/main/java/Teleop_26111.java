@@ -45,21 +45,23 @@ public class Teleop_26111 extends OpMode {
         }
         if (gamepad1.y){
             outtakeLift.LiftTarget(250);
-            outtake.pivotToScore();
-        }
-        if (gamepad1.b){
+            outtake.pivotToScoreSpec();
+        }else if (gamepad1.b){
             outtakeLift.LiftTarget(100);
             outtake.pivotToPickup();
-        }
-        if (gamepad1.x){
+        }else if (gamepad1.x){
             outtakeLift.LiftTarget(700);
-
+            outtake.pivotToScoreSamp();
+        }else if (gamepad1.a){
+            outtakeLift.LiftTarget(250);
+            outtake.pivotToTransfer();
         }
         if (gamepad1.dpad_up){
             outtake.openClaw();
         } else {
             outtake.closeClaw();
         }
+
         outtake.updatePivPosition();
         intake.moveThings();
         follower.setTeleOpMovementVectors(
