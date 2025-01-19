@@ -2,14 +2,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp (name = "pivto test")
-public class testPivto extends OpMode {
+@TeleOp (name = "For FTC DASH ONLY")
+public class FTC_DASH_PIVOT_CONFIG extends OpMode {
     private Servo clamp;
     private Servo pivlow;
     private Servo rpivhigh;
     private Servo lpivhigh;
     private Servo revolute;
-    double pivpos = 0;
+    static double pivpos = 0;
+    static double lowpivpos = 0;
+    static double revolutepos = 0;
 
     public void init() {
         clamp = hardwareMap.get(Servo.class, "clamp");
@@ -26,26 +28,30 @@ public class testPivto extends OpMode {
     public void loop() {
         if (gamepad1.y) {
             pivpos = 0.6;
-            pivlow.setPosition(0.25);
-            revolute.setPosition(.5);
+            lowpivpos = (0.25);
+            revolutepos = (.5);
         } else if (gamepad1.b) {
             pivpos  = 0;
-            pivlow.setPosition(0);
-            revolute.setPosition(1.5);
+            lowpivpos = (0);
+            revolutepos=(1.5);
         } else if (gamepad1.x) {
             pivpos = 1.6;
-            pivlow.setPosition(0.25);
+            lowpivpos = (0.25);
         } else if (gamepad1.dpad_down) {
             pivpos = 0;
-            pivlow.setPosition(0.3);
+            lowpivpos = (0.3);
         } else if (gamepad1.dpad_up) {
             pivpos = 1.2;
-            pivlow.setPosition(.5);
+            lowpivpos = (.5);
         }
         if (gamepad1.dpad_left){
             clamp.setPosition(0.05);
         } else {
             clamp.setPosition(0);
         }
+        rpivhigh.setPosition(pivpos);
+        lpivhigh.setPosition(pivpos);
+        pivlow.setPosition(lowpivpos);
+        revolute.setPosition(revolutepos);
     }
 }
