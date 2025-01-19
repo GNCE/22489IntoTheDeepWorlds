@@ -26,12 +26,16 @@ public class Outtake {
         lpivhigh.setPosition(pivpos);
         }
     }
-    public void pivotToScoreSpec(){
+    public void pivotToScoreSpecFront(){
         pivpos = 0.6;
         pivlow.setPosition(0.25);
     }
+    public void pivotToScoreSpecBack(){
+        pivpos = 1.6;
+        pivlow.setPosition(0.25);
+    }
     public void pivotToScoreSamp(){
-        pivpos = 1;
+        pivpos = 1.2;
         pivlow.setPosition(.5);
     }
     public void pivotToPickup (){
@@ -39,7 +43,7 @@ public class Outtake {
         pivlow.setPosition(0);
     }
     public void pivotToTransfer (){
-        pivpos = 0.2;
+        pivpos = 0;
         pivlow.setPosition(0.3);
     }
     public void openClaw(){

@@ -16,6 +16,7 @@ public class Teleop_26111 extends OpMode {
     private Outtake outtake;
     private Intake intake;
     private OuttakeLift outtakeLift;
+    private Misc misc;
     private final Pose startPose = PoseStorage.CurrentPose;
     @Override
     public void init() {
@@ -25,6 +26,7 @@ public class Teleop_26111 extends OpMode {
         outtake = new Outtake(hardwareMap);
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
+        misc = new Misc(hardwareMap);
     }
 
     @Override
@@ -39,32 +41,43 @@ public class Teleop_26111 extends OpMode {
         if (gamepad1.left_bumper){
             intake.flipDown();
         }
-        intake.TeleopExtend();
+        intake.TeleopExtend(); //left trigger
         //right bumper cancels flipdown
         if (gamepad1.right_trigger > 0.2){
             intake.deposit();
         }
         if (gamepad1.y){
             outtakeLift.LiftTarget(250);
-            outtake.pivotToScoreSpec();
+            outtake.pivotToScoreSpecFront();
         }else if (gamepad1.b){
             outtakeLift.LiftTarget(100);
             outtake.pivotToPickup();
         }else if (gamepad1.x){
-            outtakeLift.LiftTarget(700);
-            outtake.pivotToScoreSamp();
-        }else if (gamepad1.a){
+            outtakeLift.LiftTarget(250);
+            outtake.pivotToScoreSpecBack();
+        }else if (gamepad1.dpad_down){
             outtakeLift.LiftTarget(250);
             outtake.pivotToTransfer();
+            misc.door();
+        } else if (gamepad1.dpad_up){
+            outtakeLift.LiftTarget(400);
+            outtake.pivotToScoreSamp();
+            misc.undoor();
         }
-        if (gamepad1.dpad_up){
+        if (gamepad1.dpad_left){
             outtake.openClaw();
         } else {
             outtake.closeClaw();
         }
+        if (gamepad1.dpad_right){
+            misc.sweep();
+        } else {
+            misc.unsweep();
+        }
 
         outtake.updatePivPosition();
         intake.moveThings();
+        misc.moveThings();
         follower.setTeleOpMovementVectors(
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),

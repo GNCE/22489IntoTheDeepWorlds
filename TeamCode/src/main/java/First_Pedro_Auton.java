@@ -1,6 +1,5 @@
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
@@ -56,7 +55,7 @@ public class First_Pedro_Auton extends OpMode{
             case 0:
                 follower.followPath(scorePreload);
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpec();
+                outtake.pivotToScoreSpecFront();
                 setPathState(1);
                 break;
             case 1:
@@ -111,7 +110,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 5:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpec();
+                outtake.pivotToScoreSpecFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);
@@ -130,7 +129,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 7:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpec();
+                outtake.pivotToScoreSpecFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);

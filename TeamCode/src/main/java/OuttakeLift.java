@@ -7,7 +7,7 @@ public class OuttakeLift {
     private DcMotorEx rlift;
     private DcMotorEx llift;
     private PIDController controller;
-    public static double p = 0.05, i = 0, d = 0.000, f = 0.2;
+    public static double p = 0.05, i = 0, d = 0.000, f = 0.1;
     public static int target = 250;
     public final double ticks_in_degree = 145.1 / 360.0;
     public boolean usePID = true;
@@ -31,7 +31,7 @@ public class OuttakeLift {
         if (!usePID){
             rlift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
             llift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
-            if (Math.abs(lopMode.gamepad2.left_stick_y) < 0.2){
+            if (Math.abs(lopMode.gamepad2.left_stick_y) < 0.4){
                 target = rlift.getCurrentPosition();
             }
         } else {
