@@ -16,7 +16,7 @@ public class FTC_DASH_PIVOT_CONFIG extends OpMode {
     public void init() {
         clamp = hardwareMap.get(Servo.class, "clamp");
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
-        pivlow = hardwareMap.get(Servo.class, "pivlow");
+        pivlow = hardwareMap.get(Servo.class, "updownpiv");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
         revolute = hardwareMap.get(Servo.class, "revolute");
         rpivhigh.setDirection(Servo.Direction.FORWARD);

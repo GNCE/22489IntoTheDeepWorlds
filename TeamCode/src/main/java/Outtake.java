@@ -5,7 +5,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Outtake {
     private Servo clamp;
-    private Servo pivlow;
+    private Servo updownpiv;
+    private Servo spinpiv;
     private Servo rpivhigh;
     private Servo lpivhigh;
     double pivpos = 0;
@@ -13,11 +14,12 @@ public class Outtake {
     public Outtake(HardwareMap hardwareMap) {
         clamp = hardwareMap.get(Servo.class, "clamp");
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
-        pivlow = hardwareMap.get(Servo.class, "pivlow");
+        updownpiv = hardwareMap.get(Servo.class, "updownpiv");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
+        spinpiv = hardwareMap.get(Servo.class, "spinpiv");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
         lpivhigh.setDirection(Servo.Direction.REVERSE);
-        pivlow.setDirection(Servo.Direction.FORWARD);
+        updownpiv.setDirection(Servo.Direction.FORWARD);
         clamp.setDirection(Servo.Direction.REVERSE);
     }
     public void updatePivPosition(){
@@ -28,23 +30,23 @@ public class Outtake {
     }
     public void pivotToScoreSpecFront(){
         pivpos = 0.6;
-        pivlow.setPosition(0.25);
+        updownpiv.setPosition(0.25);
     }
     public void pivotToScoreSpecBack(){
         pivpos = 1.6;
-        pivlow.setPosition(0.25);
+        updownpiv.setPosition(0.25);
     }
     public void pivotToScoreSamp(){
         pivpos = 1.2;
-        pivlow.setPosition(.5);
+        updownpiv.setPosition(.5);
     }
     public void pivotToPickup (){
         pivpos = 0;
-        pivlow.setPosition(0);
+        updownpiv.setPosition(0);
     }
     public void pivotToTransfer (){
         pivpos = 0;
-        pivlow.setPosition(0.3);
+        updownpiv.setPosition(0.3);
     }
     public void openClaw(){
         clamp.setPosition(.05);
@@ -52,6 +54,4 @@ public class Outtake {
     public void closeClaw(){
         clamp.setPosition(0);
     }
-
-
 }

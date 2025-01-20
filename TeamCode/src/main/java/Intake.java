@@ -29,6 +29,7 @@ public class Intake{
         this.opMode = opMode;
         extendo = hardwareMap.get(DcMotor.class, "extendo");
         extendo.setDirection(DcMotor.Direction.FORWARD);
+        extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public boolean isRed(){
@@ -42,8 +43,9 @@ public class Intake{
         } else return false;
     }
     public void initiate(){
+        extendo.setPower(0.5);
         extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendo.setPower(.8);
+        extendo.setTargetPosition(0);
     }
     public void moveThings(){
         if (finintake.getPosition()!=fin) {
