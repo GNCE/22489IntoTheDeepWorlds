@@ -14,9 +14,9 @@ public class testPivto extends OpMode {
     public void init() {
         clamp = hardwareMap.get(Servo.class, "clamp");
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
-        pivlow = hardwareMap.get(Servo.class, "pivlow");
+        pivlow = hardwareMap.get(Servo.class, "updownpiv");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
-        revolute = hardwareMap.get(Servo.class, "revolute");
+        revolute = hardwareMap.get(Servo.class, "spinpiv");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
         lpivhigh.setDirection(Servo.Direction.REVERSE);
         pivlow.setDirection(Servo.Direction.FORWARD);
@@ -25,27 +25,20 @@ public class testPivto extends OpMode {
 
     public void loop() {
         if (gamepad1.y) {
-            pivpos = 0.6;
-            pivlow.setPosition(0.25);
-            revolute.setPosition(.5);
-        } else if (gamepad1.b) {
-            pivpos  = 0;
-            pivlow.setPosition(0);
-            revolute.setPosition(1.5);
-        } else if (gamepad1.x) {
-            pivpos = 1.6;
-            pivlow.setPosition(0.25);
-        } else if (gamepad1.dpad_down) {
-            pivpos = 0;
-            pivlow.setPosition(0.3);
-        } else if (gamepad1.dpad_up) {
-            pivpos = 1.2;
-            pivlow.setPosition(.5);
+            pivpos+=.01;
+
+
+        } else if (gamepad1.b){
+            pivpos-=0.01;
         }
-        if (gamepad1.dpad_left){
-            clamp.setPosition(0.05);
-        } else {
-            clamp.setPosition(0);
+        if (pivpos>1){
+            pivpos=1;
+        }else if (pivpos<0){
+            pivpos=0;
         }
+        rpivhigh.setPosition(pivpos);
+        lpivhigh.setPosition(pivpos);
+        telemetry.addData("pivpos",pivpos);
+        telemetry.update();
     }
 }

@@ -2,6 +2,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp (name = "motor test")
 public class testRAWmotors extends OpMode {
@@ -14,7 +15,7 @@ public class testRAWmotors extends OpMode {
         llift.setDirection(DcMotor.Direction.FORWARD);
         rlift.setDirection(DcMotor.Direction.REVERSE);
         extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.FORWARD);
+        extendo.setDirection(DcMotor.Direction.REVERSE);
     }
     public void loop(){
         rlift.setPower(-gamepad2.left_stick_y);

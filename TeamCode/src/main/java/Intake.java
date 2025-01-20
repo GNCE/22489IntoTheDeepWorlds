@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 public class Intake{
@@ -28,24 +29,26 @@ public class Intake{
         colorSensor.enableLed(true);
         this.opMode = opMode;
         extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.FORWARD);
-        extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        extendo.setDirection(DcMotor.Direction.REVERSE);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public boolean isRed(){
-        if (colorSensor.red()>300){
+        if (colorSensor.red()>500){
             return true;
         } else return false;
     }
     public boolean isBlue(){
-        if (colorSensor.blue()>300){
+        if (colorSensor.blue()>500){
             return true;
         } else return false;
     }
     public void initiate(){
-        extendo.setPower(0.5);
-        extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         extendo.setTargetPosition(0);
+        extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendo.setPower(1);
+        rintake.setPower(0);
+        lintake.setPower(0);
+        finintake.setPosition(0);
     }
     public void moveThings(){
         if (finintake.getPosition()!=fin) {
@@ -55,8 +58,8 @@ public class Intake{
             rintake.setPower(ip);
             lintake.setPower(ip);
         }
-        if (extendo.getTargetPosition()!=ex){
-            extendo.setTargetPosition((int)Math.round(ex));
+        if (extendo.getTargetPosition()!=ex*250){
+            extendo.setTargetPosition((int)Math.round(ex*250));
         }
 
     }
@@ -76,11 +79,8 @@ public class Intake{
         ip = 0;
     }
     public void flipDown(){
-        while (!isRed() && !opMode.gamepad1.right_bumper){
             fin = .7075;
             ip = .7;
-        }
-        flipUp();
     }
     public void flipUp(){
         fin = 0;
