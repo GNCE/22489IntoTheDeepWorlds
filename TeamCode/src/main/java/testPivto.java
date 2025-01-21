@@ -36,7 +36,7 @@ public class testPivto extends OpMode {
         }else if (pivpos<0){
             pivpos=0;
         }
-        clamp.setPosition(pivpos);
+        pivlow.setPosition(pivpos);
         telemetry.addData("pivpos",pivpos);
         telemetry.update();
     }

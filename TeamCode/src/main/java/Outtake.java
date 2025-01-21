@@ -29,27 +29,27 @@ public class Outtake {
         }
     }
     public void pivotToScoreorpickupSpecFront(){
-        pivpos = 0.44;
-        updownpiv.setPosition(0.086);
+        pivpos = 0.433;
+        updownpiv.setPosition(0.163);
         spinpiv.setPosition(0.889);
     }
     public void pivotToScoreSampandBackSpec(){
-        pivpos = .96;
-        updownpiv.setPosition(.075);
+        pivpos = .82;
+        updownpiv.setPosition(.147);
         spinpiv.setPosition(0.99);
     }
     public void pivotToPickupBack(){
         pivpos = 0;
-        updownpiv.setPosition(0.153);
+        updownpiv.setPosition(0.235);
         spinpiv.setPosition(0.99);
     }
     public void pivotToTransfer (){
         pivpos = 0.02;
-        updownpiv.setPosition(0.086);
+        updownpiv.setPosition(0.163);
         spinpiv.setPosition(0.889);
     }
     public void openClaw(){
-        clamp.setPosition(.62);
+        clamp.setPosition(.615);
     }
     public void closeClaw(){
         clamp.setPosition(0.655);

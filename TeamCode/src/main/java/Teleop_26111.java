@@ -33,6 +33,7 @@ public class Teleop_26111 extends OpMode {
     public void start() {
         follower.startTeleopDrive();
         intake.initiate();
+        misc.initiate();
     }
     @Override
     public void loop() {
@@ -46,25 +47,25 @@ public class Teleop_26111 extends OpMode {
             intake.flipUp();
             intake.deposit();
         }
-        if (gamepad1.y){
+        if (gamepad2.y){
             outtakeLift.LiftTarget(500);
             outtake.pivotToScoreorpickupSpecFront();
-        }else if (gamepad1.b){
-            outtakeLift.LiftTarget(250);
+        }else if (gamepad2.b){
+            outtakeLift.LiftTarget(500);
             outtake.pivotToPickupBack();
-        }else if (gamepad1.x){
+        }else if (gamepad2.x){
             outtake.pivotToScoreSampandBackSpec();
-            outtakeLift.LiftTarget(700);
-        }else if (gamepad1.a){
+            outtakeLift.LiftTarget(750);
+        }else if (gamepad2.a){
             outtake.pivotToTransfer();
-            outtakeLift.LiftTarget(250);
+            outtakeLift.LiftTarget(500);
         }
-        if (gamepad1.dpad_left){
+        if (gamepad2.left_bumper){
             outtake.openClaw();
         } else {
             outtake.closeClaw();
         }
-        if (gamepad1.dpad_right){
+        if (gamepad1.right_bumper){
             misc.sweep();
         } else {
             misc.unsweep();
@@ -76,7 +77,7 @@ public class Teleop_26111 extends OpMode {
         follower.setTeleOpMovementVectors(
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), false);
+                0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         follower.update();
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());

@@ -30,7 +30,7 @@ public class Misc{
 
     }
     public void sweep(){
-        swp = 1;
+        swp = .5;
     }
     public void unsweep(){
         swp =0;
