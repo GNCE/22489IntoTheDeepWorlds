@@ -55,7 +55,7 @@ public class First_Pedro_Auton extends OpMode{
             case 0:
                 follower.followPath(scorePreload);
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpecFront();
+                outtake.pivotToScoreorpickupSpecFront();
                 setPathState(1);
                 break;
             case 1:
@@ -101,7 +101,7 @@ public class First_Pedro_Auton extends OpMode{
                 if (follower.getPose().getX() > (pickupSpecimen.getX() - 1) && follower.getPose().getY() > (pickupSpecimen.getY() - 1)) {
                     intake.deposit();
                     outtakeLift.LiftTarget(100);
-                    outtake.pivotToPickup();
+                    outtake.pivotToPickupBack();
                     outtake.closeClaw();
 
                     follower.followPath(scoreCycle, true);
@@ -110,7 +110,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 5:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpecFront();
+                outtake.pivotToScoreorpickupSpecFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);
@@ -120,7 +120,7 @@ public class First_Pedro_Auton extends OpMode{
             case 6:
                 if (follower.getPose().getX() > (pickupSpecimen.getX() - 1) && follower.getPose().getY() > (pickupSpecimen.getY() - 1)) {
                     outtakeLift.LiftTarget(100);
-                    outtake.pivotToPickup();
+                    outtake.pivotToPickupBack();
                     outtake.closeClaw();
 
                     follower.followPath(scoreCycle, true);
@@ -129,7 +129,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 7:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreSpecFront();
+                outtake.pivotToScoreorpickupSpecFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);
