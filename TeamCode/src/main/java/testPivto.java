@@ -25,19 +25,18 @@ public class testPivto extends OpMode {
 
     public void loop() {
         if (gamepad1.y) {
-            pivpos+=.01;
+            pivpos+=.001;
 
 
         } else if (gamepad1.b){
-            pivpos-=0.01;
+            pivpos-=0.001;
         }
-        if (pivpos>1){
-            pivpos=1;
+        if (pivpos>5){
+            pivpos=5;
         }else if (pivpos<0){
             pivpos=0;
         }
-        rpivhigh.setPosition(pivpos);
-        lpivhigh.setPosition(pivpos);
+        clamp.setPosition(pivpos);
         telemetry.addData("pivpos",pivpos);
         telemetry.update();
     }

@@ -18,13 +18,16 @@ public class intaketesty extends OpMode {
         if (gamepad1.left_bumper){
             intake.flipDown();
         }
+        intake.check();
         intake.TeleopExtend(); //left trigger
-        //right bumper cancels flipdown
         if (gamepad1.right_trigger > 0.2){
+            intake.flipUp();
             intake.deposit();
         }
         intake.moveThings();
-        telemetry.addData("color", intake.colorSensor.red());
+        telemetry.addData("red color", intake.colorSensor.red());
+        telemetry.addData("blue color", intake.colorSensor.blue());
+        telemetry.addData("green (yellow) color", intake.colorSensor.green());
         telemetry.addData("ip",intake.ip);
         telemetry.addData("fin",intake.fin);
         telemetry.addData("ex",intake.ex);

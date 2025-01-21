@@ -1,6 +1,7 @@
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
 public class OuttakeLift {
@@ -15,8 +16,8 @@ public class OuttakeLift {
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         llift = hardwareMap.get(DcMotorEx.class, "llift");
-        llift.setDirection(DcMotor.Direction.FORWARD);
-        rlift.setDirection(DcMotor.Direction.REVERSE);
+        llift.setDirection(DcMotor.Direction.REVERSE);
+        rlift.setDirection(DcMotor.Direction.FORWARD);
         llift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         llift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -27,7 +28,6 @@ public class OuttakeLift {
         this.lopMode = opMode;
     }
     public void HoldLift(){
-        while (true){
         if (!usePID){
             rlift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
             llift.setPower(-lopMode.gamepad2.left_stick_y / 1.5);
@@ -49,7 +49,6 @@ public class OuttakeLift {
             llift.setPower(power);
         }
         usePID = !(Math.abs(lopMode.gamepad2.left_stick_y)>0.3);
-        }
     }
     public void LiftTarget(int input){
         target = input;

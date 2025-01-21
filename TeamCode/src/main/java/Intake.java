@@ -18,6 +18,7 @@ public class Intake{
     double fin = 0;
     double ip = 0;
     double ex = 0;
+    int depo =0;
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
@@ -29,11 +30,16 @@ public class Intake{
         colorSensor.enableLed(true);
         this.opMode = opMode;
         extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.REVERSE);
+        extendo.setDirection(DcMotor.Direction.FORWARD);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public boolean isRed(){
-        if (colorSensor.red()>500){
+        if (colorSensor.red()>250){
+            return true;
+        } else return false;
+    }
+    public boolean isYellow(){
+        if (colorSensor.green()>500){
             return true;
         } else return false;
     }
@@ -45,7 +51,7 @@ public class Intake{
     public void initiate(){
         extendo.setTargetPosition(0);
         extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendo.setPower(1);
+        extendo.setPower(.5);
         rintake.setPower(0);
         lintake.setPower(0);
         finintake.setPosition(0);
@@ -58,8 +64,8 @@ public class Intake{
             rintake.setPower(ip);
             lintake.setPower(ip);
         }
-        if (extendo.getTargetPosition()!=ex*250){
-            extendo.setTargetPosition((int)Math.round(ex*250));
+        if (extendo.getTargetPosition()!=ex*450){
+            extendo.setTargetPosition((int)Math.round(ex*450));
         }
 
     }
@@ -71,19 +77,31 @@ public class Intake{
     }
     public void TeleopExtend(){
         ex = opMode.gamepad1.left_trigger;
+        if (opMode.gamepad1.left_trigger > 0.3){
+            extendo.setPower(.3);
+        } else {
+            extendo.setPower(1);
+        }
     }
     public void deposit(){
-        while ((isRed())){
-            ip = -1;
-        }
-        ip = 0;
+        ip=-1;
+        depo = 1;
     }
     public void flipDown(){
-            fin = .7075;
-            ip = .7;
+            fin = .92;
+            ip = .22;
+    }
+    public void check(){
+        if (isRed()){
+            flipUp();
+            ip = 0;
+        } else if (!isRed()&&depo==1){
+            ip = 0;
+            depo = 0;
+        }
     }
     public void flipUp(){
         fin = 0;
-        ip = 0;
+        ip = -0.2;
     }
 }

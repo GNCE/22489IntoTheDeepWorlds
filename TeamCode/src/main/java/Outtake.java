@@ -28,30 +28,30 @@ public class Outtake {
         lpivhigh.setPosition(pivpos);
         }
     }
-    public void pivotToScoreSpecFront(){
-        pivpos = 0.6;
-        updownpiv.setPosition(0.25);
+    public void pivotToScoreorpickupSpecFront(){
+        pivpos = 0.44;
+        updownpiv.setPosition(0.086);
+        spinpiv.setPosition(0.889);
     }
-    public void pivotToScoreSpecBack(){
-        pivpos = 1.6;
-        updownpiv.setPosition(0.25);
+    public void pivotToScoreSampandBackSpec(){
+        pivpos = .96;
+        updownpiv.setPosition(.075);
+        spinpiv.setPosition(0.99);
     }
-    public void pivotToScoreSamp(){
-        pivpos = 1.2;
-        updownpiv.setPosition(.5);
-    }
-    public void pivotToPickup (){
+    public void pivotToPickupBack(){
         pivpos = 0;
-        updownpiv.setPosition(0);
+        updownpiv.setPosition(0.153);
+        spinpiv.setPosition(0.99);
     }
     public void pivotToTransfer (){
-        pivpos = 0;
-        updownpiv.setPosition(0.3);
+        pivpos = 0.02;
+        updownpiv.setPosition(0.086);
+        spinpiv.setPosition(0.889);
     }
     public void openClaw(){
-        clamp.setPosition(.05);
+        clamp.setPosition(.62);
     }
     public void closeClaw(){
-        clamp.setPosition(0);
+        clamp.setPosition(0.655);
     }
 }

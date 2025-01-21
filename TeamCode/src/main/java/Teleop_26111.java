@@ -33,36 +33,31 @@ public class Teleop_26111 extends OpMode {
     public void start() {
         follower.startTeleopDrive();
         intake.initiate();
-        outtakeLift.HoldLift();
     }
     @Override
     public void loop() {
-
+        outtakeLift.HoldLift();
         if (gamepad1.left_bumper){
             intake.flipDown();
         }
+        intake.check();
         intake.TeleopExtend(); //left trigger
-        //right bumper cancels flipdown
         if (gamepad1.right_trigger > 0.2){
+            intake.flipUp();
             intake.deposit();
         }
         if (gamepad1.y){
-            outtakeLift.LiftTarget(250);
-            outtake.pivotToScoreSpecFront();
+            outtakeLift.LiftTarget(500);
+            outtake.pivotToScoreorpickupSpecFront();
         }else if (gamepad1.b){
-            outtakeLift.LiftTarget(100);
-            outtake.pivotToPickup();
+            outtakeLift.LiftTarget(250);
+            outtake.pivotToPickupBack();
         }else if (gamepad1.x){
-            outtakeLift.LiftTarget(250);
-            outtake.pivotToScoreSpecBack();
-        }else if (gamepad1.dpad_down){
-            outtakeLift.LiftTarget(250);
+            outtake.pivotToScoreSampandBackSpec();
+            outtakeLift.LiftTarget(700);
+        }else if (gamepad1.a){
             outtake.pivotToTransfer();
-            misc.door();
-        } else if (gamepad1.dpad_up){
-            outtakeLift.LiftTarget(400);
-            outtake.pivotToScoreSamp();
-            misc.undoor();
+            outtakeLift.LiftTarget(250);
         }
         if (gamepad1.dpad_left){
             outtake.openClaw();
@@ -81,7 +76,7 @@ public class Teleop_26111 extends OpMode {
         follower.setTeleOpMovementVectors(
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                -gamepad1.right_stick_x, true);
+                0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), false);
         follower.update();
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
