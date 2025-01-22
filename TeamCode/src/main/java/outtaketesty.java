@@ -1,7 +1,8 @@
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-
+@Disabled
 @TeleOp (name = "outakey")
 public class outtaketesty extends OpMode {
     private Outtake outtake;
@@ -16,11 +17,11 @@ public class outtaketesty extends OpMode {
 
     public void loop() {
         if (gamepad1.y){
-            outtake.pivotToScoreorpickupSpecFront();
+            outtake.pivotToFront();
         }else if (gamepad1.b){
             outtake.pivotToPickupBack();
         }else if (gamepad1.x){
-            outtake.pivotToScoreSampandBackSpec();
+            outtake.pivotToScoreSamp();
         }else if (gamepad1.a){
             outtake.pivotToTransfer();
         }

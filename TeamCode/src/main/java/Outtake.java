@@ -28,12 +28,13 @@ public class Outtake {
         lpivhigh.setPosition(pivpos);
         }
     }
-    public void pivotToScoreorpickupSpecFront(){
+    public void pivotToFront(){
         pivpos = 0.433;
-        updownpiv.setPosition(0.163);
+        updownpiv.setPosition(0.162);
         spinpiv.setPosition(0.889);
     }
-    public void pivotToScoreSampandBackSpec(){
+    //THIS WORKS DO NOT CHANGE vvvvvvvvvvv
+    public void pivotToScoreSamp(){
         pivpos = .82;
         updownpiv.setPosition(.147);
         spinpiv.setPosition(0.99);
@@ -48,6 +49,7 @@ public class Outtake {
         updownpiv.setPosition(0.163);
         spinpiv.setPosition(0.889);
     }
+    // THIS WORKS DO NOT CHANGE ^^^^^^^^^^^
     public void openClaw(){
         clamp.setPosition(.615);
     }

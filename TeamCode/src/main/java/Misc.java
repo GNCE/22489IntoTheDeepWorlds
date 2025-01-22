@@ -36,7 +36,7 @@ public class Misc{
         swp =0;
     }
     public void door(){
-        dr = 1;
+        dr = .5;
     }
     public void undoor(){
         dr =0;

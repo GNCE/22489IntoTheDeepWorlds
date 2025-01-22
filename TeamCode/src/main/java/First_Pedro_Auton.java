@@ -19,6 +19,8 @@ public class First_Pedro_Auton extends OpMode{
     private Intake intake;
     private OuttakeLift outtakeLift;
     private Outtake outtake;
+    private Misc misc;
+    private int transferRealFSM =0;
     private Timer pathTimer, actionTimer, opmodeTimer;
     private int pathState;
     private final Pose startPose = new Pose(7, 62, Math.toRadians(0));
@@ -55,7 +57,7 @@ public class First_Pedro_Auton extends OpMode{
             case 0:
                 follower.followPath(scorePreload);
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreorpickupSpecFront();
+                outtake.pivotToFront();
                 setPathState(1);
                 break;
             case 1:
@@ -110,7 +112,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 5:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreorpickupSpecFront();
+                outtake.pivotToFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);
@@ -129,7 +131,7 @@ public class First_Pedro_Auton extends OpMode{
                 break;
             case 7:
                 outtakeLift.LiftTarget(250);
-                outtake.pivotToScoreorpickupSpecFront();
+                outtake.pivotToFront();
                 if (follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
                     //add score code if needed
                     follower.followPath(pickupSpeciman2, true);
@@ -161,6 +163,24 @@ public class First_Pedro_Auton extends OpMode{
     public void start(){
         outtakeLift.HoldLift();
     }
+    public void pickupTransfer(){
+        switch (transferRealFSM){
+            case 1:
+                outtake.openClaw();
+                outtakeLift.LiftTarget(250);
+                outtakeLift.GetLiftPos();
+                if (outtakeLift.GotLiftPos <=250){
+                    transferRealFSM = 2;
+                }
+                break;
+            case 2:
+                outtake.closeClaw();
+                outtake.pivotToScoreSamp();
+                outtakeLift.LiftTarget(750);
+                transferRealFSM = 0;
+                break;
+        }
+    }
     @Override
     public void loop() {
 
@@ -168,7 +188,11 @@ public class First_Pedro_Auton extends OpMode{
         follower.update();
         autonomousPathUpdate();
         intake.moveThings();
+        pickupTransfer();
+        outtake.updatePivPosition();
         outtakeLift.Auton();
+        outtakeLift.HoldLift();
+
         PoseStorage.CurrentPose = follower.getPose();
 
         // Feedback to Driver Hub
