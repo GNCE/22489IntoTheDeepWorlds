@@ -36,8 +36,8 @@ public class OuttakeLift {
             }
         } else {
             controller.setPID(p, i, d);
-            if (target > 1120){
-                target=1120;
+            if (target > 1125){
+                target=1125;
             } else if (target < 25){
                 target = 25;
             }

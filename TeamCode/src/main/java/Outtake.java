@@ -34,7 +34,7 @@ public class Outtake {
         spinpiv.setPosition(0.889);
     }
     public void pivotToScoreSampandBackSpec(){
-        pivpos = .82;
+        pivpos = .78;
         updownpiv.setPosition(.147);
         spinpiv.setPosition(0.99);
     }
@@ -44,7 +44,7 @@ public class Outtake {
         spinpiv.setPosition(0.99);
     }
     public void pivotToTransfer (){
-        pivpos = 0.02;
+        pivpos = 0.01;
         updownpiv.setPosition(0.163);
         spinpiv.setPosition(0.889);
     }

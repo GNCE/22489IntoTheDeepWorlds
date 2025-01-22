@@ -54,11 +54,11 @@ public class Teleop_26111 extends OpMode {
             outtakeLift.LiftTarget(500);
             outtake.pivotToPickupBack();
         }else if (gamepad2.x){
+            outtakeLift.LiftTarget(1200);
             outtake.pivotToScoreSampandBackSpec();
-            outtakeLift.LiftTarget(750);
         }else if (gamepad2.a){
             outtake.pivotToTransfer();
-            outtakeLift.LiftTarget(500);
+            outtakeLift.LiftTarget(400);
         }
         if (gamepad2.left_bumper){
             outtake.openClaw();
