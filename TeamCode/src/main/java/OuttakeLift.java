@@ -7,7 +7,7 @@ public class OuttakeLift {
     public DcMotorEx rlift;
     public DcMotorEx llift;
     private PIDController controller;
-    public static double p = 0.05, i = 0, d = 0.000, f = 0.1;
+    public static double p = 0.045, i = 0, d = 0.000, f = 0.1;
     public static int target = 250;
     public final double ticks_in_degree = 145.1 / 360.0;
     public boolean usePID = true;
