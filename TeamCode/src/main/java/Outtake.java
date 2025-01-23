@@ -29,8 +29,8 @@ public class Outtake {
         }
     }
     public void pivotToFront(){
-        pivpos = 0.40;
-        updownpiv.setPosition(0.162);
+        pivpos = 0.38;
+        updownpiv.setPosition(0.1605);
         spinpiv.setPosition(0.883);
     }
     //THIS WORKS DO NOT CHANGE vvvvvvvvvvv
