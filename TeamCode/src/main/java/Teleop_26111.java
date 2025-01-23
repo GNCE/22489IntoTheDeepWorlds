@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -17,15 +18,19 @@ public class Teleop_26111 extends OpMode {
     private Intake intake;
     private OuttakeLift outtakeLift;
     private Misc misc;
+    private ElapsedTime elapsedTime;
     private final Pose startPose = PoseStorage.CurrentPose;
     private int transferSimpleFSM = 0;
     private int transferRealFSM = 0;
+    private int simpletoggleTransfer = 0;
+    int flip = 1;
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         outtake = new Outtake(hardwareMap);
+        elapsedTime = new ElapsedTime();
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
         misc = new Misc(hardwareMap);
@@ -36,22 +41,31 @@ public class Teleop_26111 extends OpMode {
         follower.startTeleopDrive();
         intake.initiate();
         misc.initiate();
+        elapsedTime.startTime();
     }
     public void pickupTransfer(){
         switch (transferRealFSM){
             case 1:
                 outtake.openClaw();
-                outtakeLift.LiftTarget(250);
+                if (elapsedTime.seconds()>.5){
+                outtakeLift.LiftTarget(252);
                 outtakeLift.GetLiftPos();
-                if (outtakeLift.GotLiftPos <=250){
-                    transferRealFSM = 2;
+                if (gamepad2.dpad_left){
+                    transferRealFSM = 0;
                 }
+                if (outtakeLift.GotLiftPos <=270 && elapsedTime.seconds() > 1.5){
+                    elapsedTime.reset();
+                    transferRealFSM = 2;
+                }}
                 break;
             case 2:
                 outtake.closeClaw();
+                if (elapsedTime.seconds()>1){
                 outtake.pivotToScoreSamp();
                 outtakeLift.LiftTarget(750);
                 transferRealFSM = 0;
+                transferSimpleFSM =0;
+                }
                 break;
         }
     }
@@ -69,11 +83,9 @@ public class Teleop_26111 extends OpMode {
         }
         if ((transferRealFSM == 0)){
             if (gamepad2.y){
-                outtakeLift.LiftTarget(500);
                 outtake.pivotToFront();
                 transferSimpleFSM = 0;
             }else if (gamepad2.b){
-                outtakeLift.LiftTarget(500);
                 outtake.pivotToPickupBack();
                 transferSimpleFSM = 0;
             }else if (gamepad2.x){
@@ -81,12 +93,13 @@ public class Teleop_26111 extends OpMode {
                 outtakeLift.LiftTarget(750);
                 transferSimpleFSM = 0;
                 misc.undoor();
-            }else if (gamepad2.a && transferSimpleFSM ==0){
+            }else if ((gamepad2.dpad_up || gamepad2.a) && transferSimpleFSM ==0){
                 outtake.pivotToTransfer();
-                outtakeLift.LiftTarget(500);
                 transferSimpleFSM = 1;
+
                 misc.door();
-            }else if (gamepad2.a && transferSimpleFSM ==1){
+            }else if (gamepad2.dpad_down && transferSimpleFSM ==1){
+                elapsedTime.reset();
                 transferRealFSM = 1; //switches pickup transfer on
             }
             if (gamepad2.left_bumper){
@@ -104,14 +117,21 @@ public class Teleop_26111 extends OpMode {
         outtake.updatePivPosition();
         intake.moveThings();
         misc.moveThings();
+        if (gamepad1.dpad_up){
+            flip = 1;
+        } else if (gamepad1.dpad_down){
+            flip = -1;
+        }
         follower.setTeleOpMovementVectors(
-                0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                 0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         follower.update();
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("transferstate", transferRealFSM);
+        telemetry.addData("liftpos",outtakeLift.GotLiftPos);
         telemetry.update();
 
     }

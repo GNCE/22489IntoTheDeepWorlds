@@ -29,25 +29,25 @@ public class Outtake {
         }
     }
     public void pivotToFront(){
-        pivpos = 0.433;
+        pivpos = 0.40;
         updownpiv.setPosition(0.162);
-        spinpiv.setPosition(0.889);
+        spinpiv.setPosition(0.883);
     }
     //THIS WORKS DO NOT CHANGE vvvvvvvvvvv
     public void pivotToScoreSamp(){
         pivpos = .82;
         updownpiv.setPosition(.147);
-        spinpiv.setPosition(0.99);
+        spinpiv.setPosition(0.883);
     }
     public void pivotToPickupBack(){
         pivpos = 0;
         updownpiv.setPosition(0.235);
-        spinpiv.setPosition(0.99);
+        spinpiv.setPosition(0.985); // spins it around
     }
     public void pivotToTransfer (){
-        pivpos = 0.02;
-        updownpiv.setPosition(0.163);
-        spinpiv.setPosition(0.889);
+        pivpos = 0;
+        updownpiv.setPosition(0.1615);
+        spinpiv.setPosition(0.985);
     }
     // THIS WORKS DO NOT CHANGE ^^^^^^^^^^^
     public void openClaw(){

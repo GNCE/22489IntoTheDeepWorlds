@@ -36,7 +36,7 @@ public class testPivto extends OpMode {
         }else if (pivpos<0){
             pivpos=0;
         }
-        pivlow.setPosition(pivpos);
+        revolute.setPosition(pivpos);
         telemetry.addData("pivpos",pivpos);
         telemetry.update();
     }

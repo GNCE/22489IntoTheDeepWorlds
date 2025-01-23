@@ -19,7 +19,7 @@ public class Intake{
     double ip = 0;
     double ex = 0;
     int depo =0;
-    boolean useRTP = false;
+    boolean useRTP = true;
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
@@ -77,7 +77,7 @@ public class Intake{
         ex = 0;
     }
     public void TeleopExtend(){
-        useRTP = !(opMode.gamepad2.right_stick_y <= 0.1) || !(opMode.gamepad2.right_stick_y >= -0.1);
+        //useRTP = !(opMode.gamepad2.right_stick_y <= 0.1) || !(opMode.gamepad2.right_stick_y >= -0.1);
         if (!useRTP){
             if (extendo.getMode()==(DcMotor.RunMode.RUN_TO_POSITION) ){
                 if (extendo.getCurrentPosition() <= 25 && extendo.getPower() < -0.5){
@@ -102,7 +102,7 @@ public class Intake{
         depo = 1;
     }
     public void flipDown(){
-            fin = .92;
+            fin = .919;
             ip = .22;
     }
     public void check(){
