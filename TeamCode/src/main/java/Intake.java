@@ -14,6 +14,15 @@ public class Intake{
     ColorSensor colorSensor;
 
     OpMode opMode;
+
+    public enum IntakeState {
+        FLIP_UP,
+        INTAKE,
+        DEPOSIT,
+
+    }
+
+    IntakeState intakeState = IntakeState.FLIP_UP;
     double fin = 0;
     double intakePower = 0;
     double ex = 0;
@@ -33,14 +42,19 @@ public class Intake{
         extendo.setDirection(DcMotor.Direction.FORWARD);
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
-    public boolean isRed(){
+    private boolean isRed(){
         return colorSensor.red() > 250;
     }
-    public boolean isYellow(){
+    private boolean isYellow(){
         return colorSensor.green() > 500;
     }
-    public boolean isBlue(){
+    private boolean isBlue(){
         return colorSensor.blue() > 500;
+    }
+
+    private boolean isCorrectColor(){
+        // FIX ONCE
+        return true;
     }
     public void initiate(){
         extendo.setTargetPosition(0);
@@ -61,7 +75,6 @@ public class Intake{
         if (extendo.getTargetPosition()!=ex*450){
             extendo.setTargetPosition((int)Math.round(ex*450));
         }
-
     }
     public void ManualExtend(){
         ex = 1; extendo.setPower(.3);
@@ -77,25 +90,37 @@ public class Intake{
                 extendo.setPower(1);
             }
     }
-    public void deposit(){
-        intakePower =-1;
-        depo = 1;
-    }
-    public void flipDown(){
-        fin = .919;
-        intakePower = .22;
-    }
     public void check(){
-        if ((isRed() || isYellow()) && depo ==0){
-            flipUp();
-            intakePower = 0;
-        } else if (!isRed() && !isYellow() &&depo==1){
-            intakePower = 0;
-            depo = 0;
+        switch(intakeState){
+            case FLIP_UP:
+                fin = 0;
+                break;
+            case INTAKE:
+                fin = 0.919;
+                intakePower = 0.22;
+                if(isCorrectColor()){
+                    intakePower = 0;
+                    intakeState = IntakeState.FLIP_UP;
+                }
+                break;
+            case DEPOSIT:
+                intakePower = -1;
+                if(!isCorrectColor()){
+                    intakePower = 0;
+                    intakeState = IntakeState.FLIP_UP;
+                }
+                break;
+            default:
+                break;
         }
     }
     public void flipUp(){
-        fin = 0;
-        intakePower = -0.2;
+        intakeState = IntakeState.FLIP_UP;
+    }
+    public void deposit(){
+        intakeState = IntakeState.DEPOSIT;
+    }
+    public void flipDown(){
+        intakeState = IntakeState.INTAKE;
     }
 }
