@@ -5,6 +5,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
@@ -21,6 +22,7 @@ public class Teleop_26111 extends OpMode {
     private ElapsedTime elapsedTime;
     private final Pose startPose = PoseStorage.CurrentPose;
     int flip = 1;
+    int initfsm = 0;
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -31,11 +33,42 @@ public class Teleop_26111 extends OpMode {
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
         misc = new Misc(hardwareMap);
-        intake.initiate();
         misc.initiate();
+        elapsedTime.startTime();
+        initfsm = 1;
     }
+
+
     @Override
     public void init_loop(){
+        outtake.updatePivPosition();
+        switch (initfsm){
+            case 1:
+                outtakeLift.rlift.setPower(.4);
+                outtakeLift.llift.setPower(.4);
+                outtake.pivotToFront();
+                intake.flipUp();
+                intake.extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                intake.extendo.setPower(-0.2);
+                if (elapsedTime.seconds() > 2){
+                    initfsm = 2;
+                }
+            break;
+            case 2:
+                outtakeLift.rlift.setPower(-0.2);
+                outtakeLift.llift.setPower(-0.2);
+                if (elapsedTime.seconds() > 4){
+                    initfsm = 3;
+                }
+            break;
+            case 3:
+                outtakeLift.rlift.setPower(0);
+                outtakeLift.llift.setPower(0);
+                intake.extendo.setPower(0);
+                initfsm = -1;
+            break;
+        }
+
         if (gamepad1.dpad_up){
             PoseStorage.isRed = true;
         } else if (gamepad1.dpad_down){
@@ -48,8 +81,9 @@ public class Teleop_26111 extends OpMode {
 
     @Override
     public void start() {
+        intake.initiate();
         follower.startTeleopDrive();
-        elapsedTime.startTime();
+
     }
     @Override
     public void loop() {
