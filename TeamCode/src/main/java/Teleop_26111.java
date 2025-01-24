@@ -31,13 +31,24 @@ public class Teleop_26111 extends OpMode {
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
         misc = new Misc(hardwareMap);
+        intake.initiate();
+        misc.initiate();
+    }
+    @Override
+    public void init_loop(){
+        if (gamepad1.dpad_up){
+            PoseStorage.isRed = true;
+        } else if (gamepad1.dpad_down){
+            PoseStorage.isRed = false;
+        }
+        telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
+        telemetry.addData("Are we on Red Team?", PoseStorage.isRed);
+        telemetry.update();
     }
 
     @Override
     public void start() {
         follower.startTeleopDrive();
-        intake.initiate();
-        misc.initiate();
         elapsedTime.startTime();
     }
     @Override

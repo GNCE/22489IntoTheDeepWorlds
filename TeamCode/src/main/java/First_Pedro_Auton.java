@@ -231,6 +231,16 @@ public class First_Pedro_Auton extends OpMode{
 
     }
     @Override
+    public void init_loop(){
+        if (gamepad1.dpad_up){
+            PoseStorage.isRed = true;
+        } else if (gamepad1.dpad_down){
+            PoseStorage.isRed = false;
+        }
+        telemetry.addData("Are we on Red Team?", PoseStorage.isRed);
+        telemetry.update();
+    }
+    @Override
     public void loop() {
 
         // These loop the movements of the robot
