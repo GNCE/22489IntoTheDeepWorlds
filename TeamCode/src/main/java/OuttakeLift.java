@@ -29,8 +29,8 @@ public class OuttakeLift {
     }
     public void HoldLift(){
         if (!usePID){
-            rlift.setPower(-lopMode.gamepad2.left_stick_y/1.2);
-            llift.setPower(-lopMode.gamepad2.left_stick_y/1.2);
+            rlift.setPower(-lopMode.gamepad2.left_stick_y);
+            llift.setPower(-lopMode.gamepad2.left_stick_y);
             if (Math.abs(lopMode.gamepad2.left_stick_y) < 0.4){
                 target = rlift.getCurrentPosition();
             }

@@ -46,12 +46,12 @@ public class Outtake {
     }
     public void pivotToTransfer (){
         pivpos = 0;
-        updownpiv.setPosition(0.1615);
+        updownpiv.setPosition(0.1550);
         spinpiv.setPosition(0.985);
     }
     // THIS WORKS DO NOT CHANGE ^^^^^^^^^^^
     public void openClaw(){
-        clamp.setPosition(.615);
+        clamp.setPosition(.620);
     }
     public void closeClaw(){
         clamp.setPosition(0.655);

@@ -14,7 +14,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Disabled
 @Autonomous(name = "Red Sample Auto", group = "Auto")
 public class RedSampleAuto extends OpMode {
 
@@ -35,26 +34,26 @@ public class RedSampleAuto extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(9, 111, Math.toRadians(315));
+    private final Pose startPose = new Pose(7.1, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(15, 130, Math.toRadians(315));
+    private final Pose scorePose = new Pose(16, 127, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(32, 120, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(24, 121, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(32, 130, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(24, 131, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(30, 136, Math.toRadians(25));
+    private final Pose pickup3Pose = new Pose(24, 134, Math.toRadians(24));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 94, Math.toRadians(90));
+    private final Pose parkPose = new Pose(60, 94, Math.toRadians(270));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
-    private final Pose parkControlPose = new Pose(60, 120, Math.toRadians(90));
+    private final Pose parkControlPose = new Pose(60, 120, Math.toRadians(270));
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;

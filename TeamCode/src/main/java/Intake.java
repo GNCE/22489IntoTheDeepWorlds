@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 public class Intake{
     private Servo finintake;
-    private CRServo lintake;
-    private CRServo rintake;
+    public CRServo lintake;
+    public CRServo rintake;
     private DcMotor extendo;
     ColorSensor colorSensor;
 
@@ -71,11 +71,12 @@ public class Intake{
 
     }
     public void ManualExtend(){
-        ex = 1;
+        ex = 1; extendo.setPower(.3);
     }
     public void ManualRetract(){
-        ex = 0;
+        ex = 0; extendo.setPower(1);
     }
+    public void AutonExtend(){extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);}
     public void TeleopExtend(){
         //useRTP = !(opMode.gamepad2.right_stick_y <= 0.1) || !(opMode.gamepad2.right_stick_y >= -0.1);
         if (!useRTP){
@@ -106,7 +107,7 @@ public class Intake{
             ip = .22;
     }
     public void check(){
-        if (isRed() || isYellow()){
+        if ((isRed() || isYellow()) && depo ==0){
             flipUp();
             ip = 0;
         } else if (!isRed() && !isYellow() &&depo==1){
