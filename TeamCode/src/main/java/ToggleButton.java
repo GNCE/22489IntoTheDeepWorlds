@@ -1,9 +1,11 @@
 public class ToggleButton {
-    private boolean prev = false, stored = false;
+    private boolean prev = false, stored;
+
+    public ToggleButton(boolean defaultValue){
+        this.stored = defaultValue;
+    }
     public void input(boolean cur){
-        if(!cur) return;
-        if(cur == prev) return;
-        stored = !stored;
+        if(cur && !prev) stored = !stored;
         prev = cur;
     }
     public boolean getVal(){

@@ -231,7 +231,7 @@ public class First_Pedro_Auton extends OpMode{
 
     }
 
-    ToggleButton teamColorButton;
+    ToggleButton teamColorButton = new ToggleButton(true);
 
     @Override
     public void init_loop(){
