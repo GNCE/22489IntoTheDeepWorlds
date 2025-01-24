@@ -54,17 +54,17 @@ public class First_Pedro_Auton extends OpMode{
         switch (transferRealFSM){
             case 1:
                 outtake.openClaw();
-                if (pathTimer.getElapsedTimeSeconds()>7){
+                if (pathTimer.getElapsedTimeSeconds()>3){
                     outtakeLift.LiftTarget(290);
-                    if ( pathTimer.getElapsedTimeSeconds() > 10){
+                    if ( pathTimer.getElapsedTimeSeconds() > 4.5){
                         transferRealFSM = 2;
                     }}
                 break;
             case 2:
                 outtake.closeClaw();
-                if (pathTimer.getElapsedTimeSeconds()>10.5){
+                if (pathTimer.getElapsedTimeSeconds()>5.5){
                     outtakeLift.LiftTarget(liftscorepos);
-                    if(pathTimer.getElapsedTimeSeconds()>12){
+                    if(pathTimer.getElapsedTimeSeconds()>6.5){
                         outtake.pivotToScoreSamp();
                         transferRealFSM = 0;
                     }
@@ -173,26 +173,25 @@ public class First_Pedro_Auton extends OpMode{
                         if (pathTimer.getElapsedTimeSeconds() > 5){
                             intake.deposit();
                             transferRealFSM =1;
-                            pickupsequence();
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                            if(transferRealFSM==0){
                                 intake.check();
                                 follower.followPath(scorePickup1,true);
                                 setPathState(4);
-                            }
+
                     }}
                 }
                 break;
             case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(pathTimer.getElapsedTimeSeconds()>4) {
+                pickupsequence();
+                if (transferRealFSM ==0){
+                if(pathTimer.getElapsedTimeSeconds()>6) {
                     /* Score 1st Pickup */
                     outtake.openClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 5){
+                    if (pathTimer.getElapsedTimeSeconds() > 8){
                         follower.followPath(grabPickup2,true);
                         setPathState(5);
                     }
-                }
+                }}
                 break;
             case 5:
                 outtakeLift.LiftTarget(500);
@@ -200,27 +199,7 @@ public class First_Pedro_Auton extends OpMode{
                 setPathState(6);
                 break;
             case 6:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
-                if(pathTimer.getElapsedTimeSeconds()>1) {
-                    /* Grab Sample */
-                    intake.flipDown();
-                    intake.ManualExtend();
-                    intake.check();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5){
-                        intake.flipUp();
-                        intake.ManualRetract();
-                        if (pathTimer.getElapsedTimeSeconds() > 4.5){
-                            intake.deposit();
-                            intake.check();
-                            transferRealFSM =1;
-                            pickupsequence();
-                            /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
-                            follower.followPath(scorePickup2,true);
-                            if(transferRealFSM==0){
-                                setPathState(-1);
-                            }
-                        }}
-                }
+                //TODO Above is edited code that *should* work, make below code the up code.
                 break;
             default:
                 break;
