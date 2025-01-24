@@ -230,14 +230,16 @@ public class First_Pedro_Auton extends OpMode{
 
 
     }
+
+    ToggleButton teamColorButton;
+
     @Override
     public void init_loop(){
-        if (gamepad1.dpad_up){
-            PoseStorage.isRed = true;
-        } else if (gamepad1.dpad_down){
-            PoseStorage.isRed = false;
-        }
-        telemetry.addData("Are we on Red Team?", PoseStorage.isRed);
+        teamColorButton.input(gamepad1.dpad_up);
+
+        PoseStorage.isRed = teamColorButton.getVal();
+
+        telemetry.addData("Team Color:", PoseStorage.isRed ? "Red" : "Blue");
         telemetry.update();
     }
     @Override
