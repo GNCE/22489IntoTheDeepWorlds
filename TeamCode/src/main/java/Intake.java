@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 public class Intake{
@@ -16,7 +15,7 @@ public class Intake{
 
     OpMode opMode;
     double fin = 0;
-    double ip = 0;
+    double intakePower = 0;
     double ex = 0;
     int depo =0;
     boolean useRTP = true;
@@ -61,9 +60,9 @@ public class Intake{
         if (finintake.getPosition()!=fin) {
             finintake.setPosition(fin);
         }
-        if (rintake.getPower()!=ip){
-            rintake.setPower(ip);
-            lintake.setPower(ip);
+        if (rintake.getPower()!= intakePower){
+            rintake.setPower(intakePower);
+            lintake.setPower(intakePower);
         }
         if (extendo.getTargetPosition()!=ex*450){
             extendo.setTargetPosition((int)Math.round(ex*450));
@@ -99,24 +98,24 @@ public class Intake{
         }
     }
     public void deposit(){
-        ip=-1;
+        intakePower =-1;
         depo = 1;
     }
     public void flipDown(){
-            fin = .919;
-            ip = .22;
+        fin = .919;
+        intakePower = .22;
     }
     public void check(){
         if ((isRed() || isYellow()) && depo ==0){
             flipUp();
-            ip = 0;
+            intakePower = 0;
         } else if (!isRed() && !isYellow() &&depo==1){
-            ip = 0;
+            intakePower = 0;
             depo = 0;
         }
     }
     public void flipUp(){
         fin = 0;
-        ip = -0.2;
+        intakePower = -0.2;
     }
 }
