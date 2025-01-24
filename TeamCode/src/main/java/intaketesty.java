@@ -12,7 +12,6 @@ public class intaketesty extends OpMode {
     }
     public void start(){
         intake.initiate();
-
     }
 
     public void loop() {
@@ -29,7 +28,7 @@ public class intaketesty extends OpMode {
         telemetry.addData("red color", intake.colorSensor.red());
         telemetry.addData("blue color", intake.colorSensor.blue());
         telemetry.addData("green (yellow) color", intake.colorSensor.green());
-        telemetry.addData("ip",intake.ip);
+        telemetry.addData("ip",intake.intakePower);
         telemetry.addData("fin",intake.fin);
         telemetry.addData("ex",intake.ex);
         telemetry.update();

@@ -24,8 +24,8 @@ public class Outtake {
     }
     public void updatePivPosition(){
         if (pivpos != rpivhigh.getPosition()){
-        rpivhigh.setPosition(pivpos);
-        lpivhigh.setPosition(pivpos);
+            rpivhigh.setPosition(pivpos);
+            lpivhigh.setPosition(pivpos);
         }
     }
     public void pivotToFront(){
@@ -51,7 +51,7 @@ public class Outtake {
     }
     // THIS WORKS DO NOT CHANGE ^^^^^^^^^^^
     public void openClaw(){
-        clamp.setPosition(.620);
+        clamp.setPosition(0.620);
     }
     public void closeClaw(){
         clamp.setPosition(0.655);
