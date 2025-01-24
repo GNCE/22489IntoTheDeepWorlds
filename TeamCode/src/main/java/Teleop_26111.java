@@ -12,7 +12,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@TeleOp(name = "Red TeleOp", group = "Real OpModes")
+@TeleOp(name = "Main TeleOp", group = "Real OpModes")
 public class Teleop_26111 extends OpMode {
     private Follower follower;
     private Outtake outtake;
@@ -38,6 +38,8 @@ public class Teleop_26111 extends OpMode {
         initfsm = 1;
     }
 
+    private ToggleButton teamColorButton = new ToggleButton(PoseStorage.isRed);
+    private ToggleButton controlFlipButton = new ToggleButton(true);
 
     @Override
     public void init_loop(){
@@ -69,13 +71,10 @@ public class Teleop_26111 extends OpMode {
             break;
         }
 
-        if (gamepad1.dpad_up){
-            PoseStorage.isRed = true;
-        } else if (gamepad1.dpad_down){
-            PoseStorage.isRed = false;
-        }
+        teamColorButton.input(gamepad1.dpad_up);
+        PoseStorage.isRed = teamColorButton.getVal();
         telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
-        telemetry.addData("Are we on Red Team?", PoseStorage.isRed);
+        telemetry.addData("Team Color:", PoseStorage.isRed ? "Red" : "Blue");
         telemetry.update();
     }
 
@@ -87,14 +86,9 @@ public class Teleop_26111 extends OpMode {
     }
     @Override
     public void loop() {
-        if (gamepad1.left_bumper){
-            intake.flipDown();
-        }
+        if (gamepad1.left_bumper) intake.flipDown();
         intake.TeleopExtend(); //left trigger
-        if (gamepad1.right_trigger > 0.2){
-            intake.flipUp();
-            intake.deposit();
-        }
+        if (gamepad1.right_trigger > 0.2) intake.flipUp();
         if (gamepad2.y){
             outtake.pivotToFront();
         }else if (gamepad2.b){
@@ -113,26 +107,25 @@ public class Teleop_26111 extends OpMode {
             outtake.closeClaw();
         }
 
-        if (gamepad1.right_bumper){
-            misc.sweep();
-        } else {
-            misc.unsweep();
-        }
+        if (gamepad1.right_bumper) misc.sweep();
+        else misc.unsweep();
+
         outtakeLift.HoldLift();
         outtake.updatePivPosition();
         intake.check();
         intake.moveThings();
         misc.moveThings();
-        if (gamepad1.dpad_up){
-            flip = 1;
-        } else if (gamepad1.dpad_down){
-            flip = -1;
-        }
+
+        controlFlipButton.input(gamepad1.dpad_up);
+        flip = controlFlipButton.getVal() ? 1 : -1;
         follower.setTeleOpMovementVectors(
                 flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                 flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
                  0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         follower.update();
+
+
+        telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
@@ -142,7 +135,5 @@ public class Teleop_26111 extends OpMode {
         telemetry.addData("lift position",outtakeLift.rlift.getCurrentPosition());
         telemetry.addData("extendo position", intake.extendo.getCurrentPosition());
         telemetry.update();
-
     }
-
 }

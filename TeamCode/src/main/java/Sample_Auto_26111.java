@@ -3,18 +3,23 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
 @Autonomous (name = "first Pedro auton")
-public class First_Pedro_Auton extends OpMode{
+public class Sample_Auto_26111 extends OpMode{
     private Follower follower;
 
     private Intake intake;
@@ -50,15 +55,17 @@ public class First_Pedro_Auton extends OpMode{
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload, park;
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
+    private PathChain[] grabPickups, scorePickups;
     public void pickupsequence(){
         switch (transferRealFSM){
             case 1:
                 outtake.openClaw();
                 if (pathTimer.getElapsedTimeSeconds()>3){
-                    outtakeLift.LiftTarget(290);
-                    if ( pathTimer.getElapsedTimeSeconds() > 4.5){
+                    outtakeLift.LiftToTransferGrab();
+                    if (pathTimer.getElapsedTimeSeconds() > 4.5){
                         transferRealFSM = 2;
-                    }}
+                    }
+                }
                 break;
             case 2:
                 outtake.closeClaw();
@@ -121,7 +128,11 @@ public class First_Pedro_Auton extends OpMode{
         park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
 
+        grabPickups = new PathChain[]{grabPickup1, grabPickup2, grabPickup3};
+        scorePickups = new PathChain[]{scorePickup1, scorePickup2, scorePickup3};
     }
+
+    private int sampleCounter = 0;
     public void autonomousPathUpdate() {
         switch (pathState) {
 
@@ -134,16 +145,8 @@ public class First_Pedro_Auton extends OpMode{
                 setPathState(1);
                 break;
             case 1:
-
-                /* You could check for
-                - Follower State: "if(!follower.isBusy() {}"
-                - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-                - Robot Position: "if(follower.getPose().getX() > 36) {}"
-                */
-
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                // Preload
                 if(pathTimer.getElapsedTimeSeconds()>2) {
-                    /* Score Preload */
                     outtake.openClaw();
                     if (pathTimer.getElapsedTimeSeconds() > 3){
                         setPathState(2);
@@ -151,55 +154,53 @@ public class First_Pedro_Auton extends OpMode{
                 }
                 break;
             case 2:
-                outtakeLift.LiftTarget(500);
-
+                // Loop Begins
+                // Outtake ready to transfer & goes to grab a sample
+                outtakeLift.LiftToTransferWait();
                 outtake.pivotToTransfer();
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
-                    follower.followPath(grabPickup1,true);
-                    setPathState(3);
-
+                follower.followPath(grabPickups[sampleCounter],true);
+                setPathState(3);
                 break;
             case 3:
-
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
+                // Intake grabs a sample
                 if(pathTimer.getElapsedTimeSeconds()>1) {
-                    /* Grab Sample */
                     intake.flipDown();
                     intake.ManualExtend();
-                    intake.check();
                     if (pathTimer.getElapsedTimeSeconds() > 2.5){
                         intake.flipUp();
                         intake.ManualRetract();
                         if (pathTimer.getElapsedTimeSeconds() > 5){
                             intake.deposit();
                             transferRealFSM =1;
-                                intake.check();
-                                follower.followPath(scorePickup1,true);
-                                setPathState(4);
-
-                    }}
+                            follower.followPath(scorePickups[sampleCounter],true);
+                            setPathState(4);
+                        }
+                    }
                 }
                 break;
             case 4:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                // Transfer sequence
                 pickupsequence();
                 if (transferRealFSM ==0){
-                if(pathTimer.getElapsedTimeSeconds()>6) {
-                    /* Score 1st Pickup */
-                    outtake.openClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 8){
-                        follower.followPath(grabPickup2,true);
-                        setPathState(5);
+                    if(pathTimer.getElapsedTimeSeconds()>6) {
+                        outtake.openClaw();
+                        if (pathTimer.getElapsedTimeSeconds() > 8){
+                            sampleCounter++;
+                            if(sampleCounter < 3) setPathState(2);
+                            else{
+                                outtakeLift.LiftToTransferWait();
+                                outtake.pivotToTransfer();
+                                follower.followPath(park, true);
+                                setPathState(5);
+                            }
+                        }
                     }
-                }}
+                }
                 break;
             case 5:
-                outtakeLift.LiftTarget(500);
-                outtake.pivotToTransfer();
-                setPathState(6);
-                break;
-            case 6:
-                //TODO Above is edited code that *should* work, make below code the up code.
+                if(!follower.isBusy()){
+                    outtake.pivotToFront();
+                }
                 break;
             default:
                 break;
@@ -227,11 +228,9 @@ public class First_Pedro_Auton extends OpMode{
     public void start(){
         intake.initiate();
         outtakeLift.HoldLift();
-
-
     }
 
-    ToggleButton teamColorButton = new ToggleButton(true);
+    private final ToggleButton teamColorButton = new ToggleButton(PoseStorage.isRed);
 
     @Override
     public void init_loop(){
@@ -250,8 +249,8 @@ public class First_Pedro_Auton extends OpMode{
         autonomousPathUpdate();
 
         intake.moveThings();
+        intake.check();
         outtake.updatePivPosition();
-        outtakeLift.Auton();
         outtakeLift.HoldLift();
         pickupsequence();
 
@@ -259,6 +258,7 @@ public class First_Pedro_Auton extends OpMode{
 
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
+        telemetry.addData("Scored ground samples", sampleCounter);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

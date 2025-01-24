@@ -71,7 +71,7 @@ public class Intake{
             rintake.setPower(intakePower);
             lintake.setPower(intakePower);
         }
-        if (extendo.getTargetPosition()!=ex*450){
+        if (extendo.getTargetPosition()!=(int)Math.round(ex*450)){
             extendo.setTargetPosition((int)Math.round(ex*450));
         }
     }
@@ -82,12 +82,12 @@ public class Intake{
         ex = 0; extendo.setPower(1);
     }
     public void TeleopExtend(){
-            ex = opMode.gamepad1.left_trigger;
-            if (opMode.gamepad1.left_trigger > 0.3) {
-                extendo.setPower(.3);
-            } else {
-                extendo.setPower(1);
-            }
+        ex = opMode.gamepad1.left_trigger;
+        if (opMode.gamepad1.left_trigger > 0.3) {
+            extendo.setPower(.3);
+        } else {
+            extendo.setPower(1);
+        }
     }
     public void check(){
         switch(intakeState){

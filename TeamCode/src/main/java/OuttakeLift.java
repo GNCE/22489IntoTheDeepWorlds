@@ -7,11 +7,13 @@ public class OuttakeLift {
     public DcMotorEx rlift;
     public DcMotorEx llift;
     private PIDController controller;
-    public static double p = 0.045, i = 0, d = 0.000, f = 0.1;
-    public static int target = 250;
-    public final double ticks_in_degree = 145.1 / 360.0;
-    public boolean usePID = true;
-    public int GotLiftPos = 0;
+    private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
+    private int target = 250;
+
+    public static int TRANSFER_WAIT = 500;
+    public static int TRANSFER_GRAB = 290;
+    public static int LIFT_BUCKET = 1200;
+
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
@@ -28,33 +30,38 @@ public class OuttakeLift {
         this.lopMode = opMode;
     }
     public void HoldLift(){
-        if (!usePID){
+        if (Math.abs(lopMode.gamepad2.left_stick_y)>0.3){
+            // Manual Takeover. Disable PID or limits
             rlift.setPower(-lopMode.gamepad2.left_stick_y);
             llift.setPower(-lopMode.gamepad2.left_stick_y);
-            if (Math.abs(lopMode.gamepad2.left_stick_y) < 0.4){
-                target = rlift.getCurrentPosition();
-            }
+            target = rlift.getCurrentPosition();
         } else {
+            // PIDF Controller
             controller.setPID(p, i, d);
-            if (target > 1125){
-                target=1125;
-            } else if (target < 25){
-                target = 25;
-            }
+            if (target > 1125) target = 1125;
+            else if (target < 25) target = 25;
             int liftPos = rlift.getCurrentPosition();
             double pid = controller.calculate(liftPos, target);
+            double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
             double power = pid + ff;
             rlift.setPower(power);
             llift.setPower(power);
         }
-        usePID = !(Math.abs(lopMode.gamepad2.left_stick_y)>0.3);
     }
     public void LiftTarget(int input){
         target = input;
     }
-    public void Auton(){
-        usePID = true;
+    public void LiftToTransferWait(){
+        target = TRANSFER_WAIT;
     }
-
+    public void LiftToTransferGrab(){
+        target = TRANSFER_GRAB;
+    }
+    public void LiftToBucket(){
+        target = LIFT_BUCKET;
+    }
+    public int getCurrentPosition(){
+        return rlift.getCurrentPosition();
+    }
 }
