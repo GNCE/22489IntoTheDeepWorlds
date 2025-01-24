@@ -3,7 +3,6 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -11,25 +10,21 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
 @Autonomous (name = "first Pedro auton")
-public class Sample_Auto_26111 extends OpMode{
+public class EC_Auto_Sample extends OpMode{
     private Follower follower;
 
     private Intake intake;
     private OuttakeLift outtakeLift;
     private Outtake outtake;
     private Misc misc;
-     int transferRealFSM =0;
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private int transferRealFSM =0;
+    private Timer pathTimer, opmodeTimer;
     private int pathState;
-    int liftscorepos = 1200;
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
@@ -60,18 +55,18 @@ public class Sample_Auto_26111 extends OpMode{
         switch (transferRealFSM){
             case 1:
                 outtake.openClaw();
-                if (pathTimer.getElapsedTimeSeconds()>3){
+                if (pathTimer.getElapsedTimeSeconds()>0.5){
                     outtakeLift.LiftToTransferGrab();
-                    if (pathTimer.getElapsedTimeSeconds() > 4.5){
+                    if (pathTimer.getElapsedTimeSeconds() > 2){
                         transferRealFSM = 2;
                     }
                 }
                 break;
             case 2:
                 outtake.closeClaw();
-                if (pathTimer.getElapsedTimeSeconds()>5.5){
-                    outtakeLift.LiftTarget(liftscorepos);
-                    if(pathTimer.getElapsedTimeSeconds()>6.5){
+                if (pathTimer.getElapsedTimeSeconds()>2.5){
+                    outtakeLift.LiftToBucket();
+                    if(pathTimer.getElapsedTimeSeconds()>5){
                         outtake.pivotToScoreSamp();
                         transferRealFSM = 0;
                     }
@@ -139,7 +134,7 @@ public class Sample_Auto_26111 extends OpMode{
             case 0:
                 follower.followPath(scorePreload);
                 outtake.closeClaw();
-                outtakeLift.LiftTarget(liftscorepos);
+                outtakeLift.LiftToBucket();
                 outtake.pivotToScoreSamp();
 
                 setPathState(1);
@@ -169,7 +164,7 @@ public class Sample_Auto_26111 extends OpMode{
                     if (pathTimer.getElapsedTimeSeconds() > 2.5){
                         intake.flipUp();
                         intake.ManualRetract();
-                        if (pathTimer.getElapsedTimeSeconds() > 5){
+                        if (pathTimer.getElapsedTimeSeconds() > 4.5){
                             intake.deposit();
                             transferRealFSM =1;
                             follower.followPath(scorePickups[sampleCounter],true);
@@ -182,7 +177,7 @@ public class Sample_Auto_26111 extends OpMode{
                 // Transfer sequence
                 pickupsequence();
                 if (transferRealFSM ==0){
-                    if(pathTimer.getElapsedTimeSeconds()>6) {
+                    if(pathTimer.getElapsedTimeSeconds()>5.5) {
                         outtake.openClaw();
                         if (pathTimer.getElapsedTimeSeconds() > 8){
                             sampleCounter++;
@@ -248,8 +243,8 @@ public class Sample_Auto_26111 extends OpMode{
         follower.update();
         autonomousPathUpdate();
 
-        intake.moveThings();
-        intake.check();
+        intake.extendoLoop();
+        intake.intakeLoop();
         outtake.updatePivPosition();
         outtakeLift.HoldLift();
         pickupsequence();

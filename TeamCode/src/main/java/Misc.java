@@ -1,8 +1,5 @@
 
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 public class Misc{
@@ -15,25 +12,27 @@ public class Misc{
         sweeper = hardwareMap.get(Servo.class, "sweeper");
         door = hardwareMap.get(Servo.class, "door");
         sweeper.setDirection(Servo.Direction.FORWARD);
+        door.setDirection(Servo.Direction.REVERSE);
     }
     public void initiate(){
         sweeper.setPosition(0);
         door.setPosition(0);
     }
-    public void moveThings(){
+    public void loop(){
         if (door.getPosition()!=dr) {
             door.setPosition(dr);
         }
-        if (sweeper.getPosition()!=swp){
+        if (sweeper.getPosition() != swp){
             sweeper.setPosition(swp);
         }
+    }
 
+    public void setSweep(boolean state){
+        if(state) swp = 0.5;
+        else swp = 0;
     }
-    public void sweep(){
-        swp = .5;
-    }
-    public void unsweep(){
-        swp =0;
+    public boolean reachedSweepTarget(){
+        return Math.abs(sweeper.getPosition() - swp) < 0.005;
     }
     public void door(){
         dr = .5;

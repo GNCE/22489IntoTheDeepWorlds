@@ -52,7 +52,7 @@ public class Intake{
         return colorSensor.blue() > 500;
     }
 
-    private boolean isCorrectColor(){
+    public boolean isCorrectColor(){
         return isYellow() || (PoseStorage.isRed && isRed()) || (!PoseStorage.isRed && isBlue());
     }
     public void initiate(){
@@ -63,7 +63,7 @@ public class Intake{
         lintake.setPower(0);
         finintake.setPosition(0);
     }
-    public void moveThings(){
+    public void extendoLoop(){
         if (finintake.getPosition()!=fin) {
             finintake.setPosition(fin);
         }
@@ -75,11 +75,13 @@ public class Intake{
             extendo.setTargetPosition((int)Math.round(ex*450));
         }
     }
-    public void ManualExtend(){
+    public boolean ManualExtend(){
         ex = 1; extendo.setPower(.3);
+        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
     }
-    public void ManualRetract(){
+    public boolean ManualRetract(){
         ex = 0; extendo.setPower(1);
+        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
     }
     public void TeleopExtend(){
         ex = opMode.gamepad1.left_trigger;
@@ -89,7 +91,7 @@ public class Intake{
             extendo.setPower(1);
         }
     }
-    public void check(){
+    public void intakeLoop(){
         switch(intakeState){
             case FLIP_UP:
                 fin = 0;

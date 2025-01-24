@@ -13,7 +13,7 @@ import pedroPathing.constants.LConstants;
 
 
 @TeleOp(name = "Main TeleOp", group = "Real OpModes")
-public class Teleop_26111 extends OpMode {
+public class EC_TeleOp extends OpMode {
     private Follower follower;
     private Outtake outtake;
     private Intake intake;
@@ -107,14 +107,16 @@ public class Teleop_26111 extends OpMode {
             outtake.closeClaw();
         }
 
-        if (gamepad1.right_bumper) misc.sweep();
-        else misc.unsweep();
+        if (gamepad1.right_bumper) misc.setSweep(true);
+        else{
+            if(misc.reachedSweepTarget()) misc.setSweep(false);
+        }
 
         outtakeLift.HoldLift();
         outtake.updatePivPosition();
-        intake.check();
-        intake.moveThings();
-        misc.moveThings();
+        intake.intakeLoop();
+        intake.extendoLoop();
+        misc.loop();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
