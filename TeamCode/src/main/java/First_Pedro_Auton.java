@@ -237,7 +237,6 @@ public class First_Pedro_Auton extends OpMode{
         follower.update();
         autonomousPathUpdate();
 
-        intake.AutonExtend();
         intake.moveThings();
         outtake.updatePivPosition();
         outtakeLift.Auton();

@@ -10,7 +10,7 @@ public class Intake{
     private Servo finintake;
     public CRServo lintake;
     public CRServo rintake;
-    private DcMotor extendo;
+    public DcMotor extendo;
     ColorSensor colorSensor;
 
     OpMode opMode;
@@ -34,19 +34,13 @@ public class Intake{
         extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public boolean isRed(){
-        if (colorSensor.red()>250){
-            return true;
-        } else return false;
+        return colorSensor.red() > 250;
     }
     public boolean isYellow(){
-        if (colorSensor.green()>500){
-            return true;
-        } else return false;
+        return colorSensor.green() > 500;
     }
     public boolean isBlue(){
-        if (colorSensor.blue()>500){
-            return true;
-        } else return false;
+        return colorSensor.blue() > 500;
     }
     public void initiate(){
         extendo.setTargetPosition(0);
@@ -75,27 +69,13 @@ public class Intake{
     public void ManualRetract(){
         ex = 0; extendo.setPower(1);
     }
-    public void AutonExtend(){extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);}
     public void TeleopExtend(){
-        //useRTP = !(opMode.gamepad2.right_stick_y <= 0.1) || !(opMode.gamepad2.right_stick_y >= -0.1);
-        if (!useRTP){
-            if (extendo.getMode()==(DcMotor.RunMode.RUN_TO_POSITION) ){
-                if (extendo.getCurrentPosition() <= 25 && extendo.getPower() < -0.5){
-                    extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                } else extendo.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            }
-            extendo.setPower(-opMode.gamepad2.right_stick_y);
-        } else {
-            if (extendo.getMode()==(DcMotor.RunMode.RUN_USING_ENCODER) ){
-                extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            }
             ex = opMode.gamepad1.left_trigger;
             if (opMode.gamepad1.left_trigger > 0.3) {
                 extendo.setPower(.3);
             } else {
                 extendo.setPower(1);
             }
-        }
     }
     public void deposit(){
         intakePower =-1;

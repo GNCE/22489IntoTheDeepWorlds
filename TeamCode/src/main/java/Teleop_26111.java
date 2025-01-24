@@ -20,9 +20,6 @@ public class Teleop_26111 extends OpMode {
     private Misc misc;
     private ElapsedTime elapsedTime;
     private final Pose startPose = PoseStorage.CurrentPose;
-    private int transferSimpleFSM = 0;
-    private int transferRealFSM = 0;
-    private int simpletoggleTransfer = 0;
     int flip = 1;
     @Override
     public void init() {
@@ -43,78 +40,42 @@ public class Teleop_26111 extends OpMode {
         misc.initiate();
         elapsedTime.startTime();
     }
-    public void pickupTransfer(){
-        switch (transferRealFSM){
-            case 1:
-                outtake.openClaw();
-                if (elapsedTime.seconds()>.5){
-                outtakeLift.LiftTarget(252);
-                outtakeLift.GetLiftPos();
-                if (gamepad2.dpad_left){
-                    transferRealFSM = 0;
-                }
-                if (outtakeLift.GotLiftPos <=270 && elapsedTime.seconds() > 1.5){
-                    elapsedTime.reset();
-                    transferRealFSM = 2;
-                }}
-                break;
-            case 2:
-                outtake.closeClaw();
-                if (elapsedTime.seconds()>1){
-                outtake.pivotToScoreSamp();
-                outtakeLift.LiftTarget(750);
-                transferRealFSM = 0;
-                transferSimpleFSM =0;
-                }
-                break;
-        }
-    }
     @Override
     public void loop() {
-        outtakeLift.HoldLift();
         if (gamepad1.left_bumper){
             intake.flipDown();
         }
-        intake.check();
         intake.TeleopExtend(); //left trigger
         if (gamepad1.right_trigger > 0.2){
             intake.flipUp();
             intake.deposit();
         }
-        if ((transferRealFSM == 0)){
-            if (gamepad2.y){
-                outtake.pivotToFront();
-                transferSimpleFSM = 0;
-            }else if (gamepad2.b){
-                outtake.pivotToPickupBack();
-                transferSimpleFSM = 0;
-            }else if (gamepad2.x){
-                outtake.pivotToScoreSamp();
-                outtakeLift.LiftTarget(750);
-                transferSimpleFSM = 0;
-                misc.undoor();
-            }else if ((gamepad2.dpad_up || gamepad2.a) && transferSimpleFSM ==0){
-                outtake.pivotToTransfer();
-                transferSimpleFSM = 1;
-
-                misc.door();
-            }else if (gamepad2.dpad_down && transferSimpleFSM ==1){
-                elapsedTime.reset();
-                transferRealFSM = 1; //switches pickup transfer on
-            }
-            if (gamepad2.left_bumper){
-                outtake.openClaw();
-            } else {
-                outtake.closeClaw();
-            }
+        if (gamepad2.y){
+            outtake.pivotToFront();
+        }else if (gamepad2.b){
+            outtake.pivotToPickupBack();
+        }else if (gamepad2.x){
+            outtake.pivotToScoreSamp();
+            outtakeLift.LiftTarget(750);
+            misc.undoor();
+        }else if (gamepad2.a){
+            outtake.pivotToTransfer();
+            misc.door();
         }
+        if (gamepad2.left_bumper){
+            outtake.openClaw();
+        } else {
+            outtake.closeClaw();
+        }
+
         if (gamepad1.right_bumper){
             misc.sweep();
         } else {
             misc.unsweep();
         }
-        pickupTransfer();//check if it is switched on
+        outtakeLift.HoldLift();
         outtake.updatePivPosition();
+        intake.check();
         intake.moveThings();
         misc.moveThings();
         if (gamepad1.dpad_up){
@@ -130,8 +91,11 @@ public class Teleop_26111 extends OpMode {
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addData("transferstate", transferRealFSM);
-        telemetry.addData("liftpos",outtakeLift.GotLiftPos);
+        telemetry.addLine();
+        telemetry.addData("Elapsed Time", elapsedTime.toString());
+        telemetry.addLine();
+        telemetry.addData("lift position",outtakeLift.rlift.getCurrentPosition());
+        telemetry.addData("extendo position", intake.extendo.getCurrentPosition());
         telemetry.update();
 
     }

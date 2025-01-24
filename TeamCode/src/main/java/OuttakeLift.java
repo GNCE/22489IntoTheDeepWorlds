@@ -53,9 +53,6 @@ public class OuttakeLift {
     public void LiftTarget(int input){
         target = input;
     }
-    public void GetLiftPos(){
-        GotLiftPos = rlift.getCurrentPosition();
-    }
     public void Auton(){
         usePID = true;
     }
