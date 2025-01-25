@@ -134,7 +134,7 @@ public class EC_Auto_Specimen extends OpMode {
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                             follower.followPath(firstIntakePath, true);
                             counter = 0;
-                            setPathState(AutoState.INTAKE);
+                            setPathState(AutoState.READY_FOR_INTAKE);
                         }
                     }
                 }
@@ -147,12 +147,12 @@ public class EC_Auto_Specimen extends OpMode {
                     }
                 }
                 if(!follower.isBusy()){
+                    intake.startIntake();
+                    intake.ManualExtend();
                     setPathState(AutoState.INTAKE);
                 }
                 break;
             case INTAKE:
-                intake.startIntake();
-                intake.ManualExtend();
                 if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 4){
                     intake.ManualRetract();
                     if(intake.extendo.getCurrentPosition() < 15){
