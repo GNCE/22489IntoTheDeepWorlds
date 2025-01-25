@@ -101,7 +101,7 @@ public class Intake{
             case INTAKE:
                 fin = INTAKE_DOWN_POS;
                 intakePower = 0.22;
-                if(isCorrectColor()){
+                if((Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005) && isCorrectColor()){
                     intakePower = 0;
                     intakeState = IntakeState.FLIP_UP;
                 }
