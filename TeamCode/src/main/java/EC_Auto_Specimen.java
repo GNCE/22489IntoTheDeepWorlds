@@ -20,7 +20,7 @@ public class EC_Auto_Specimen extends OpMode {
     private Outtake outtake;
     private Misc misc;
     private Timer pathTimer;
-    private final double scoreX = 41.5;
+    private final double scoreX = 41;
     private final double scoreY = 73;
     private final double intakeX = 25;
 
@@ -44,7 +44,6 @@ public class EC_Auto_Specimen extends OpMode {
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
-
                 .build();
         firstIntakePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(preloadScorePose), new Point(firstIntakePose)))
@@ -103,7 +102,9 @@ public class EC_Auto_Specimen extends OpMode {
     enum AutoState {
         DRIVE_TO_PRELOAD_SCORE,
         SCORE_PRELOAD,
+        READY_FOR_INTAKE,
         INTAKE,
+        READY_FOR_PICKUP,
         PICKUP,
         SCORE,
         PARK
@@ -123,15 +124,13 @@ public class EC_Auto_Specimen extends OpMode {
                 outtake.setClaw(false);
                 outtake.pivotToFront();
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
-                if (pathTimer.getElapsedTimeSeconds()>2){
-                setPathState(AutoState.SCORE_PRELOAD);}
+                setPathState(AutoState.SCORE_PRELOAD);
                 break;
             case SCORE_PRELOAD:
-                if(pathTimer.getElapsedTimeSeconds()>2){
+                if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(!outtakeLift.isBusy()){
                         outtake.setClaw(true);
-                        outtake.pivotToTransfer();
                         if(!outtake.isClawBusy()){
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                             follower.followPath(firstIntakePath, true);
@@ -141,7 +140,7 @@ public class EC_Auto_Specimen extends OpMode {
                     }
                 }
                 break;
-            case INTAKE:
+            case READY_FOR_INTAKE:
                 if(!outtakeLift.isBusy()){
                     outtake.setClaw(false);
                     if(!outtake.isClawBusy()){
@@ -149,36 +148,44 @@ public class EC_Auto_Specimen extends OpMode {
                     }
                 }
                 if(!follower.isBusy()){
-                    intake.flipDown();
-                    intake.ManualExtend();
-                    if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5){
-                        intake.flipUp();
-                        intake.ManualRetract();
-                        if(intake.extendo.getCurrentPosition() < 15){
-                            intake.deposit();
-                            counter++;
-                            if(counter < 3){
-                                follower.followPath(intakePaths[counter], true);
-                                setPathState(AutoState.INTAKE);
-                            } else {
-                                setPathState(AutoState.PICKUP);
-                                counter = 0;
-                                outtake.setClaw(true);
-                                follower.followPath(pickupPaths[counter], true);
-                            }
+                    setPathState(AutoState.INTAKE);
+                }
+                break;
+            case INTAKE:
+                intake.flipDown();
+                intake.ManualExtend();
+                if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 4){
+                    intake.ManualRetract();
+                    if(intake.extendo.getCurrentPosition() < 15){
+                        intake.deposit();
+                        counter++;
+                        if(counter < 3){
+                            follower.followPath(intakePaths[counter], true);
+                            setPathState(AutoState.READY_FOR_INTAKE);
+                        } else {
+                            setPathState(AutoState.READY_FOR_PICKUP);
+                            counter = 0;
+                            outtake.setClaw(true);
+                            follower.followPath(pickupPaths[counter], true);
+                        }
+                    }
+                }
+                break;
+            case READY_FOR_PICKUP:
+                if(!outtakeLift.isBusy()){
+                    outtake.setClaw(false);
+                    if(!outtake.isClawBusy()){
+                        outtake.pivotToPickupBack();
+                        if(!outtake.isArmBusy()){
+                            outtake.setClaw(true);
+                            setPathState(AutoState.PICKUP);
                         }
                     }
                 }
                 break;
             case PICKUP:
-                if(!outtakeLift.isBusy()){
-                    outtake.setClaw(false);
-                    if(!outtake.isClawBusy()){
-                        outtake.pivotToPickupBack();
-                    }
-                }
                 if(!follower.isBusy()){
-                    outtake.setClaw(true);
+                    outtake.setClaw(false);
                     if(!outtake.isClawBusy()){
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                         outtake.pivotToFront();
@@ -196,8 +203,7 @@ public class EC_Auto_Specimen extends OpMode {
                             counter++;
                             if(counter < 4){
                                 follower.followPath(pickupPaths[counter], true);
-
-                                setPathState(AutoState.PICKUP);
+                                setPathState(AutoState.READY_FOR_PICKUP);
                             } else {
                                 follower.followPath(parkFromFourthPath, true);
                                 setPathState(AutoState.PARK);
