@@ -1,7 +1,6 @@
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -152,7 +151,7 @@ public class EC_Auto_Specimen extends OpMode {
                 }
                 break;
             case INTAKE:
-                intake.flipDown();
+                intake.startIntake();
                 intake.ManualExtend();
                 if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 4){
                     intake.ManualRetract();
@@ -172,6 +171,7 @@ public class EC_Auto_Specimen extends OpMode {
                 }
                 break;
             case READY_FOR_PICKUP:
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                 if(!outtakeLift.isBusy()){
                     outtake.setClaw(false);
                     if(!outtake.isClawBusy()){
@@ -213,7 +213,7 @@ public class EC_Auto_Specimen extends OpMode {
                 }
                 break;
             case PARK:
-                if(pathTimer.getElapsedTimeSeconds() > 2){
+                if(pathTimer.getElapsedTimeSeconds() > 5){
                     intake.ManualExtend();
                 }
                 break;

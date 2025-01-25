@@ -19,7 +19,7 @@ public class Intake{
         FLIP_UP,
         INTAKE,
         DEPOSIT,
-
+        SHOOT,
     }
 
     IntakeState intakeState = IntakeState.FLIP_UP;
@@ -91,13 +91,15 @@ public class Intake{
             extendo.setPower(1);
         }
     }
+
+    private final double INTAKE_DOWN_POS = 0.919;
     public void intakeLoop(){
         switch(intakeState){
             case FLIP_UP:
                 fin = 0;
                 break;
             case INTAKE:
-                fin = 0.919;
+                fin = INTAKE_DOWN_POS;
                 intakePower = 0.22;
                 if(isCorrectColor()){
                     intakePower = 0;
@@ -111,6 +113,15 @@ public class Intake{
                     intakeState = IntakeState.FLIP_UP;
                 }
                 break;
+            case SHOOT:
+                fin = INTAKE_DOWN_POS;
+                if(Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005){
+                    intakePower = -1;
+                    if(!isCorrectColor()){
+                        intakePower = 0;
+                        intakeState = IntakeState.FLIP_UP;
+                    }
+                }
             default:
                 break;
         }
@@ -121,7 +132,10 @@ public class Intake{
     public void deposit(){
         intakeState = IntakeState.DEPOSIT;
     }
-    public void flipDown(){
+    public void startIntake(){
         intakeState = IntakeState.INTAKE;
+    }
+    public void shootOut(){
+        intakeState = IntakeState.SHOOT;
     }
 }

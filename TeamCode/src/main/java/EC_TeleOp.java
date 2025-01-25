@@ -85,9 +85,13 @@ public class EC_TeleOp extends OpMode {
         follower.startTeleopDrive();
 
     }
+
+    ToggleButton intakeFlip = new ToggleButton(false);
+
     @Override
     public void loop() {
-        if (gamepad1.left_bumper) intake.flipDown();
+        if (gamepad1.left_bumper) intake.startIntake();
+        if (gamepad1.right_stick_button) intake.shootOut();
         intake.TeleopExtend(); //left trigger
         if (gamepad1.right_trigger > 0.2) intake.deposit();
         if (gamepad2.y){

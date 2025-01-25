@@ -167,7 +167,7 @@ public class EC_Auto_Sample extends OpMode{
                 }
                 if(!follower.isBusy()){
                     if (!Collected){
-                        intake.flipDown();
+                        intake.startIntake();
                         intake.ManualExtend();
                     } else if (Collected && !intake.isCorrectColor()){
                         intake.deposit();

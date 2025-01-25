@@ -4,11 +4,17 @@ public class ToggleButton {
     public ToggleButton(boolean defaultValue){
         this.stored = defaultValue;
     }
-    public void input(boolean cur){
-        if(cur && !prev) stored = !stored;
+    public boolean input(boolean cur){
+        boolean diff = cur && !prev;
+        if(diff) stored = !stored;
         prev = cur;
+        return diff;
     }
     public boolean getVal(){
         return stored;
+    }
+
+    public void setVal(boolean newVal){
+        stored = newVal;
     }
 }

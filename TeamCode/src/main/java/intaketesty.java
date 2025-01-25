@@ -16,7 +16,7 @@ public class intaketesty extends OpMode {
 
     public void loop() {
         if (gamepad1.left_bumper){
-            intake.flipDown();
+            intake.startIntake();
         }
         intake.intakeLoop();
         intake.TeleopExtend(); //left trigger
