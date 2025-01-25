@@ -38,10 +38,10 @@ public class EC_Auto_Sample extends OpMode{
     private final Pose pickup2Pose = new Pose(24, 131, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(24, 134, Math.toRadians(24));
+    private final Pose pickup3Pose = new Pose(24, 132, Math.toRadians(15));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 94, Math.toRadians(270));
+    private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
@@ -55,18 +55,18 @@ public class EC_Auto_Sample extends OpMode{
         switch (transferRealFSM){
             case 1:
                 outtake.openClaw();
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                if (pathTimer.getElapsedTimeSeconds()>0.7){
                     outtakeLift.LiftToTransferGrab();
-                    if (pathTimer.getElapsedTimeSeconds() > 2){
+                    if (pathTimer.getElapsedTimeSeconds() > .9){
                         transferRealFSM = 2;
                     }
                 }
                 break;
             case 2:
                 outtake.closeClaw();
-                if (pathTimer.getElapsedTimeSeconds()>2.5){
+                if (pathTimer.getElapsedTimeSeconds()>1.4){
                     outtakeLift.LiftToBucket();
-                    if(pathTimer.getElapsedTimeSeconds()>5){
+                    if(pathTimer.getElapsedTimeSeconds()>1.5){
                         outtake.pivotToScoreSamp();
                         transferRealFSM = 0;
                     }
@@ -141,9 +141,9 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 1:
                 // Preload
-                if(pathTimer.getElapsedTimeSeconds()>2) {
+                if(pathTimer.getElapsedTimeSeconds()>1.6) {
                     outtake.openClaw();
-                    if (pathTimer.getElapsedTimeSeconds() > 3){
+                    if (pathTimer.getElapsedTimeSeconds() > 2.3){
                         setPathState(2);
                     }
                 }
@@ -164,11 +164,13 @@ public class EC_Auto_Sample extends OpMode{
                     if (pathTimer.getElapsedTimeSeconds() > 2.5){
                         intake.flipUp();
                         intake.ManualRetract();
-                        if (pathTimer.getElapsedTimeSeconds() > 4.5){
+                        if(intake.extendo.getCurrentPosition()<15) {
                             intake.deposit();
-                            transferRealFSM =1;
-                            follower.followPath(scorePickups[sampleCounter],true);
-                            setPathState(4);
+                            if (pathTimer.getElapsedTimeSeconds() > 3) {
+                                transferRealFSM = 1;
+                                follower.followPath(scorePickups[sampleCounter], true);
+                                setPathState(4);
+                            }
                         }
                     }
                 }
@@ -177,15 +179,15 @@ public class EC_Auto_Sample extends OpMode{
                 // Transfer sequence
                 pickupsequence();
                 if (transferRealFSM ==0){
-                    if(pathTimer.getElapsedTimeSeconds()>5.5) {
+                    if(pathTimer.getElapsedTimeSeconds()>2.2) {
                         outtake.openClaw();
-                        if (pathTimer.getElapsedTimeSeconds() > 8){
+                        if (pathTimer.getElapsedTimeSeconds() > 3){
                             sampleCounter++;
                             if(sampleCounter < 3) setPathState(2);
                             else{
-                                outtakeLift.LiftToTransferWait();
+                                outtakeLift.LiftTarget(900);
                                 outtake.pivotToTransfer();
-                                follower.followPath(park, true);
+                                follower.followPath(park, false);
                                 setPathState(5);
                             }
                         }

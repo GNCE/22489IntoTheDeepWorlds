@@ -49,7 +49,7 @@ public class Intake{
         return colorSensor.green() > 500;
     }
     private boolean isBlue(){
-        return colorSensor.blue() > 500;
+        return colorSensor.blue() > 250;
     }
 
     public boolean isCorrectColor(){

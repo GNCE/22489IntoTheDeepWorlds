@@ -9,6 +9,7 @@ public class testPivto extends OpMode {
     private Servo rpivhigh;
     private Servo lpivhigh;
     private Servo revolute;
+    private Servo door;
     double pivpos = 0;
 
     public void init() {
@@ -17,6 +18,7 @@ public class testPivto extends OpMode {
         pivlow = hardwareMap.get(Servo.class, "updownpiv");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
         revolute = hardwareMap.get(Servo.class, "spinpiv");
+        door = hardwareMap.get(Servo.class,"door");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
         lpivhigh.setDirection(Servo.Direction.REVERSE);
         pivlow.setDirection(Servo.Direction.FORWARD);
@@ -36,7 +38,7 @@ public class testPivto extends OpMode {
         }else if (pivpos<0){
             pivpos=0;
         }
-        revolute.setPosition(pivpos);
+        pivlow.setPosition(pivpos);
         telemetry.addData("pivpos",pivpos);
         telemetry.update();
     }

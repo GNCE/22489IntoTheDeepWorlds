@@ -38,6 +38,12 @@ public class Outtake {
         updownpiv.setPosition(.147);
         spinpiv.setPosition(0.883);
     }
+    // 0.242
+    public void pivotToScoreSpecBack(){
+        pivpos =1;
+        updownpiv.setPosition(0.242);
+        spinpiv.setPosition(0.883);
+    }
     public void pivotToPickupBack(){
         pivpos = 0;
         updownpiv.setPosition(0.235);

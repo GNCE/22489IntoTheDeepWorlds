@@ -34,6 +34,7 @@ public class EC_TeleOp extends OpMode {
         outtakeLift = new OuttakeLift(hardwareMap, this);
         misc = new Misc(hardwareMap);
         misc.initiate();
+
         elapsedTime.startTime();
         initfsm = 1;
     }
@@ -57,8 +58,8 @@ public class EC_TeleOp extends OpMode {
                 }
             break;
             case 2:
-                outtakeLift.rlift.setPower(-0.2);
-                outtakeLift.llift.setPower(-0.2);
+                outtakeLift.rlift.setPower(-0.6);
+                outtakeLift.llift.setPower(-0.6);
                 if (elapsedTime.seconds() > 4){
                     initfsm = 3;
                 }
@@ -88,7 +89,7 @@ public class EC_TeleOp extends OpMode {
     public void loop() {
         if (gamepad1.left_bumper) intake.flipDown();
         intake.TeleopExtend(); //left trigger
-        if (gamepad1.right_trigger > 0.2) intake.flipUp();
+        if (gamepad1.right_trigger > 0.2) intake.deposit();
         if (gamepad2.y){
             outtake.pivotToFront();
         }else if (gamepad2.b){
@@ -100,6 +101,8 @@ public class EC_TeleOp extends OpMode {
         }else if (gamepad2.a){
             outtake.pivotToTransfer();
             misc.door();
+        }else if (gamepad2.dpad_up){
+            outtake.pivotToScoreSpecBack();
         }
         if (gamepad2.left_bumper){
             outtake.openClaw();
