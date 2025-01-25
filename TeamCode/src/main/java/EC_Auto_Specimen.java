@@ -24,6 +24,8 @@ public class EC_Auto_Specimen extends OpMode {
     private final double scoreY = 73;
     private final double intakeX = 25;
 
+    private boolean Collected = false;
+
     private final Pose startPose = new Pose(9.1, 54.125, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(0));
     private final Pose firstIntakePose = new Pose(intakeX, 23, Math.toRadians(0));
@@ -136,6 +138,7 @@ public class EC_Auto_Specimen extends OpMode {
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                             follower.followPath(firstIntakePath, true);
                             counter = 0;
+                            Collected = false;
                             setPathState(AutoState.INTAKE);
                         }
                     }
@@ -149,9 +152,18 @@ public class EC_Auto_Specimen extends OpMode {
                     }
                 }
                 if(!follower.isBusy()){
+                    if (!Collected){
                     intake.flipDown();
                     intake.ManualExtend();
-                    if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5){
+                    } else if (Collected && !intake.isCorrectColor()){
+                        intake.flipUp();
+                        intake.ManualRetract();
+                        if (intake.extendo.getCurrentPosition() < 40){
+                            Collected = false;
+                        }
+                    }
+                    if((intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5) && !Collected){
+                        Collected = true;
                         intake.flipUp();
                         intake.ManualRetract();
                         if(intake.extendo.getCurrentPosition() < 15){
@@ -175,6 +187,9 @@ public class EC_Auto_Specimen extends OpMode {
                     outtake.setClaw(false);
                     if(!outtake.isClawBusy()){
                         outtake.pivotToPickupBack();
+                        if (!outtake.isArmBusy()){
+                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
+                        }
                     }
                 }
                 if(!follower.isBusy()){

@@ -88,7 +88,7 @@ public class OuttakeLift {
                 target = 900;
                 break;
             case BACK_PICKUP:
-                target = 600;
+                target = 275;
                 break;
             default:
                 break;
