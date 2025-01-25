@@ -44,7 +44,7 @@ public class EC_TeleOp extends OpMode {
 
     @Override
     public void init_loop(){
-        outtake.updatePivPosition();
+        outtake.loop();
         switch (initfsm){
             case 1:
                 outtakeLift.rlift.setPower(.4);
@@ -105,9 +105,9 @@ public class EC_TeleOp extends OpMode {
             outtake.pivotToScoreSpecBack();
         }
         if (gamepad2.left_bumper){
-            outtake.openClaw();
+            outtake.setClaw(true);
         } else {
-            outtake.closeClaw();
+            outtake.setClaw(false);
         }
 
         if (gamepad1.right_bumper) misc.setSweep(true);
@@ -116,7 +116,7 @@ public class EC_TeleOp extends OpMode {
         }
 
         outtakeLift.HoldLift();
-        outtake.updatePivPosition();
+        outtake.loop();
         intake.intakeLoop();
         intake.extendoLoop();
         misc.loop();

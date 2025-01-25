@@ -11,6 +11,10 @@ public class Outtake {
     private Servo lpivhigh;
     double pivpos = 0;
 
+    boolean clawOpen = false;
+    final double CLAW_CLOSED = 0.655;
+    final double CLAW_OPENED = 0.620;
+
     public Outtake(HardwareMap hardwareMap) {
         clamp = hardwareMap.get(Servo.class, "clamp");
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
@@ -22,11 +26,13 @@ public class Outtake {
         updownpiv.setDirection(Servo.Direction.FORWARD);
         clamp.setDirection(Servo.Direction.REVERSE);
     }
-    public void updatePivPosition(){
+    public void loop(){
         if (pivpos != rpivhigh.getPosition()){
             rpivhigh.setPosition(pivpos);
             lpivhigh.setPosition(pivpos);
         }
+        if(clawOpen) clamp.setPosition(CLAW_OPENED);
+        else clamp.setPosition(CLAW_CLOSED);
     }
     public void pivotToFront(){
         pivpos = 0.38;
@@ -55,10 +61,14 @@ public class Outtake {
         spinpiv.setPosition(0.985);
     }
 
-    public void openClaw(){
-        clamp.setPosition(0.620);
+    public void setClaw(boolean state){
+        clawOpen = state;
     }
-    public void closeClaw(){
-        clamp.setPosition(0.655);
+
+    public boolean isClawBusy(){
+        return (clawOpen && Math.abs(clamp.getPosition() - CLAW_OPENED) < 0.005) || (!clawOpen && Math.abs(clamp.getPosition() - CLAW_CLOSED) < 0.005);
+    }
+    public boolean isArmBusy(){
+        return pivpos != rpivhigh.getPosition();
     }
 }

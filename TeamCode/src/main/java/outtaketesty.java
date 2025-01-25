@@ -26,11 +26,11 @@ public class outtaketesty extends OpMode {
             outtake.pivotToTransfer();
         }
         if (gamepad1.dpad_left){
-            outtake.openClaw();
+            outtake.setClaw(true);
         } else {
-            outtake.closeClaw();
+            outtake.setClaw(false);
         }
-        outtake.updatePivPosition();
+        outtake.loop();
         telemetry.update();
     }
 }

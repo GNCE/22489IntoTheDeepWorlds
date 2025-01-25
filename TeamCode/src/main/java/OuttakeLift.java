@@ -14,6 +14,7 @@ public class OuttakeLift {
     public static int TRANSFER_GRAB = 290;
     public static int LIFT_BUCKET = 1200;
 
+
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
@@ -51,6 +52,52 @@ public class OuttakeLift {
     }
     public void LiftTarget(int input){
         target = input;
+    }
+
+    public enum OuttakeLiftPositions {
+        TRANSFER_WAIT,
+        TRANSFER_GRAB,
+        LIFT_BUCKET,
+        FRONT_SCORE_WAIT,
+        FRONT_SCORE_DONE,
+        FRONT_PICKUP,
+        BACK_SCORE,
+        BACK_PICKUP
+    }
+
+    OuttakeLiftPositions outtakeLiftPositions;
+    public void LiftTo(OuttakeLiftPositions input){
+        switch(input){
+            case TRANSFER_WAIT:
+                target = 500;
+                break;
+            case TRANSFER_GRAB:
+                target = 290;
+                break;
+            case LIFT_BUCKET:
+                target = 1200;
+                break;
+            case FRONT_SCORE_WAIT:
+                target = 900;
+                break;
+            case FRONT_SCORE_DONE:
+                target = 800;
+                break;
+            case FRONT_PICKUP:
+                target = 200;
+                break;
+            case BACK_SCORE:
+                target = 900;
+                break;
+            case BACK_PICKUP:
+                target = 600;
+                break;
+            default:
+                break;
+        }
+    }
+    public boolean isBusy(){
+        return Math.abs(target - getCurrentPosition()) <= 4;
     }
     public void LiftToTransferWait(){
         target = TRANSFER_WAIT;
