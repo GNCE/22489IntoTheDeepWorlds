@@ -240,15 +240,15 @@ public class EC_Auto_Sample extends OpMode{
         outtakeLift.HoldLift();
     }
 
-    private final ToggleButton teamColorButton = new ToggleButton(PoseStorage.isRed);
+    private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
 
     @Override
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);
 
-        PoseStorage.isRed = teamColorButton.getVal();
+        Storage.isRed = teamColorButton.getVal();
 
-        telemetry.addData("Team Color:", PoseStorage.isRed ? "Red" : "Blue");
+        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         telemetry.update();
     }
     @Override
@@ -264,7 +264,9 @@ public class EC_Auto_Sample extends OpMode{
         outtakeLift.HoldLift();
         pickupsequence();
 
-        PoseStorage.CurrentPose = follower.getPose();
+        Storage.CurrentPose = follower.getPose();
+        Storage.extendoPos = intake.extendo.getCurrentPosition();
+        Storage.liftPos = outtakeLift.getCurrentPosition();
 
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);

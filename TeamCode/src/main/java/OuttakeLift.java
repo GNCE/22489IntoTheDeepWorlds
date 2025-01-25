@@ -3,9 +3,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+
 public class OuttakeLift {
     public DcMotorEx rlift;
     public DcMotorEx llift;
+    public TouchSensor touchSensor;
+
     private PIDController controller;
     private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
     private int target = 250;
@@ -19,6 +23,7 @@ public class OuttakeLift {
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         llift = hardwareMap.get(DcMotorEx.class, "llift");
+        touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
         llift.setDirection(DcMotor.Direction.REVERSE);
         rlift.setDirection(DcMotor.Direction.FORWARD);
         llift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -31,6 +36,14 @@ public class OuttakeLift {
         this.lopMode = opMode;
     }
     public void HoldLift(){
+        if(touchSensor.isPressed()){
+            llift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            llift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            target = 0;
+        }
+
         if (Math.abs(lopMode.gamepad2.left_stick_y)>0.3){
             // Manual Takeover. Disable PID or limits
             rlift.setPower(-lopMode.gamepad2.left_stick_y);

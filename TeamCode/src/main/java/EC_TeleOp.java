@@ -20,7 +20,7 @@ public class EC_TeleOp extends OpMode {
     private OuttakeLift outtakeLift;
     private Misc misc;
     private ElapsedTime elapsedTime;
-    private final Pose startPose = PoseStorage.CurrentPose;
+    private final Pose startPose = Storage.CurrentPose;
     int flip = 1;
     int initfsm = 0;
     @Override
@@ -39,7 +39,7 @@ public class EC_TeleOp extends OpMode {
         initfsm = 1;
     }
 
-    private ToggleButton teamColorButton = new ToggleButton(PoseStorage.isRed);
+    private ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
     private ToggleButton controlFlipButton = new ToggleButton(true);
 
     @Override
@@ -73,9 +73,9 @@ public class EC_TeleOp extends OpMode {
         }
 
         teamColorButton.input(gamepad1.dpad_up);
-        PoseStorage.isRed = teamColorButton.getVal();
+        Storage.isRed = teamColorButton.getVal();
         telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
-        telemetry.addData("Team Color:", PoseStorage.isRed ? "Red" : "Blue");
+        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         telemetry.update();
     }
 
@@ -85,8 +85,6 @@ public class EC_TeleOp extends OpMode {
         follower.startTeleopDrive();
 
     }
-
-    ToggleButton intakeFlip = new ToggleButton(false);
 
     @Override
     public void loop() {
@@ -108,6 +106,7 @@ public class EC_TeleOp extends OpMode {
         }else if (gamepad2.dpad_up){
             outtake.pivotToScoreSpecBack();
         }
+
         if (gamepad2.left_bumper){
             outtake.setClaw(true);
         } else {

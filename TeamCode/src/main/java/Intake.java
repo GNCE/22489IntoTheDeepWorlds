@@ -53,7 +53,7 @@ public class Intake{
     }
 
     public boolean isCorrectColor(){
-        return isYellow() || (PoseStorage.isRed && isRed()) || (!PoseStorage.isRed && isBlue());
+        return isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue());
     }
     public void initiate(){
         extendo.setTargetPosition(0);
