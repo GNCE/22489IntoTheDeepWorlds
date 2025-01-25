@@ -170,7 +170,7 @@ public class EC_Auto_Sample extends OpMode{
                         intake.flipDown();
                         intake.ManualExtend();
                     } else if (Collected && !intake.isCorrectColor()){
-                        intake.flipUp();
+                        intake.deposit();
                         intake.ManualRetract();
                         if (intake.extendo.getCurrentPosition() < 40){
                             Collected = false;
@@ -178,7 +178,6 @@ public class EC_Auto_Sample extends OpMode{
                     }
                     if((intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5) && !Collected){
                         Collected = true;
-                        intake.flipUp();
                         intake.ManualRetract();
                         if(intake.extendo.getCurrentPosition() < 15){
                             intake.deposit();
