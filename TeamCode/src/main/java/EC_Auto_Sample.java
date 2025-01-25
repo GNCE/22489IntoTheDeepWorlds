@@ -23,6 +23,7 @@ public class EC_Auto_Sample extends OpMode{
     private Outtake outtake;
     private Misc misc;
     private int transferRealFSM =0;
+    private boolean Collected = false;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
     /** Start Pose of our robot */
@@ -55,7 +56,7 @@ public class EC_Auto_Sample extends OpMode{
         switch (transferRealFSM){
             case 1:
                 outtake.setClaw(true);
-                if (pathTimer.getElapsedTimeSeconds()>0.5){
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
                     outtakeLift.LiftToTransferGrab();
                     if (pathTimer.getElapsedTimeSeconds() > .9){
                         transferRealFSM = 2;
@@ -158,22 +159,35 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 3:
                 // Intake grabs a sample
-                if(pathTimer.getElapsedTimeSeconds()>1) {
-                    intake.flipDown();
-                    intake.ManualExtend();
-                    if (pathTimer.getElapsedTimeSeconds() > 2.5){
+                if(!outtakeLift.isBusy()){
+                    outtake.setClaw(false);
+                    if(!outtake.isClawBusy()){
+                        outtake.pivotToPickupBack();
+                    }
+                }
+                if(!follower.isBusy()){
+                    if (!Collected){
+                        intake.flipDown();
+                        intake.ManualExtend();
+                    } else if (Collected && !intake.isCorrectColor()){
                         intake.flipUp();
                         intake.ManualRetract();
-                        if(intake.extendo.getCurrentPosition()<15) {
+                        if (intake.extendo.getCurrentPosition() < 40){
+                            Collected = false;
+                        }
+                    }
+                    if((intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5) && !Collected){
+                        Collected = true;
+                        intake.flipUp();
+                        intake.ManualRetract();
+                        if(intake.extendo.getCurrentPosition() < 15){
                             intake.deposit();
-                            if (pathTimer.getElapsedTimeSeconds() > 3) {
-                                transferRealFSM = 1;
                                 follower.followPath(scorePickups[sampleCounter], true);
                                 setPathState(4);
                             }
                         }
                     }
-                }
+
                 break;
             case 4:
                 // Transfer sequence

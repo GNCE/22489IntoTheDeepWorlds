@@ -39,9 +39,7 @@ public class OuttakeLift {
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
-            if (target > 1125) target = 1125;
-            else if (target < 25) target = 25;
-            int liftPos = rlift.getCurrentPosition();
+            int liftPos = (rlift.getCurrentPosition() + llift.getCurrentPosition())/2;
             double pid = controller.calculate(liftPos, target);
             double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
