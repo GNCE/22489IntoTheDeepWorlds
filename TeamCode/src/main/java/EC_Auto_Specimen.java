@@ -1,6 +1,7 @@
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
@@ -21,27 +22,29 @@ public class EC_Auto_Specimen extends OpMode {
     private Timer pathTimer;
     private final double scoreX = 41.5;
     private final double scoreY = 73;
-    private final double intakeX = 20;
+    private final double intakeX = 25;
 
     private final Pose startPose = new Pose(9.1, 54.125, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(0));
     private final Pose firstIntakePose = new Pose(intakeX, 23, Math.toRadians(0));
     private final Pose secondIntakePose = new Pose(intakeX, 13, Math.toRadians(0));
-    private final Pose thirdIntakePose = new Pose(intakeX, 12, Math.toRadians(340));
-    private final Pose outtakePickupPose = new Pose(10, 35, Math.toRadians(0));
+    private final Pose thirdIntakePose = new Pose(intakeX, 11, Math.toRadians(342));
+    private final Pose outtakePickupPose = new Pose(20, 35, Math.toRadians(0));
     private final Pose firstScorePose = new Pose(scoreX, scoreY-3, Math.toRadians(0));
     private final Pose secondScorePose = new Pose(scoreX, scoreY-6, Math.toRadians(0));
     private final Pose thirdScorePose = new Pose(scoreX, scoreY-9, Math.toRadians(0));
     private final Pose fourthScorePose = new Pose(scoreX, scoreY-12, Math.toRadians(0));
     private final Pose parkPose = new Pose(20, 45, Math.toRadians(60));
 
-    private PathChain scorePreloadPath, firstIntakePath, secondIntakePath, thirdIntakePath, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath, thirdScorePath, fourthScorePath;
-    private PathChain parkFromFourthPath;
+    private PathChain scorePreloadPath, parkFromFourthPath;
+    private PathChain firstIntakePath, secondIntakePath, thirdIntakePath, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath, thirdScorePath, fourthScorePath;
+
     private PathChain[] intakePaths, pickupPaths, scorePaths;
     public void buildPaths(){
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
+
                 .build();
         firstIntakePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(preloadScorePose), new Point(firstIntakePose)))
@@ -92,7 +95,7 @@ public class EC_Auto_Specimen extends OpMode {
                 .setLinearHeadingInterpolation(fourthScorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        intakePaths = new PathChain[]{firstPickupPath, secondIntakePath, thirdIntakePath};
+        intakePaths = new PathChain[]{firstIntakePath, secondIntakePath, thirdIntakePath};
         pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath};
         scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath};
     }
@@ -105,7 +108,7 @@ public class EC_Auto_Specimen extends OpMode {
         SCORE,
         PARK
     }
-    private AutoState autoState = AutoState.SCORE_PRELOAD;
+    private AutoState autoState = AutoState.DRIVE_TO_PRELOAD_SCORE;
 
     public void setPathState(AutoState newState){
         autoState = newState;
@@ -116,17 +119,19 @@ public class EC_Auto_Specimen extends OpMode {
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
-                follower.followPath(scorePreloadPath, true);
+                follower.followPath(scorePreloadPath,true);
                 outtake.setClaw(false);
                 outtake.pivotToFront();
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
-                setPathState(AutoState.SCORE_PRELOAD);
+                if (pathTimer.getElapsedTimeSeconds()>2){
+                setPathState(AutoState.SCORE_PRELOAD);}
                 break;
             case SCORE_PRELOAD:
-                if(!follower.isBusy()){
+                if(pathTimer.getElapsedTimeSeconds()>2){
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(!outtakeLift.isBusy()){
                         outtake.setClaw(true);
+                        outtake.pivotToTransfer();
                         if(!outtake.isClawBusy()){
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                             follower.followPath(firstIntakePath, true);
@@ -146,7 +151,8 @@ public class EC_Auto_Specimen extends OpMode {
                 if(!follower.isBusy()){
                     intake.flipDown();
                     intake.ManualExtend();
-                    if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 3){
+                    if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5){
+                        intake.flipUp();
                         intake.ManualRetract();
                         if(intake.extendo.getCurrentPosition() < 15){
                             intake.deposit();
@@ -165,8 +171,14 @@ public class EC_Auto_Specimen extends OpMode {
                 }
                 break;
             case PICKUP:
-                if(!follower.isBusy()){
+                if(!outtakeLift.isBusy()){
                     outtake.setClaw(false);
+                    if(!outtake.isClawBusy()){
+                        outtake.pivotToPickupBack();
+                    }
+                }
+                if(!follower.isBusy()){
+                    outtake.setClaw(true);
                     if(!outtake.isClawBusy()){
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                         outtake.pivotToFront();
@@ -184,6 +196,7 @@ public class EC_Auto_Specimen extends OpMode {
                             counter++;
                             if(counter < 4){
                                 follower.followPath(pickupPaths[counter], true);
+
                                 setPathState(AutoState.PICKUP);
                             } else {
                                 follower.followPath(parkFromFourthPath, true);
@@ -208,6 +221,16 @@ public class EC_Auto_Specimen extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+
+        intake = new Intake(hardwareMap, this);
+        outtake = new Outtake(hardwareMap);
+        outtakeLift = new OuttakeLift(hardwareMap,this);
+        buildPaths();
+    }
+    @Override
+    public void start(){
+        intake.initiate();
+        outtakeLift.HoldLift();
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(PoseStorage.isRed);

@@ -64,8 +64,6 @@ public class OuttakeLift {
         BACK_SCORE,
         BACK_PICKUP
     }
-
-    OuttakeLiftPositions outtakeLiftPositions;
     public void LiftTo(OuttakeLiftPositions input){
         switch(input){
             case TRANSFER_WAIT:
@@ -78,10 +76,10 @@ public class OuttakeLift {
                 target = 1200;
                 break;
             case FRONT_SCORE_WAIT:
-                target = 900;
+                target = 450;
                 break;
             case FRONT_SCORE_DONE:
-                target = 800;
+                target = 700;
                 break;
             case FRONT_PICKUP:
                 target = 200;

@@ -37,7 +37,7 @@ public class Outtake {
     public void pivotToFront(){
         pivpos = 0.38;
         updownpiv.setPosition(0.1605);
-        spinpiv.setPosition(0.883);
+        spinpiv.setPosition(0.985);
     }
     public void pivotToScoreSamp(){
         pivpos = .82;
