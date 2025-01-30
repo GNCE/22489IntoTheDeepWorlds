@@ -12,7 +12,7 @@ public class OuttakeLift {
 
     private PIDController controller;
     private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
-    private int target = 250;
+    private static int target = 250;
 
     public static int TRANSFER_WAIT = 500;
     public static int TRANSFER_GRAB = 290;

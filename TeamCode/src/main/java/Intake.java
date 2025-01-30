@@ -10,7 +10,8 @@ public class Intake{
     private Servo finintake;
     public CRServo lintake;
     public CRServo rintake;
-    public DcMotor extendo;
+    public Servo leintake;
+    public Servo reintake;
     ColorSensor colorSensor;
 
     OpMode opMode;
@@ -20,12 +21,28 @@ public class Intake{
         INTAKE,
         DEPOSIT,
         SHOOT,
+        TRANSFER,
     }
 
     IntakeState intakeState = IntakeState.FLIP_UP;
     double fin = 0;
     double intakePower = 0;
-    double ex = 0;
+
+
+    /** LINKAGE EXTENSION VARIABLES */
+    double extPos = 0;
+    // Length of first linkage (Linkage that connects to servo) (mm)
+    final double LINK1 = 200;
+    // Length of second linkage (Linkage that connects to the slide) (mm)
+    final double LINK2 = 300;
+    // Offset X axis (CURRENT VALUE IS CORRECT)
+    final double XOFFSET = 98;
+    // Offset Y axis (CURRENT VALUE IS CORRECT)
+    final double YOFFSET = 17.25;
+    // Length of the slides when fully extended (mm)
+    final double FULL_EXTENSION = 1000;
+    // Default servo angle
+
     int depo =0;
     boolean useRTP = true;
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
@@ -35,12 +52,15 @@ public class Intake{
         rintake.setDirection(CRServo.Direction.FORWARD);
         lintake.setDirection(CRServo.Direction.REVERSE);
         finintake.setDirection(Servo.Direction.REVERSE);
+
+        leintake = hardwareMap.get(Servo.class, "leintake");
+        reintake = hardwareMap.get(Servo.class, "reintake");
+        reintake.setDirection(Servo.Direction.FORWARD);
+        leintake.setDirection(Servo.Direction.REVERSE);
+
         colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
         colorSensor.enableLed(true);
         this.opMode = opMode;
-        extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.FORWARD);
-        extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     private boolean isRed(){
         return colorSensor.red() > 250;
@@ -55,10 +75,24 @@ public class Intake{
     public boolean isCorrectColor(){
         return isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue());
     }
+    private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
+        // All units are mm and degrees.
+        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
+        double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
+        return (180 - beta - gamma)/servoRange;
+    }
+    private void intakeExtendTo(double length){
+        double targetPos = getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, 360*5);
+        leintake.setPosition(targetPos);
+        reintake.setPosition(targetPos);
+    }
+    public void setIntakeExtensionTarget(double target){
+        if(target > FULL_EXTENSION) target = FULL_EXTENSION;
+        else if(target < 0) target = 0;
+        extPos = target;
+    }
     public void initiate(){
-        extendo.setTargetPosition(0);
-        extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendo.setPower(.5);
+        intakeExtendTo(0);
         rintake.setPower(0);
         lintake.setPower(0);
         finintake.setPosition(0);
@@ -71,28 +105,21 @@ public class Intake{
             rintake.setPower(intakePower);
             lintake.setPower(intakePower);
         }
-        if (extendo.getTargetPosition()!=(int)Math.round(ex*450)){
-            extendo.setTargetPosition((int)Math.round(ex*450));
-        }
+        intakeExtendTo(extPos);
     }
-    public boolean ManualExtend(){
-        ex = 1; extendo.setPower(.3);
-        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
+    public void ManualExtend(){
+        setIntakeExtensionTarget(FULL_EXTENSION);
     }
-    public boolean ManualRetract(){
-        ex = 0; extendo.setPower(1);
-        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
+    public void ManualRetract(){
+        setIntakeExtensionTarget(0);
     }
-    public void TeleopExtend(){
-        ex = opMode.gamepad1.left_trigger;
-        if (opMode.gamepad1.left_trigger > 0.3) {
-            extendo.setPower(.3);
-        } else {
-            extendo.setPower(1);
-        }
+    public void TeleopExtend(double valueFromZeroToOne){
+        if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
+        else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
+        setIntakeExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
-
     private final double INTAKE_DOWN_POS = 0.919;
+    private final double INTAKE_TRANSFER_POS = 0.5;
     public void intakeLoop(){
         switch(intakeState){
             case FLIP_UP:
@@ -122,6 +149,8 @@ public class Intake{
                         intakeState = IntakeState.FLIP_UP;
                     }
                 }
+            case TRANSFER:
+                fin = INTAKE_TRANSFER_POS;
             default:
                 break;
         }
@@ -137,5 +166,8 @@ public class Intake{
     }
     public void shootOut(){
         intakeState = IntakeState.SHOOT;
+    }
+    public void flipToTransfer(){
+        intakeState = IntakeState.TRANSFER;
     }
 }

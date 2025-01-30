@@ -19,7 +19,7 @@ public class intaketesty extends OpMode {
             intake.startIntake();
         }
         intake.intakeLoop();
-        intake.TeleopExtend(); //left trigger
+        intake.TeleopExtend(gamepad1.left_trigger); //left trigger
         if (gamepad1.right_trigger > 0.2){
             intake.flipUp();
             intake.deposit();

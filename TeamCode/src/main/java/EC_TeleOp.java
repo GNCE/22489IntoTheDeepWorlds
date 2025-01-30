@@ -51,8 +51,6 @@ public class EC_TeleOp extends OpMode {
                 outtakeLift.llift.setPower(.4);
                 outtake.pivotToFront();
                 intake.flipUp();
-                intake.extendo.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                intake.extendo.setPower(-0.2);
                 if (elapsedTime.seconds() > 2){
                     initfsm = 2;
                 }
@@ -67,7 +65,6 @@ public class EC_TeleOp extends OpMode {
             case 3:
                 outtakeLift.rlift.setPower(0);
                 outtakeLift.llift.setPower(0);
-                intake.extendo.setPower(0);
                 initfsm = -1;
             break;
         }
@@ -90,7 +87,7 @@ public class EC_TeleOp extends OpMode {
     public void loop() {
         if (gamepad1.left_bumper) intake.startIntake();
         if (gamepad1.right_stick_button) intake.shootOut();
-        intake.TeleopExtend(); //left trigger
+        intake.TeleopExtend(gamepad1.left_trigger); //left trigger
         if (gamepad1.right_trigger > 0.2) intake.deposit();
         if (gamepad2.y){
             outtake.pivotToFront();
@@ -141,7 +138,7 @@ public class EC_TeleOp extends OpMode {
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
         telemetry.addData("lift position",outtakeLift.rlift.getCurrentPosition());
-        telemetry.addData("extendo position", intake.extendo.getCurrentPosition());
+        telemetry.addData("extendo target position", intake.extPos);
         telemetry.update();
     }
 }
