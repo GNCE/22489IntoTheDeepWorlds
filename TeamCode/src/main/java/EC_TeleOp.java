@@ -110,10 +110,7 @@ public class EC_TeleOp extends OpMode {
             outtake.setClaw(false);
         }
 
-        if (gamepad1.right_bumper) misc.setSweep(true);
-        else{
-            if(misc.reachedSweepTarget()) misc.setSweep(false);
-        }
+        if (gamepad1.right_bumper) misc.startSweep();
 
         outtakeLift.HoldLift();
         outtake.loop();
