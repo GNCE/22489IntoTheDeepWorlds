@@ -5,70 +5,136 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Outtake {
     private Servo clamp;
-    private Servo updownpiv;
-    private Servo spinpiv;
+    private Servo Rdiffy;
+    private Servo Ldiffy;
     private Servo rpivhigh;
     private Servo lpivhigh;
-    double pivpos = 0;
+    double ArmPosition = 0;
 
     boolean clawOpen = false;
     final double CLAW_CLOSED = 0.655;
     final double CLAW_OPENED = 0.627;
+    //tune these values vvvvv
+    final double ARM_SAMPSCORE_POS = 1;
+    final double ARM_TRANSFER_POS = 0;
+    final double ARM_FRONTSPEC_POS = 0;
+    final double ARM_BACKSPEC_POS = 1;
+    public enum OuttakeState {
+        SPECFRONT,
+        TRANSFER,
+        SAMPLESCORE,
+        SPECBACKSCORE
 
+    }
     public Outtake(HardwareMap hardwareMap) {
         clamp = hardwareMap.get(Servo.class, "clamp");
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
-        updownpiv = hardwareMap.get(Servo.class, "updownpiv");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
-        spinpiv = hardwareMap.get(Servo.class, "spinpiv");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
         lpivhigh.setDirection(Servo.Direction.REVERSE);
-        updownpiv.setDirection(Servo.Direction.FORWARD);
-        clamp.setDirection(Servo.Direction.REVERSE);
+        Rdiffy = hardwareMap.get(Servo.class,"Rdiffy");
+        Ldiffy = hardwareMap.get(Servo.class,"Ldiffy");
+        Rdiffy.setDirection(Servo.Direction.FORWARD);
+        Ldiffy.setDirection(Servo.Direction.REVERSE);
     }
-    public void loop(){
-        if (pivpos != rpivhigh.getPosition()){
-            rpivhigh.setPosition(pivpos);
-            lpivhigh.setPosition(pivpos);
+    public enum DiffyState {
+        ORIENTATION_UP,
+        ORIENTATION_DOWN,
+        UPDOWN_TRANSFER,
+        UPDOWN_SPECBACKSCORE,
+        UPDOWN_SPECFRONT,
+        UPDOWN_SAMPLESCORE,
+
+    }
+    DiffyState UPDOWNdiffyState = DiffyState.UPDOWN_TRANSFER;
+    DiffyState ORIENTATIONdiffyState = DiffyState.ORIENTATION_UP;
+    double rightDiffyPos = 0;
+    double leftDiffyPos = 0;
+    double upDownPos = 0;
+    double orientationPos = 0;
+    //tune these values vvvvv
+    final double DIFFY_SAMPLESCOREPOS = 0;
+    final double DIFFY_TRANSFERPOS = 0;
+    final double DIFFY_SPECFRONTPOS = 0;
+    final double DIFFY_SPECBACKPOS = 0;
+    final double DIFFY_ORIENTATION_UP = 0;
+    final double DIFFY_ORIENTATION_DOWN = 0;
+    public void DiffyControl(DiffyState UPDOWNdiffyState, DiffyState ORIENTATIONdiffyState){
+        switch (UPDOWNdiffyState){
+            case UPDOWN_SAMPLESCORE:
+                upDownPos = DIFFY_SAMPLESCOREPOS;
+                break;
+            case UPDOWN_SPECBACKSCORE:
+                upDownPos = DIFFY_SPECBACKPOS;
+                break;
+            case UPDOWN_SPECFRONT:
+                upDownPos = DIFFY_SPECFRONTPOS;
+                break;
+            case UPDOWN_TRANSFER:
+                upDownPos = DIFFY_TRANSFERPOS;
+                break;
         }
-        if(clawOpen) clamp.setPosition(CLAW_OPENED);
-        else clamp.setPosition(CLAW_CLOSED);
+        switch (ORIENTATIONdiffyState){
+            case ORIENTATION_DOWN:
+                orientationPos = DIFFY_ORIENTATION_UP;
+                break;
+            case ORIENTATION_UP:
+                orientationPos = DIFFY_ORIENTATION_DOWN;
+                break;
+        }
+        rightDiffyPos = upDownPos + orientationPos;
+        leftDiffyPos = upDownPos - orientationPos;
     }
-    public void pivotToFront(){
-        pivpos = 0.45;
-        updownpiv.setPosition(0.154);
-        spinpiv.setPosition(0.985);
+    OuttakeState outtakeState = OuttakeState.TRANSFER;
+    public void loop(){
+        switch(outtakeState){
+            case TRANSFER:
+                ArmPosition = ARM_TRANSFER_POS;
+                clawOpen = true;
+                break;
+            case SAMPLESCORE:
+                ArmPosition = ARM_SAMPSCORE_POS;
+                break;
+            case SPECFRONT:
+                ArmPosition = ARM_FRONTSPEC_POS;
+                break;
+            case SPECBACKSCORE:
+                ArmPosition = ARM_BACKSPEC_POS;
+                break;
+        }
+        if (ArmPosition != rpivhigh.getPosition()){
+            rpivhigh.setPosition(ArmPosition);
+            lpivhigh.setPosition(ArmPosition);
+        }
+        if ((clamp.getPosition()!=CLAW_CLOSED )&& !clawOpen){
+            clamp.setPosition(CLAW_CLOSED);
+        } else if ((clamp.getPosition()!=CLAW_OPENED) && clawOpen){
+            clamp.setPosition(CLAW_OPENED);
+        }
+        if((Rdiffy.getPosition() != rightDiffyPos)||(Ldiffy.getPosition() != leftDiffyPos)){
+            Rdiffy.setPosition(rightDiffyPos);
+            Ldiffy.setPosition(leftDiffyPos);
+        }
     }
-    public void pivotToScoreSamp(){
-        pivpos = .82;
-        updownpiv.setPosition(.127);
-        spinpiv.setPosition(0.883);
+    public void POS_SpecimanFront(){
+        outtakeState = OuttakeState.SPECFRONT;
+        DiffyControl(DiffyState.UPDOWN_SPECFRONT, DiffyState.ORIENTATION_UP);
     }
-    // 0.242
-    public void pivotToScoreSpecBack(){
-        pivpos =1;
-        updownpiv.setPosition(0.127);
-        spinpiv.setPosition(0.985);
+    public void POS_scoreSample(){
+        outtakeState = OuttakeState.SAMPLESCORE;
+        DiffyControl(DiffyState.UPDOWN_SAMPLESCORE,DiffyState.ORIENTATION_DOWN);
     }
-    public void pivotToPickupBack(){
-        pivpos = 0;
-        updownpiv.setPosition(0.205);
-        spinpiv.setPosition(0.985); // spins it around
+    public void POS_scoreSpecimanBack(){
+        outtakeState = OuttakeState.SPECBACKSCORE;
+        DiffyControl(DiffyState.UPDOWN_SPECBACKSCORE, DiffyState.ORIENTATION_DOWN);
     }
-    public void pivotToTransfer (){
-        pivpos = 0.0;
-        updownpiv.setPosition(0.119);
-        spinpiv.setPosition(0.985);
+    public void POS_Transfering(){
+        outtakeState = OuttakeState.TRANSFER;
+        DiffyControl(DiffyState.UPDOWN_TRANSFER,DiffyState.ORIENTATION_UP);
     }
 
-    public void setClaw(boolean state){
+    public void setClawOpen(boolean state){
         clawOpen = state;
     }
 
-    public boolean isClawBusy(){
-        return (clawOpen && Math.abs(clamp.getPosition() - CLAW_OPENED) < 0.005) || (!clawOpen && Math.abs(clamp.getPosition() - CLAW_CLOSED) < 0.005);
-    }
-    public boolean isArmBusy(){
-        return pivpos != rpivhigh.getPosition();
-    }
 }

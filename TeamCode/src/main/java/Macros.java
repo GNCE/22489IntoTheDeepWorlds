@@ -29,13 +29,13 @@ public class Macros {
             case READY_OUTTAKE_LIFT:
                 if(outtakeLift.getCurrentPosition() < 300) outtakeLift.LiftTarget(300);
                 if(!outtakeLift.isBusy()){
-                    outtake.pivotToTransfer();
+                    outtake.POS_Transfering();
                     setTransferState(TransferState.READY_OUTTAKE_ARM);
                 }
                 break;
             case READY_OUTTAKE_ARM:
                 if(transferTime.time() > 2){ // Time it takes for arm to pivot
-                    outtake.setClaw(true);
+                    outtake.setClawOpen(true);
                     setTransferState(TransferState.OPEN_CLAW);
                 }
                 break;

@@ -63,9 +63,9 @@ public class EC_Auto_Sample extends OpMode{
                 transferRealFSM = 4;
                 break;
             case 4:
-                outtake.pivotToTransfer();
+                outtake.POS_Transfering();
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_WAIT);
-                outtake.setClaw(true);
+                outtake.setClawOpen(true);
                 if (elapsedTime.seconds() > 1){
                     elapsedTime.reset();
                     transferRealFSM = 5;
@@ -74,14 +74,14 @@ public class EC_Auto_Sample extends OpMode{
             case 5:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_GRAB);
                 if (!outtakeLift.isBusy()){
-                    outtake.setClaw(false);
+                    outtake.setClawOpen(false);
                     elapsedTime.reset();
                     transferRealFSM = 6;
                 }
                 break;
             case 6:
                 if (elapsedTime.seconds() > .3){
-                    outtake.pivotToScoreSamp();
+                    outtake.POS_scoreSample();
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                     transferRealFSM = -1;
                 }
@@ -144,7 +144,7 @@ public class EC_Auto_Sample extends OpMode{
     public void resetEncoderFSM(){
         switch (resetFSM){
             case 1://reset stuff
-                outtake.pivotToFront();
+                outtake.POS_SpecimanFront();
                 outtakeLift.LiftTarget(600);
                 if(!outtakeLift.isBusy()){
                     elapsedTime.reset();
@@ -153,7 +153,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 2:
                 if (elapsedTime.seconds() >1){
-                    outtake.pivotToScoreSpecBack();
+                    outtake.POS_scoreSpecimanBack();
                     outtakeLift.LiftTarget(-100);
                     if (outtakeLift.touchSensor.isPressed()){
                         resetFSM = -1;}
@@ -166,16 +166,16 @@ public class EC_Auto_Sample extends OpMode{
 
             case 0:
                 follower.followPath(scorePreload);
-                outtake.setClaw(false);
+                outtake.setClawOpen(false);
                 outtakeLift.LiftToBucket();
-                outtake.pivotToScoreSamp();
+                outtake.POS_scoreSample();
 
                 setPathState(1);
                 break;
             case 1:
                 // Preload
                 if(pathTimer.getElapsedTimeSeconds()>1.6) {
-                    outtake.setClaw(true);
+                    outtake.setClawOpen(true);
                     if (pathTimer.getElapsedTimeSeconds() > 2.3){
                         resetFSM = 1;
                         setPathState(2);
@@ -220,13 +220,13 @@ public class EC_Auto_Sample extends OpMode{
                 pickupsequence();
                 if (transferRealFSM ==-1){
                     if(pathTimer.getElapsedTimeSeconds()>2.5) {
-                        outtake.setClaw(true);
+                        outtake.setClawOpen(true);
                         if (pathTimer.getElapsedTimeSeconds() > 3.5){
                             sampleCounter++;
                             if(sampleCounter < 3) {setPathState(2); resetFSM = 1;}
                             else{
                                 outtakeLift.LiftTarget(900);
-                                outtake.pivotToTransfer();
+                                outtake.POS_Transfering();
                                 follower.followPath(park, false);
                                 setPathState(7);
                             }
@@ -236,7 +236,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 7:
                 if(!follower.isBusy()){
-                    outtake.pivotToFront();
+                    outtake.POS_SpecimanFront();
                 }
                 break;
             default:

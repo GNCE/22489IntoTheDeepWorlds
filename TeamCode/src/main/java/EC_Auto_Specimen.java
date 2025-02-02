@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-
+/*
 @Autonomous (name = "Specimen Auto")
 public class EC_Auto_Specimen extends OpMode {
     private Follower follower;
@@ -120,8 +120,8 @@ public class EC_Auto_Specimen extends OpMode {
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreloadPath,true);
-                outtake.setClaw(false);
-                outtake.pivotToFront();
+                outtake.setClawOpen(false);
+                outtake.POS_SpecimanFront();
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                 setPathState(AutoState.SCORE_PRELOAD);
                 break;
@@ -129,7 +129,7 @@ public class EC_Auto_Specimen extends OpMode {
                 if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(!outtakeLift.isBusy()){
-                        outtake.setClaw(true);
+                        outtake.setClawOpen(true);
                         if(!outtake.isClawBusy()){
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                             follower.followPath(firstIntakePath, true);
@@ -141,7 +141,7 @@ public class EC_Auto_Specimen extends OpMode {
                 break;
             case READY_FOR_INTAKE:
                 if(!outtakeLift.isBusy()){
-                    outtake.setClaw(false);
+                    outtake.setClawOpen(false);
                     if(!outtake.isClawBusy()){
                         outtake.pivotToPickupBack();
                     }
@@ -164,7 +164,7 @@ public class EC_Auto_Specimen extends OpMode {
                         } else {
                             setPathState(AutoState.READY_FOR_PICKUP);
                             counter = 0;
-                            outtake.setClaw(true);
+                            outtake.setClawOpen(true);
                             follower.followPath(pickupPaths[counter], true);
                         }
                     }
@@ -173,11 +173,11 @@ public class EC_Auto_Specimen extends OpMode {
             case READY_FOR_PICKUP:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
                 if(!outtakeLift.isBusy()){
-                    outtake.setClaw(false);
+                    outtake.setClawOpen(false);
                     if(!outtake.isClawBusy()){
                         outtake.pivotToPickupBack();
                         if(!outtake.isArmBusy()){
-                            outtake.setClaw(true);
+                            outtake.setClawOpen(true);
                             setPathState(AutoState.PICKUP);
                         }
                     }
@@ -185,10 +185,10 @@ public class EC_Auto_Specimen extends OpMode {
                 break;
             case PICKUP:
                 if(!follower.isBusy()){
-                    outtake.setClaw(false);
+                    outtake.setClawOpen(false);
                     if(!outtake.isClawBusy()){
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
-                        outtake.pivotToFront();
+                        outtake.POS_SpecimanFront();
                         follower.followPath(scorePaths[counter], true);
                         setPathState(AutoState.SCORE);
                     }
@@ -198,7 +198,7 @@ public class EC_Auto_Specimen extends OpMode {
                 if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(!outtakeLift.isBusy()){
-                        outtake.setClaw(true);
+                        outtake.setClawOpen(true);
                         if(!outtake.isClawBusy()){
                             counter++;
                             if(counter < 4){
@@ -263,3 +263,4 @@ public class EC_Auto_Specimen extends OpMode {
         telemetry.update();
     }
 }
+*/
