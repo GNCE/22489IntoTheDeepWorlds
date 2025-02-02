@@ -156,7 +156,7 @@ public class EC_Auto_Specimen extends OpMode {
                 if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 4){
                     intake.ManualRetract();
                     if(intake.extendo.getCurrentPosition() < 15){
-                        intake.deposit();
+                        intake.depositandflip();
                         counter++;
                         if(counter < 3){
                             follower.followPath(intakePaths[counter], true);

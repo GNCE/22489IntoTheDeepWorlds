@@ -9,12 +9,16 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous (name = "Sample Auto")
+@Autonomous (name = "first Pedro auton")
 public class EC_Auto_Sample extends OpMode{
     private Follower follower;
 
@@ -22,8 +26,7 @@ public class EC_Auto_Sample extends OpMode{
     private OuttakeLift outtakeLift;
     private Outtake outtake;
     private Misc misc;
-    private int transferRealFSM =0;
-    private boolean Collected = false;
+    private int transferRealFSM = -1;
     private Timer pathTimer, opmodeTimer;
     private int pathState;
     /** Start Pose of our robot */
@@ -39,10 +42,10 @@ public class EC_Auto_Sample extends OpMode{
     private final Pose pickup2Pose = new Pose(24, 131, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(24, 134, Math.toRadians(24));
+    private final Pose pickup3Pose = new Pose(24, 132, Math.toRadians(15));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 94, Math.toRadians(270));
+    private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
@@ -52,28 +55,36 @@ public class EC_Auto_Sample extends OpMode{
     private Path scorePreload, park;
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
     private PathChain[] grabPickups, scorePickups;
+    ElapsedTime elapsedTime;
     public void pickupsequence(){
         switch (transferRealFSM){
-            case 1:
+            case 3:
+                elapsedTime.reset();
+                transferRealFSM = 4;
+                break;
+            case 4:
+                outtake.pivotToTransfer();
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_WAIT);
                 outtake.setClaw(true);
-                if (pathTimer.getElapsedTimeSeconds()>0.6){
-                    outtakeLift.LiftToTransferGrab();
-                    if (pathTimer.getElapsedTimeSeconds() > .9){
-                        transferRealFSM = 2;
-                    }
+                if (elapsedTime.seconds() > 1){
+                    elapsedTime.reset();
+                    transferRealFSM = 5;
                 }
                 break;
-            case 2:
-                outtake.setClaw(false);
-                if (pathTimer.getElapsedTimeSeconds()>2.5){
-                    outtakeLift.LiftToBucket();
-                    if(pathTimer.getElapsedTimeSeconds()>1.5){
-                        outtake.pivotToScoreSamp();
-                        transferRealFSM = 0;
-                    }
+            case 5:
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_GRAB);
+                if (!outtakeLift.isBusy()){
+                    outtake.setClaw(false);
+                    elapsedTime.reset();
+                    transferRealFSM = 6;
                 }
                 break;
-            default:
+            case 6:
+                if (elapsedTime.seconds() > .3){
+                    outtake.pivotToScoreSamp();
+                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                    transferRealFSM = -1;
+                }
                 break;
         }
     }
@@ -129,6 +140,27 @@ public class EC_Auto_Sample extends OpMode{
     }
 
     private int sampleCounter = 0;
+    int resetFSM = -1;
+    public void resetEncoderFSM(){
+        switch (resetFSM){
+            case 1://reset stuff
+                outtake.pivotToFront();
+                outtakeLift.LiftTarget(600);
+                if(!outtakeLift.isBusy()){
+                    elapsedTime.reset();
+                    resetFSM = 2;
+                }
+                break;
+            case 2:
+                if (elapsedTime.seconds() >1){
+                    outtake.pivotToScoreSpecBack();
+                    outtakeLift.LiftTarget(-100);
+                    if (outtakeLift.touchSensor.isPressed()){
+                        resetFSM = -1;}
+
+                }
+        }
+    }
     public void autonomousPathUpdate() {
         switch (pathState) {
 
@@ -142,9 +174,10 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 1:
                 // Preload
-                if(pathTimer.getElapsedTimeSeconds()>2) {
+                if(pathTimer.getElapsedTimeSeconds()>1.6) {
                     outtake.setClaw(true);
-                    if (pathTimer.getElapsedTimeSeconds() > 3){
+                    if (pathTimer.getElapsedTimeSeconds() > 2.3){
+                        resetFSM = 1;
                         setPathState(2);
                     }
                 }
@@ -152,62 +185,56 @@ public class EC_Auto_Sample extends OpMode{
             case 2:
                 // Loop Begins
                 // Outtake ready to transfer & goes to grab a sample
-                outtakeLift.LiftToTransferWait();
-                outtake.pivotToTransfer();
+                resetEncoderFSM();
                 follower.followPath(grabPickups[sampleCounter],true);
                 setPathState(3);
                 break;
             case 3:
-                // Intake grabs a sample
-                if(!outtakeLift.isBusy()){
-                    outtake.setClaw(false);
-                    if(!outtake.isClawBusy()){
-                        outtake.pivotToPickupBack();
-                    }
+                resetEncoderFSM();
+                if(!follower.isBusy() && resetFSM == -1){
+                    intake.startIntake();
+                    intake.ManualExtend();
+                    setPathState(4);
                 }
-                if(!follower.isBusy()){
-                    if (!Collected){
-                        intake.startIntake();
-                        intake.ManualExtend();
-                    } else if (Collected && !intake.isCorrectColor()){
-                        intake.deposit();
-                        intake.ManualRetract();
-                        if (intake.extendo.getCurrentPosition() < 40){
-                            Collected = false;
-                        }
-                    }
-                    if((intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 5) && !Collected){
-                        Collected = true;
-                        intake.ManualRetract();
-                        if(intake.extendo.getCurrentPosition() < 15){
-                            intake.deposit();
-                                follower.followPath(scorePickups[sampleCounter], true);
-                                setPathState(4);
-                            }
-                        }
-                    }
-
                 break;
             case 4:
-                // Transfer sequence
-                pickupsequence();
-                if (transferRealFSM ==0){
-                    if(pathTimer.getElapsedTimeSeconds()>5.5) {
-                        outtake.setClaw(true);
-                        if (pathTimer.getElapsedTimeSeconds() > 8){
-                            sampleCounter++;
-                            if(sampleCounter < 3) setPathState(2);
-                            else{
-                                outtakeLift.LiftTarget(900);
-                                outtake.pivotToTransfer();
-                                follower.followPath(park, false);
-                                setPathState(5);
-                            }
-                        }
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.isCorrectColor()){
+                    intake.flipUp();
+                    intake.ManualRetract();
+                    if(intake.extendo.getCurrentPosition()<20) {
+                        intake.depositOnly();
+                        setPathState(5);
                     }
                 }
                 break;
             case 5:
+                if (pathTimer.getElapsedTimeSeconds() >  1){
+                    transferRealFSM = 3;
+                    follower.followPath(scorePickups[sampleCounter], true);
+                    setPathState(6);
+                }
+                break;
+            case 6:
+                // Transfer sequence
+                intake.flipUp();
+                pickupsequence();
+                if (transferRealFSM ==-1){
+                    if(pathTimer.getElapsedTimeSeconds()>2.5) {
+                        outtake.setClaw(true);
+                        if (pathTimer.getElapsedTimeSeconds() > 3.5){
+                            sampleCounter++;
+                            if(sampleCounter < 3) {setPathState(2); resetFSM = 1;}
+                            else{
+                                outtakeLift.LiftTarget(900);
+                                outtake.pivotToTransfer();
+                                follower.followPath(park, false);
+                                setPathState(7);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 7:
                 if(!follower.isBusy()){
                     outtake.pivotToFront();
                 }
@@ -230,14 +257,18 @@ public class EC_Auto_Sample extends OpMode{
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         intake = new Intake(hardwareMap, this);
+        misc = new Misc(hardwareMap);
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);
+        elapsedTime = new ElapsedTime();
         buildPaths();
     }
     @Override
     public void start(){
         intake.initiate();
         outtakeLift.HoldLift();
+        misc.initiate();
+
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
@@ -251,24 +282,49 @@ public class EC_Auto_Sample extends OpMode{
         telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         telemetry.update();
     }
+
+    private static double prevTime;
+
     @Override
     public void loop() {
+
 
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-
+        misc.door();
         intake.extendoLoop();
         intake.intakeLoop();
         outtake.loop();
         outtakeLift.HoldLift();
         pickupsequence();
+        misc.loop();
 
         Storage.CurrentPose = follower.getPose();
-        Storage.extendoPos = intake.extendo.getCurrentPosition();
-        Storage.liftPos = outtakeLift.getCurrentPosition();
+
+
+        telemetry.addLine()
+                .addData("Intake State", intake.intakeState.name());
+        telemetry.addLine()
+                .addData("Detected Color", intake.getSensedColorName());
+        telemetry.addLine()
+                .addData("Red", "%.3f", intake.sensedColor.red)
+                .addData("Green", "%.3f", intake.sensedColor.green)
+                .addData("Blue", "%.3f", intake.sensedColor.blue);
+        telemetry.addLine()
+                .addData("Hue", "%.3f", intake.hsvValues[0])
+                .addData("Saturation", "%.3f", intake.hsvValues[1])
+                .addData("Value", "%.3f", intake.hsvValues[2]);
+        telemetry.addData("Alpha", "%.3f", intake.sensedColor.alpha);
+
+        if(intake.colorSensor instanceof DistanceSensor){
+            telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) intake.colorSensor).getDistance(DistanceUnit.CM));
+        }
 
         // Feedback to Driver Hub
+        telemetry.addLine()
+                        .addData("Loop Time", opmodeTimer.getElapsedTimeSeconds() - prevTime);
+        prevTime = opmodeTimer.getElapsedTimeSeconds();
         telemetry.addData("path state", pathState);
         telemetry.addData("Scored ground samples", sampleCounter);
         telemetry.addData("x", follower.getPose().getX());
@@ -276,5 +332,4 @@ public class EC_Auto_Sample extends OpMode{
         telemetry.addData("heading", follower.getPose().getHeading());
         telemetry.update();
     }
-
 }

@@ -22,12 +22,9 @@ public class intaketesty extends OpMode {
         intake.TeleopExtend(); //left trigger
         if (gamepad1.right_trigger > 0.2){
             intake.flipUp();
-            intake.deposit();
+            intake.depositandflip();
         }
         intake.extendoLoop();
-        telemetry.addData("red color", intake.colorSensor.red());
-        telemetry.addData("blue color", intake.colorSensor.blue());
-        telemetry.addData("green (yellow) color", intake.colorSensor.green());
         telemetry.addData("ip",intake.intakePower);
         telemetry.addData("fin",intake.fin);
         telemetry.addData("ex",intake.ex);

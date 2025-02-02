@@ -13,7 +13,7 @@ public class Outtake {
 
     boolean clawOpen = false;
     final double CLAW_CLOSED = 0.655;
-    final double CLAW_OPENED = 0.620;
+    final double CLAW_OPENED = 0.627;
 
     public Outtake(HardwareMap hardwareMap) {
         clamp = hardwareMap.get(Servo.class, "clamp");
@@ -35,29 +35,29 @@ public class Outtake {
         else clamp.setPosition(CLAW_CLOSED);
     }
     public void pivotToFront(){
-        pivpos = 0.38;
-        updownpiv.setPosition(0.1605);
+        pivpos = 0.45;
+        updownpiv.setPosition(0.154);
         spinpiv.setPosition(0.985);
     }
     public void pivotToScoreSamp(){
         pivpos = .82;
-        updownpiv.setPosition(.147);
+        updownpiv.setPosition(.127);
         spinpiv.setPosition(0.883);
     }
     // 0.242
     public void pivotToScoreSpecBack(){
         pivpos =1;
-        updownpiv.setPosition(0.242);
-        spinpiv.setPosition(0.883);
+        updownpiv.setPosition(0.127);
+        spinpiv.setPosition(0.985);
     }
     public void pivotToPickupBack(){
         pivpos = 0;
-        updownpiv.setPosition(0.235);
+        updownpiv.setPosition(0.205);
         spinpiv.setPosition(0.985); // spins it around
     }
     public void pivotToTransfer (){
-        pivpos = 0;
-        updownpiv.setPosition(0.1550);
+        pivpos = 0.0;
+        updownpiv.setPosition(0.119);
         spinpiv.setPosition(0.985);
     }
 
