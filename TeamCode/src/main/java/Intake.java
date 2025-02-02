@@ -2,45 +2,49 @@
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
-
-import android.graphics.Color;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 public class Intake{
-    public Servo finintake;
+    private Servo finintake;
     public CRServo lintake;
     public CRServo rintake;
-    public DcMotor extendo;
-    public NormalizedColorSensor colorSensor;
-    public float[] hsvValues = new float[3];
+    public Servo leintake;
+    public Servo reintake;
+    ColorSensor colorSensor;
 
     OpMode opMode;
 
     public enum IntakeState {
         FLIP_UP,
         INTAKE,
-        DEPOSIT_AND_FLIP,
-        DEPOSIT_ONLY,
+        DEPOSIT,
         SHOOT,
+        TRANSFER,
     }
 
     IntakeState intakeState = IntakeState.FLIP_UP;
     double fin = 0;
     double intakePower = 0;
-    double ex = 0;
+
+
+    /** LINKAGE EXTENSION VARIABLES */
+    double extPos = 0;
+    // Length of first linkage (Linkage that connects to servo) (mm)
+    final double LINK1 = 200;
+    // Length of second linkage (Linkage that connects to the slide) (mm)
+    final double LINK2 = 300;
+    // Offset X axis (CURRENT VALUE IS CORRECT)
+    final double XOFFSET = 98;
+    // Offset Y axis (CURRENT VALUE IS CORRECT)
+    final double YOFFSET = 17.25;
+    // Length of the slides when fully extended (mm)
+    final double FULL_EXTENSION = 1000;
+    // Default servo angle
+
     int depo =0;
     boolean useRTP = true;
-
-    public NormalizedRGBA sensedColor;
-
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
@@ -48,44 +52,47 @@ public class Intake{
         rintake.setDirection(CRServo.Direction.FORWARD);
         lintake.setDirection(CRServo.Direction.REVERSE);
         finintake.setDirection(Servo.Direction.REVERSE);
-        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
-        if(colorSensor instanceof SwitchableLight){
-            ((SwitchableLight) colorSensor).enableLight(true);
-        }
-        this.opMode = opMode;
-        extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.FORWARD);
-        extendo.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
 
-    // when up, 300 280 400
+        leintake = hardwareMap.get(Servo.class, "leintake");
+        reintake = hardwareMap.get(Servo.class, "reintake");
+        reintake.setDirection(Servo.Direction.FORWARD);
+        leintake.setDirection(Servo.Direction.REVERSE);
+
+        colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
+        colorSensor.enableLed(true);
+        this.opMode = opMode;
+    }
     private boolean isRed(){
-        return hsvValues[1] > 0.2 && hsvValues[0] < 34;
+        return colorSensor.red() > 250;
     }
     private boolean isYellow(){
-        return hsvValues[1] > 0.2 && hsvValues[0] > 75 && hsvValues[0] <=95;
+        return colorSensor.green() > 500;
     }
     private boolean isBlue(){
-        return hsvValues[1] > 0.2 && hsvValues[0] > 200 && hsvValues[0] < 245;
-    }
-    private boolean isClose(){
-        return distance < 10;
+        return colorSensor.blue() > 250;
     }
 
     public boolean isCorrectColor(){
-        return (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
+        return isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue());
     }
-    public String getSensedColorName(){
-        //if(!isClose()) return "NONE";
-        if(isYellow()) return "YELLOW";
-        if(isRed()) return "RED";
-        if(isBlue()) return "BLUE";
-        return "NONE";
+    private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
+        // All units are mm and degrees.
+        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
+        double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
+        return (180 - beta - gamma)/servoRange;
+    }
+    private void intakeExtendTo(double length){
+        double targetPos = getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, 360*5);
+        leintake.setPosition(targetPos);
+        reintake.setPosition(targetPos);
+    }
+    public void setIntakeExtensionTarget(double target){
+        if(target > FULL_EXTENSION) target = FULL_EXTENSION;
+        else if(target < 0) target = 0;
+        extPos = target;
     }
     public void initiate(){
-        extendo.setTargetPosition(0);
-        extendo.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendo.setPower(.5);
+        intakeExtendTo(0);
         rintake.setPower(0);
         lintake.setPower(0);
         finintake.setPosition(0);
@@ -98,63 +105,52 @@ public class Intake{
             rintake.setPower(intakePower);
             lintake.setPower(intakePower);
         }
-        if (extendo.getTargetPosition()!=(int)Math.round(ex*450)){
-            extendo.setTargetPosition((int)Math.round(ex*450));
-        }
+        intakeExtendTo(extPos);
     }
-    public boolean ManualExtend(){
-        ex = 1; extendo.setPower(.3);
-        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
+    public void ManualExtend(){
+        setIntakeExtensionTarget(FULL_EXTENSION);
     }
-    public boolean ManualRetract(){
-        ex = 0; extendo.setPower(1);
-        return Math.abs(extendo.getTargetPosition() - ex*450) < 2;
+    public void ManualRetract(){
+        setIntakeExtensionTarget(0);
     }
-    public void TeleopExtend(){
-        ex = opMode.gamepad1.left_trigger;
-        if (opMode.gamepad1.left_trigger > 0.3) {
-            extendo.setPower(.3);
-        } else {
-            extendo.setPower(1);
-        }
+    public void TeleopExtend(double valueFromZeroToOne){
+        if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
+        else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
+        setIntakeExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
-
     private final double INTAKE_DOWN_POS = 0.919;
-    public double distance;
+    private final double INTAKE_TRANSFER_POS = 0.5;
     public void intakeLoop(){
-        sensedColor = colorSensor.getNormalizedColors();
-        Color.colorToHSV(sensedColor.toColor(), hsvValues);
-        distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
-
         switch(intakeState){
             case FLIP_UP:
-                intakePower = 0;
                 fin = 0;
                 break;
             case INTAKE:
                 fin = INTAKE_DOWN_POS;
                 intakePower = 0.22;
-                if(isCorrectColor()){
+                if((Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005) && isCorrectColor()){
+                    intakePower = 0;
                     intakeState = IntakeState.FLIP_UP;
                 }
                 break;
-            case DEPOSIT_AND_FLIP:
+            case DEPOSIT:
                 intakePower = -1;
                 if(!isCorrectColor()){
+                    intakePower = 0;
                     intakeState = IntakeState.FLIP_UP;
                 }
-                break;
-            case DEPOSIT_ONLY:
-                intakePower = -1;
                 break;
             case SHOOT:
                 fin = INTAKE_DOWN_POS;
                 if(Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005){
                     intakePower = -1;
                     if(!isCorrectColor()){
+                        intakePower = 0;
                         intakeState = IntakeState.FLIP_UP;
                     }
                 }
+            case TRANSFER:
+                fin = INTAKE_TRANSFER_POS;
             default:
                 break;
         }
@@ -162,11 +158,8 @@ public class Intake{
     public void flipUp(){
         intakeState = IntakeState.FLIP_UP;
     }
-    public void depositandflip(){
-        intakeState = IntakeState.DEPOSIT_AND_FLIP;
-    }
-    public void depositOnly(){
-        intakeState = IntakeState.DEPOSIT_ONLY;
+    public void deposit(){
+        intakeState = IntakeState.DEPOSIT;
     }
     public void startIntake(){
         intakeState = IntakeState.INTAKE;
@@ -174,7 +167,7 @@ public class Intake{
     public void shootOut(){
         intakeState = IntakeState.SHOOT;
     }
-    public IntakeState getIntakeState(){
-        return intakeState;
+    public void flipToTransfer(){
+        intakeState = IntakeState.TRANSFER;
     }
 }

@@ -1,7 +1,6 @@
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -12,11 +11,11 @@ public class OuttakeLift {
     public TouchSensor touchSensor;
 
     private PIDController controller;
-    private static double p = 0.025, i = 0, d = 0.0002, f = 0.1;
-    private int target = 250;
+    private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
+    private static int target = 250;
 
-    public static int TRANSFER_WAIT = 450;
-    public static int TRANSFER_GRAB = 248;
+    public static int TRANSFER_WAIT = 500;
+    public static int TRANSFER_GRAB = 290;
     public static int LIFT_BUCKET = 1200;
 
 
@@ -50,19 +49,7 @@ public class OuttakeLift {
             rlift.setPower(-lopMode.gamepad2.left_stick_y);
             llift.setPower(-lopMode.gamepad2.left_stick_y);
             target = rlift.getCurrentPosition();
-        } else if (target == -100){
-            llift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            llift.setPower(-0.8);
-            rlift.setPower(-0.8);
-            if (!lopMode.gamepad2.atRest()){
-                target = 0;
-            }
-            if (touchSensor.isPressed()){
-                target=0;
-            }
-        }
-        else {
+        } else {
             // PIDF Controller
             controller.setPID(p, i, d);
             int liftPos = (rlift.getCurrentPosition() + llift.getCurrentPosition())/2;
@@ -94,7 +81,7 @@ public class OuttakeLift {
                 target = 500;
                 break;
             case TRANSFER_GRAB:
-                target = 278;
+                target = 290;
                 break;
             case LIFT_BUCKET:
                 target = 1200;
