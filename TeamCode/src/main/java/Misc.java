@@ -38,7 +38,7 @@ public class Misc{
         setSweepState(SweepStates.START_SWEEP);
     }
     public void setSweep(boolean state){
-        if(state) swp = 0.5;
+        if(state) swp = 0.0723;
         else swp = 0;
     }
     public boolean reachedSweepTarget(){

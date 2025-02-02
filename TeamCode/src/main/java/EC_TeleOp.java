@@ -5,7 +5,6 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
@@ -49,7 +48,7 @@ public class EC_TeleOp extends OpMode {
             case 1:
                 outtakeLift.rlift.setPower(.4);
                 outtakeLift.llift.setPower(.4);
-                outtake.pivotToFront();
+                outtake.POS_SpecimanFront();
                 intake.flipUp();
                 if (elapsedTime.seconds() > 2){
                     initfsm = 2;
@@ -87,27 +86,27 @@ public class EC_TeleOp extends OpMode {
     public void loop() {
         if (gamepad1.left_bumper) intake.startIntake();
         if (gamepad1.right_stick_button) intake.shootOut();
-        intake.TeleopExtend(gamepad1.left_trigger); //left trigger
+        intake.TeleopExtend(gamepad1.left_trigger);
         if (gamepad1.right_trigger > 0.2) intake.deposit();
         if (gamepad2.y){
-            outtake.pivotToFront();
+            outtake.POS_SpecimanFront();
         }else if (gamepad2.b){
-            outtake.pivotToPickupBack();
+            //outtake.pivotToPickupBack();
         }else if (gamepad2.x){
-            outtake.pivotToScoreSamp();
+            outtake.POS_scoreSample();
             outtakeLift.LiftTarget(750);
             misc.undoor();
         }else if (gamepad2.a){
-            outtake.pivotToTransfer();
+            outtake.POS_Transfering();
             misc.door();
         }else if (gamepad2.dpad_up){
-            outtake.pivotToScoreSpecBack();
+            outtake.POS_scoreSpecimanBack();
         }
 
         if (gamepad2.left_bumper){
-            outtake.setClaw(true);
+            outtake.setClawOpen(true);
         } else {
-            outtake.setClaw(false);
+            outtake.setClawOpen(false);
         }
 
         if (gamepad1.right_bumper) misc.startSweep();
@@ -120,10 +119,19 @@ public class EC_TeleOp extends OpMode {
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
-        follower.setTeleOpMovementVectors(
-                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                 0.28 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        if (intake.extPos != 0) {
+            //Slower because is intaking
+            follower.setTeleOpMovementVectors(
+                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        }else {
+            //faster because is travelling
+            follower.setTeleOpMovementVectors(
+                    flip * Math.pow(-gamepad1.left_stick_y,2),
+                    flip * Math.pow(-gamepad1.left_stick_x,2),
+                    -gamepad1.right_stick_x, true);
+        }
         follower.update();
 
 

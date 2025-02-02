@@ -14,9 +14,6 @@ public class OuttakeLift {
     private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
     private static int target = 250;
 
-    public static int TRANSFER_WAIT = 500;
-    public static int TRANSFER_GRAB = 290;
-    public static int LIFT_BUCKET = 1200;
 
 
     OpMode lopMode;
@@ -78,28 +75,28 @@ public class OuttakeLift {
     public void LiftTo(OuttakeLiftPositions input){
         switch(input){
             case TRANSFER_WAIT:
-                target = 500;
+                target = 0;
                 break;
             case TRANSFER_GRAB:
-                target = 290;
+                target = 0;
                 break;
             case LIFT_BUCKET:
                 target = 1200;
                 break;
             case FRONT_SCORE_WAIT:
-                target = 450;
+                target = 0;
                 break;
             case FRONT_SCORE_DONE:
-                target = 700;
+                target = 450;
                 break;
             case FRONT_PICKUP:
                 target = 200;
                 break;
             case BACK_SCORE:
-                target = 900;
+                target = 450;
                 break;
-            case BACK_PICKUP:
-                target = 275;
+            case BACK_PICKUP: //doesnt exist
+                target = 0;
                 break;
             default:
                 break;
@@ -107,15 +104,6 @@ public class OuttakeLift {
     }
     public boolean isBusy(){
         return Math.abs(target - getCurrentPosition()) <= 4;
-    }
-    public void LiftToTransferWait(){
-        target = TRANSFER_WAIT;
-    }
-    public void LiftToTransferGrab(){
-        target = TRANSFER_GRAB;
-    }
-    public void LiftToBucket(){
-        target = LIFT_BUCKET;
     }
     public int getCurrentPosition(){
         return rlift.getCurrentPosition();
