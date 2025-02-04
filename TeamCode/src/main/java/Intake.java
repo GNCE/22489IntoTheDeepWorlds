@@ -1,30 +1,41 @@
 
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class Intake{
-    private Servo finintake;
+    // Parts
+    private Servo intakePivot;
     public CRServo lintake;
     public CRServo rintake;
     public Servo leintake;
     public Servo reintake;
-    ColorSensor colorSensor;
 
+    public Servo door;
+    NormalizedColorSensor colorSensor;
+
+    // Constants
+    private final double INTAKE_POWER = 1;
+
+    // Values
+
+    public NormalizedRGBA sensedColor;
+    public float[] hsvValues = new float[3];
     OpMode opMode;
 
-    public enum IntakeState {
-        FLIP_UP,
-        INTAKE,
-        DEPOSIT,
-        SHOOT,
-        TRANSFER,
-    }
 
-    IntakeState intakeState = IntakeState.FLIP_UP;
     double fin = 0;
     double intakePower = 0;
 
@@ -35,45 +46,54 @@ public class Intake{
     final double LINK1 = 200;
     // Length of second linkage (Linkage that connects to the slide) (mm)
     final double LINK2 = 300;
-    // Offset X axis (CURRENT VALUE IS CORRECT)
+    // Offset X axis (CURRENT VALUE IS INCORRECT)
     final double XOFFSET = 98;
-    // Offset Y axis (CURRENT VALUE IS CORRECT)
+    // Offset Y axis (CURRENT VALUE IS INCORRECT)
     final double YOFFSET = 17.25;
     // Length of the slides when fully extended (mm)
     final double FULL_EXTENSION = 1000;
     // Default servo angle
 
-    int depo =0;
-    boolean useRTP = true;
+
+    Telemetry telemetry;
+
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
-        finintake = hardwareMap.get(Servo.class, "fintake");
+        intakePivot = hardwareMap.get(Servo.class, "fintake");
         rintake.setDirection(CRServo.Direction.FORWARD);
         lintake.setDirection(CRServo.Direction.REVERSE);
-        finintake.setDirection(Servo.Direction.REVERSE);
+        intakePivot.setDirection(Servo.Direction.REVERSE);
+
+        door = hardwareMap.get(Servo.class, "intake_door");
+        door.setDirection(Servo.Direction.FORWARD);
 
         leintake = hardwareMap.get(Servo.class, "leintake");
         reintake = hardwareMap.get(Servo.class, "reintake");
         reintake.setDirection(Servo.Direction.FORWARD);
         leintake.setDirection(Servo.Direction.REVERSE);
 
-        colorSensor = hardwareMap.get(ColorSensor.class, "sensor_color");
-        colorSensor.enableLed(true);
+        colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
+        if (colorSensor instanceof SwitchableLight) {
+            ((SwitchableLight)colorSensor).enableLight(true);
+        }
         this.opMode = opMode;
+        this.telemetry = opMode.telemetry;
     }
     private boolean isRed(){
-        return colorSensor.red() > 250;
+        return hsvValues[0] <= 10;
     }
-    private boolean isYellow(){
-        return colorSensor.green() > 500;
-    }
+
     private boolean isBlue(){
-        return colorSensor.blue() > 250;
+        return hsvValues[0] >= 200 && hsvValues[0] <= 250;
+    }
+
+    private boolean isYellow(){
+        return hsvValues[0] >= 60 && hsvValues[0] <= 120;
     }
 
     public boolean isCorrectColor(){
-        return isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue());
+        return hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
     }
     private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
         // All units are mm and degrees.
@@ -95,11 +115,12 @@ public class Intake{
         intakeExtendTo(0);
         rintake.setPower(0);
         lintake.setPower(0);
-        finintake.setPosition(0);
+        intakePivot.setPosition(0);
+        door.setPosition(0);
     }
     public void extendoLoop(){
-        if (finintake.getPosition()!=fin) {
-            finintake.setPosition(fin);
+        if (intakePivot.getPosition()!=fin) {
+            intakePivot.setPosition(fin);
         }
         if (rintake.getPower()!= intakePower){
             rintake.setPower(intakePower);
@@ -119,34 +140,68 @@ public class Intake{
         setIntakeExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
     private final double INTAKE_DOWN_POS = 0.919;
-    private final double INTAKE_TRANSFER_POS = 0.5;
+
+    public enum IntakeState {
+        FLIP_UP,
+        INTAKE,
+        DEPOSIT,
+        SHOOT,
+        TRANSFER,
+    }
+
+    IntakeState intakeState = IntakeState.FLIP_UP;
+    ElapsedTime intakeTime;
+
+    public void setIntakeState(IntakeState intakeState) {
+        this.intakeState = intakeState;
+        intakeTime.reset();
+    }
     public void intakeLoop(){
+        sensedColor = colorSensor.getNormalizedColors();
+        Color.colorToHSV(sensedColor.toColor(), hsvValues);
+
+        telemetry.addLine()
+                .addData("Red", "%.3f", sensedColor.red)
+                .addData("Green", "%.3f", sensedColor.green)
+                .addData("Blue", "%.3f", sensedColor.blue);
+        telemetry.addLine()
+                .addData("Hue", "%.3f", hsvValues[0])
+                .addData("Saturation", "%.3f", hsvValues[1])
+                .addData("Value", "%.3f", hsvValues[2]);
+        telemetry.addData("Alpha", "%.3f", sensedColor.alpha);
+        if (colorSensor instanceof DistanceSensor) {
+            telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
+        }
+        telemetry.update();
+
+        double INTAKE_TRANSFER_POS = 0.5;
+
         switch(intakeState){
             case FLIP_UP:
                 fin = 0;
                 break;
             case INTAKE:
                 fin = INTAKE_DOWN_POS;
-                intakePower = 0.22;
-                if((Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005) && isCorrectColor()){
+                intakePower = INTAKE_POWER;
+                if(intakeTime.time() > 0.5 && isCorrectColor()){
                     intakePower = 0;
-                    intakeState = IntakeState.FLIP_UP;
+                    setIntakeState(IntakeState.TRANSFER);
                 }
                 break;
             case DEPOSIT:
                 intakePower = -1;
                 if(!isCorrectColor()){
                     intakePower = 0;
-                    intakeState = IntakeState.FLIP_UP;
+                    setIntakeState(IntakeState.FLIP_UP);
                 }
                 break;
             case SHOOT:
                 fin = INTAKE_DOWN_POS;
-                if(Math.abs(finintake.getPosition() - INTAKE_DOWN_POS) < 0.005){
+                if(intakeTime.time() > 0.5){
                     intakePower = -1;
                     if(!isCorrectColor()){
                         intakePower = 0;
-                        intakeState = IntakeState.FLIP_UP;
+                        setIntakeState(IntakeState.TRANSFER);
                     }
                 }
             case TRANSFER:

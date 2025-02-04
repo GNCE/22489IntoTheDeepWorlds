@@ -167,7 +167,7 @@ public class EC_Auto_Sample extends OpMode{
             case 0:
                 follower.followPath(scorePreload);
                 outtake.setClawOpen(false);
-                outtakeLift.LiftToBucket();
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                 outtake.POS_scoreSample();
 
                 setPathState(1);
@@ -200,11 +200,11 @@ public class EC_Auto_Sample extends OpMode{
             case 4:
                 if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.isCorrectColor()){
                     intake.flipUp();
-                    intake.ManualRetract();
-                    if(intake.extendo.getCurrentPosition()<20) {
-                        intake.depositOnly();
-                        setPathState(5);
-                    }
+//                    intake.ManualRetract();
+//                    if(intake.leintake.getCurrentPosition()<20) {
+//                        intake.depositOnly();
+//                        setPathState(5);
+//                    }
                 }
                 break;
             case 5:
@@ -305,17 +305,6 @@ public class EC_Auto_Sample extends OpMode{
 
         telemetry.addLine()
                 .addData("Intake State", intake.intakeState.name());
-        telemetry.addLine()
-                .addData("Detected Color", intake.getSensedColorName());
-        telemetry.addLine()
-                .addData("Red", "%.3f", intake.sensedColor.red)
-                .addData("Green", "%.3f", intake.sensedColor.green)
-                .addData("Blue", "%.3f", intake.sensedColor.blue);
-        telemetry.addLine()
-                .addData("Hue", "%.3f", intake.hsvValues[0])
-                .addData("Saturation", "%.3f", intake.hsvValues[1])
-                .addData("Value", "%.3f", intake.hsvValues[2]);
-        telemetry.addData("Alpha", "%.3f", intake.sensedColor.alpha);
 
         if(intake.colorSensor instanceof DistanceSensor){
             telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) intake.colorSensor).getDistance(DistanceUnit.CM));
