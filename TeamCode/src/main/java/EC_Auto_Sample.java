@@ -63,7 +63,7 @@ public class EC_Auto_Sample extends OpMode{
                 transferRealFSM = 4;
                 break;
             case 4:
-                outtake.POS_Transfering();
+                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_WAIT);
                 outtake.setClawOpen(true);
                 if (elapsedTime.seconds() > 1){
@@ -81,7 +81,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 6:
                 if (elapsedTime.seconds() > .3){
-                    outtake.POS_scoreSample();
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                     transferRealFSM = -1;
                 }
@@ -144,7 +144,7 @@ public class EC_Auto_Sample extends OpMode{
     public void resetEncoderFSM(){
         switch (resetFSM){
             case 1://reset stuff
-                outtake.POS_SpecimanFront();
+                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
                 outtakeLift.LiftTarget(600);
                 if(!outtakeLift.isBusy()){
                     elapsedTime.reset();
@@ -153,7 +153,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 2:
                 if (elapsedTime.seconds() >1){
-                    outtake.POS_scoreSpecimanBack();
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                     outtakeLift.LiftTarget(-100);
                     if (outtakeLift.touchSensor.isPressed()){
                         resetFSM = -1;}
@@ -168,7 +168,7 @@ public class EC_Auto_Sample extends OpMode{
                 follower.followPath(scorePreload);
                 outtake.setClawOpen(false);
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
-                outtake.POS_scoreSample();
+                outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
 
                 setPathState(1);
                 break;
@@ -226,7 +226,7 @@ public class EC_Auto_Sample extends OpMode{
                             if(sampleCounter < 3) {setPathState(2); resetFSM = 1;}
                             else{
                                 outtakeLift.LiftTarget(900);
-                                outtake.POS_Transfering();
+                                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                                 follower.followPath(park, false);
                                 setPathState(7);
                             }
@@ -236,7 +236,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 7:
                 if(!follower.isBusy()){
-                    outtake.POS_SpecimanFront();
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
                 }
                 break;
             default:

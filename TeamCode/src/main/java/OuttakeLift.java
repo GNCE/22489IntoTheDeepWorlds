@@ -6,62 +6,81 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 public class OuttakeLift {
-    public DcMotorEx rlift;
-    public DcMotorEx llift;
+    public DcMotorEx llift1, llift2, rlift1, rlift2;
     public TouchSensor touchSensor;
 
     private PIDController controller;
     private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
     private static int target = 250;
 
-
-
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
-        rlift = hardwareMap.get(DcMotorEx.class, "rlift");
-        llift = hardwareMap.get(DcMotorEx.class, "llift");
-        touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
-        llift.setDirection(DcMotor.Direction.REVERSE);
-        rlift.setDirection(DcMotor.Direction.FORWARD);
-        llift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        llift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        llift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rlift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        llift1 = hardwareMap.get(DcMotorEx.class, "llift1");
+        rlift1 = hardwareMap.get(DcMotorEx.class, "rlift1");
+        llift2 = hardwareMap.get(DcMotorEx.class, "llift2");
+        rlift2 = hardwareMap.get(DcMotorEx.class, "rlift2");
+
+        llift1.setDirection(DcMotor.Direction.REVERSE);
+        rlift1.setDirection(DcMotor.Direction.FORWARD);
+        llift2.setDirection(DcMotor.Direction.REVERSE);
+        rlift2.setDirection(DcMotor.Direction.FORWARD);
+
+        llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        llift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rlift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        llift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        llift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rlift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         controller = new PIDController(p, i, d);
+
+        touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
+
         this.lopMode = opMode;
     }
     public void HoldLift(){
         if(touchSensor.isPressed()){
-            llift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rlift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            llift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rlift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            target = 0;
+            llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            llift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rlift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            llift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            target = 30;
         }
 
         if (Math.abs(lopMode.gamepad2.left_stick_y)>0.3){
             // Manual Takeover. Disable PID or limits
-            rlift.setPower(-lopMode.gamepad2.left_stick_y);
-            llift.setPower(-lopMode.gamepad2.left_stick_y);
-            target = rlift.getCurrentPosition();
+            rlift1.setPower(-lopMode.gamepad2.left_stick_y);
+            llift1.setPower(-lopMode.gamepad2.left_stick_y);
+            target = rlift1.getCurrentPosition();
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
-            int liftPos = (rlift.getCurrentPosition() + llift.getCurrentPosition())/2;
+            int liftPos = (rlift1.getCurrentPosition() + llift1.getCurrentPosition() + rlift2.getCurrentPosition() + llift2.getCurrentPosition())/4;
             double pid = controller.calculate(liftPos, target);
             double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
             double power = pid + ff;
-            rlift.setPower(power);
-            llift.setPower(power);
+            rlift1.setPower(power);
+            llift1.setPower(power);
+            rlift2.setPower(power);
+            llift2.setPower(power);
         }
     }
     public void LiftTarget(int input){
         target = input;
     }
-
     public enum OuttakeLiftPositions {
         TRANSFER_WAIT,
         TRANSFER_GRAB,
@@ -106,6 +125,6 @@ public class OuttakeLift {
         return Math.abs(target - getCurrentPosition()) <= 4;
     }
     public int getCurrentPosition(){
-        return rlift.getCurrentPosition();
+        return rlift1.getCurrentPosition();
     }
 }

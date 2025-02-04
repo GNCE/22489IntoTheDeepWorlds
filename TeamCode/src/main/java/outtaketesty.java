@@ -11,13 +11,13 @@ public class outtaketesty extends OpMode {
 
     public void loop() {
         if (gamepad1.y){
-            outtake.POS_SpecimanFront();
+            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
         }else if (gamepad1.x){
-            outtake.POS_scoreSample();
+            outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
         }else if (gamepad1.a){
-            outtake.POS_Transfering();
+            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
         }else if (gamepad1.b){
-            outtake.POS_scoreSpecimanBack();
+            outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
         }
         outtake.setClawOpen(gamepad1.left_bumper);
         outtake.loop();

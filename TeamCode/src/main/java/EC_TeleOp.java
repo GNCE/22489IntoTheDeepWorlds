@@ -46,24 +46,24 @@ public class EC_TeleOp extends OpMode {
         outtake.loop();
         switch (initfsm){
             case 1:
-                outtakeLift.rlift.setPower(.4);
-                outtakeLift.llift.setPower(.4);
-                outtake.POS_SpecimanFront();
+                outtakeLift.rlift1.setPower(.4);
+                outtakeLift.llift1.setPower(.4);
+                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
                 intake.flipUp();
                 if (elapsedTime.seconds() > 2){
                     initfsm = 2;
                 }
             break;
             case 2:
-                outtakeLift.rlift.setPower(-0.6);
-                outtakeLift.llift.setPower(-0.6);
+                outtakeLift.rlift1.setPower(-0.6);
+                outtakeLift.llift1.setPower(-0.6);
                 if (elapsedTime.seconds() > 4){
                     initfsm = 3;
                 }
             break;
             case 3:
-                outtakeLift.rlift.setPower(0);
-                outtakeLift.llift.setPower(0);
+                outtakeLift.rlift1.setPower(0);
+                outtakeLift.llift1.setPower(0);
                 initfsm = -1;
             break;
         }
@@ -89,18 +89,18 @@ public class EC_TeleOp extends OpMode {
         intake.TeleopExtend(gamepad1.left_trigger);
         if (gamepad1.right_trigger > 0.2) intake.deposit();
         if (gamepad2.y){
-            outtake.POS_SpecimanFront();
+            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
         }else if (gamepad2.b){
             //outtake.pivotToPickupBack();
         }else if (gamepad2.x){
-            outtake.POS_scoreSample();
+            outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
             outtakeLift.LiftTarget(750);
             misc.undoor();
         }else if (gamepad2.a){
-            outtake.POS_Transfering();
+            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
             misc.door();
         }else if (gamepad2.dpad_up){
-            outtake.POS_scoreSpecimanBack();
+            outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
         }
 
         if (gamepad2.left_bumper){
@@ -142,7 +142,7 @@ public class EC_TeleOp extends OpMode {
         telemetry.addLine();
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
-        telemetry.addData("lift position",outtakeLift.rlift.getCurrentPosition());
+        telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
         telemetry.addData("extendo target position", intake.extPos);
         telemetry.update();
     }

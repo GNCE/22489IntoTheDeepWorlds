@@ -1,8 +1,9 @@
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-
+@Config
 public class Outtake {
     private Servo clamp;
     private Servo Rdiffy;
@@ -10,15 +11,14 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
     double ArmPosition = 0;
-
     boolean clawOpen = false;
     final double CLAW_CLOSED = 0.655;
     final double CLAW_OPENED = 0.627;
     //tune these values vvvvv
-    final double ARM_SAMPSCORE_POS = 1;
-    final double ARM_TRANSFER_POS = 0;
-    final double ARM_FRONTSPEC_POS = 0;
-    final double ARM_BACKSPEC_POS = 1;
+    static double ARM_SAMPSCORE_POS = 1;
+    static double ARM_TRANSFER_POS = 0;
+    static double ARM_FRONTSPEC_POS = 0;
+    static double ARM_BACKSPEC_POS = 1;
     public enum OuttakeState {
         SPECFRONT,
         TRANSFER,
@@ -52,13 +52,14 @@ public class Outtake {
     double leftDiffyPos = 0;
     double upDownPos = 0;
     double orientationPos = 0;
+
     //tune these values vvvvv
-    final double DIFFY_SAMPLESCOREPOS = 0;
-    final double DIFFY_TRANSFERPOS = 0;
-    final double DIFFY_SPECFRONTPOS = 0;
-    final double DIFFY_SPECBACKPOS = 0;
-    final double DIFFY_ORIENTATION_UP = 0;
-    final double DIFFY_ORIENTATION_DOWN = 0;
+    static double DIFFY_SAMPLESCOREPOS = 0;
+    static double DIFFY_TRANSFERPOS = 0;
+    static double DIFFY_SPECFRONTPOS = 0;
+    static double DIFFY_SPECBACKPOS = 0;
+    static double DIFFY_ORIENTATION_UP = 0;
+    static double DIFFY_ORIENTATION_DOWN = 0;
     public void DiffyControl(DiffyState UPDOWNdiffyState, DiffyState ORIENTATIONdiffyState){
         switch (UPDOWNdiffyState){
             case UPDOWN_SAMPLESCORE:
@@ -91,15 +92,19 @@ public class Outtake {
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
                 clawOpen = true;
+                DiffyControl(DiffyState.UPDOWN_TRANSFER,DiffyState.ORIENTATION_UP);
                 break;
             case SAMPLESCORE:
                 ArmPosition = ARM_SAMPSCORE_POS;
+                DiffyControl(DiffyState.UPDOWN_SAMPLESCORE,DiffyState.ORIENTATION_DOWN);
                 break;
             case SPECFRONT:
                 ArmPosition = ARM_FRONTSPEC_POS;
+                DiffyControl(DiffyState.UPDOWN_SPECFRONT, DiffyState.ORIENTATION_UP);
                 break;
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSPEC_POS;
+                DiffyControl(DiffyState.UPDOWN_SPECBACKSCORE, DiffyState.ORIENTATION_DOWN);
                 break;
         }
         if (ArmPosition != rpivhigh.getPosition()){
@@ -116,25 +121,12 @@ public class Outtake {
             Ldiffy.setPosition(leftDiffyPos);
         }
     }
-    public void POS_SpecimanFront(){
-        outtakeState = OuttakeState.SPECFRONT;
-        DiffyControl(DiffyState.UPDOWN_SPECFRONT, DiffyState.ORIENTATION_UP);
-    }
-    public void POS_scoreSample(){
-        outtakeState = OuttakeState.SAMPLESCORE;
-        DiffyControl(DiffyState.UPDOWN_SAMPLESCORE,DiffyState.ORIENTATION_DOWN);
-    }
-    public void POS_scoreSpecimanBack(){
-        outtakeState = OuttakeState.SPECBACKSCORE;
-        DiffyControl(DiffyState.UPDOWN_SPECBACKSCORE, DiffyState.ORIENTATION_DOWN);
-    }
-    public void POS_Transfering(){
-        outtakeState = OuttakeState.TRANSFER;
-        DiffyControl(DiffyState.UPDOWN_TRANSFER,DiffyState.ORIENTATION_UP);
+
+    public void setOuttakeState(OuttakeState outtakeState){
+        this.outtakeState = outtakeState;
     }
 
     public void setClawOpen(boolean state){
         clawOpen = state;
     }
-
 }

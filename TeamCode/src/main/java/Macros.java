@@ -29,7 +29,7 @@ public class Macros {
             case READY_OUTTAKE_LIFT:
                 if(outtakeLift.getCurrentPosition() < 300) outtakeLift.LiftTarget(300);
                 if(!outtakeLift.isBusy()){
-                    outtake.POS_Transfering();
+                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                     setTransferState(TransferState.READY_OUTTAKE_ARM);
                 }
                 break;
