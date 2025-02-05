@@ -68,9 +68,29 @@ public class IntakeTest extends OpMode {
         return hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
     }
 
-    public void setOpen(boolean open){
-        if(open) door.setPosition(0.5);
-        else door.setPosition(0);
+    public boolean isWrongColor(){
+        return hsvValues[1] > 0.5 && (!Storage.isRed && isRed()) || (Storage.isRed && isBlue());
+    }
+
+    public enum DoorState{
+        OPEN,
+        CLOSE,
+        REST,
+    }
+
+    static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
+    public void setDoorState(DoorState doorState){
+        switch (doorState){
+            case OPEN:
+                door.setPosition(DOOR_OPEN_POS);
+                break;
+            case REST:
+                door.setPosition(DOOR_REST_POS);
+                break;
+            case CLOSE:
+                door.setPosition(DOOR_CLOSE_POS);
+                break;
+        }
     }
 
     @Override
@@ -83,14 +103,16 @@ public class IntakeTest extends OpMode {
         colors = colorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
 
-        if(isCorrectColor()){
+        if(isWrongColor()){
+            ip=intakePower;
+            setDoorState(DoorState.OPEN);
+        } else if(isCorrectColor()){
             ip=0;
-            setOpen(false);
+            setDoorState(DoorState.CLOSE);
         } else {
-            ip= intakePower;
-            setOpen(true);
+            ip = intakePower;
+            setDoorState(DoorState.REST);
         }
-
 
         packet.put("TeamColorIsRed", Storage.isRed);
         packet.put("Red", colors.red);
