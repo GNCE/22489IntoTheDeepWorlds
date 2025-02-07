@@ -200,7 +200,7 @@ public class EC_Auto_Sample extends OpMode{
             case 4:
                 if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.isCorrectColor()){
                     intake.flipUp();
-//                    intake.ManualRetract();
+                    intake.ManualRetract();
 //                    if(intake.leintake.getCurrentPosition()<20) {
 //                        intake.depositOnly();
 //                        setPathState(5);
@@ -268,7 +268,6 @@ public class EC_Auto_Sample extends OpMode{
         intake.initiate();
         outtakeLift.HoldLift();
         misc.initiate();
-
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
