@@ -41,6 +41,7 @@ public class Intake{
     double fin = 0;
     double intakePower = 0;
 
+    static double INTAKE_DOWN_EXTENSION_LIMIT = 300;
 
     /** LINKAGE EXTENSION VARIABLES */
     double extPos = 0;
@@ -123,6 +124,7 @@ public class Intake{
                 fin = 0;
                 break;
             case INTAKE:
+                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) setIntakeState(IntakeState.TRANSFER);
                 fin = INTAKE_DOWN_POS;
                 intakePower = INTAKE_POWER;
                 if(intakeTime.time() > 0.5){
@@ -191,7 +193,7 @@ public class Intake{
     }
     public void setIntakeExtensionTarget(double target){
         if(target > FULL_EXTENSION) target = FULL_EXTENSION;
-        else if(isIntakeDown && target < 300) target = 300;
+        else if(isIntakeDown && target < INTAKE_DOWN_EXTENSION_LIMIT) target = INTAKE_DOWN_EXTENSION_LIMIT;
         else if(target < 0) target = 0;
         extPos = target;
     }
