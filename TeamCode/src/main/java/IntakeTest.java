@@ -21,10 +21,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp (name = "Intake Test")
 @Config
 public class IntakeTest extends OpMode {
+    public static float COLOR_SENSOR_GAIN = 10;
     public static double intakePower = 0;
     private static double ip = 0;
     public static boolean amIRed = true;
     public static float[] hsvValues = new float[3];
+    public static double distance;
     public static NormalizedRGBA colors;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket packet;
@@ -33,7 +35,6 @@ public class IntakeTest extends OpMode {
 
     Servo door;
     NormalizedColorSensor colorSensor;
-
 
     @Override
     public void init(){
@@ -44,6 +45,7 @@ public class IntakeTest extends OpMode {
         rintake.setDirection(CRServo.Direction.FORWARD);
         lintake.setDirection(CRServo.Direction.REVERSE);
 
+
         door = hardwareMap.get(Servo.class, "door");
         door.setDirection(Servo.Direction.FORWARD);
 
@@ -53,7 +55,7 @@ public class IntakeTest extends OpMode {
         }
     }
     private boolean isRed(){
-        return hsvValues[0] <= 10;
+        return hsvValues[0] <= 62;
     }
 
     private boolean isBlue(){
@@ -61,15 +63,15 @@ public class IntakeTest extends OpMode {
     }
 
     private boolean isYellow(){
-        return hsvValues[0] >= 60 && hsvValues[0] <= 120;
+        return hsvValues[0] >= 70 && hsvValues[0] <= 120;
     }
 
     public boolean isCorrectColor(){
-        return hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
+        return distance < 5 && hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
     }
 
     public boolean isWrongColor(){
-        return hsvValues[1] > 0.5 && (!Storage.isRed && isRed()) || (Storage.isRed && isBlue());
+        return distance < 5 && hsvValues[1] > 0.5 && (!Storage.isRed && isRed()) || (Storage.isRed && isBlue());
     }
 
     public enum DoorState{
@@ -100,8 +102,16 @@ public class IntakeTest extends OpMode {
         rintake.setPower(ip);
         lintake.setPower(ip);
 
+
+
+        colorSensor.setGain(COLOR_SENSOR_GAIN);
+
         colors = colorSensor.getNormalizedColors();
         Color.colorToHSV(colors.toColor(), hsvValues);
+
+        if(colorSensor instanceof  DistanceSensor){
+            distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+        }
 
         if(isWrongColor()){
             ip=intakePower;

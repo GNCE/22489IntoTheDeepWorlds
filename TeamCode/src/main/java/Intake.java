@@ -81,7 +81,7 @@ public class Intake{
         this.telemetry = opMode.telemetry;
     }
     private boolean isRed(){
-        return hsvValues[0] <= 10;
+        return hsvValues[0] <= 65;
     }
 
     private boolean isBlue(){
@@ -89,7 +89,7 @@ public class Intake{
     }
 
     private boolean isYellow(){
-        return hsvValues[0] >= 60 && hsvValues[0] <= 120;
+        return hsvValues[0] >= 80 && hsvValues[0] <= 120;
     }
 
     public boolean isCorrectColor(){
@@ -155,6 +155,26 @@ public class Intake{
     public void setIntakeState(IntakeState intakeState) {
         this.intakeState = intakeState;
         intakeTime.reset();
+    }
+    public enum DoorState{
+        OPEN,
+        CLOSE,
+        REST,
+    }
+
+    static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
+    public void setDoorState(IntakeTest.DoorState doorState){
+        switch (doorState){
+            case OPEN:
+                door.setPosition(DOOR_OPEN_POS);
+                break;
+            case REST:
+                door.setPosition(DOOR_REST_POS);
+                break;
+            case CLOSE:
+                door.setPosition(DOOR_CLOSE_POS);
+                break;
+        }
     }
     public void intakeLoop(){
         sensedColor = colorSensor.getNormalizedColors();
