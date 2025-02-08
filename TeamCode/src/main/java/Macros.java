@@ -11,8 +11,8 @@ public class Macros {
         READY_OUTTAKE_LIFT,
         READY_OUTTAKE_ARM,
         OPEN_CLAW,
-        INTAKE_RETRACT,
-
+        CLOSE_CLAW,
+        SCORE_BUCKET,
     };
 
     private ElapsedTime transferTime;
@@ -24,7 +24,7 @@ public class Macros {
         transferState = newState;
         transferTime.reset();
     }
-    public void transfer(){
+    public void sampleMacro(){
         switch (transferState){
             case READY_OUTTAKE_LIFT:
                 if(outtakeLift.getCurrentPosition() < 300) outtakeLift.LiftTarget(300);
@@ -40,12 +40,30 @@ public class Macros {
                 }
                 break;
             case OPEN_CLAW:
-                if(transferTime.time() > 1){
+                if(intake.isCorrectColor()){
                     intake.ManualRetract();
-                    intake.flipToTransfer();
-                    setTransferState(TransferState.NOTHING);
+                    if(intake.isRetracted()){
+                        outtake.setClawOpen(false);
+                        setTransferState(TransferState.NOTHING);
+                    }
                 }
                 break;
+            case CLOSE_CLAW:
+                if(transferTime.time() > 0.7){
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                    if(outtakeLift.isBusy()){
+                        setTransferState(TransferState.SCORE_BUCKET);
+                    }
+                }
+                break;
+            case SCORE_BUCKET:
+                if(transferTime.time() > 0.4){
+                    outtake.setClawOpen(true);
+                    if(transferTime.time() > 1){
+
+                    }
+                }
             default:
                 break;
         }

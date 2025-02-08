@@ -22,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class IntakeTest extends OpMode {
     public static float COLOR_SENSOR_GAIN = 10;
+    public static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
     public static double intakePower = 0;
     private static double ip = 0;
     public static boolean amIRed = true;
@@ -80,7 +81,6 @@ public class IntakeTest extends OpMode {
         REST,
     }
 
-    static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
     public void setDoorState(DoorState doorState){
         switch (doorState){
             case OPEN:
