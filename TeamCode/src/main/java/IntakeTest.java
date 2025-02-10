@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -43,8 +44,8 @@ public class IntakeTest extends OpMode {
 
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
-        rintake.setDirection(CRServo.Direction.FORWARD);
-        lintake.setDirection(CRServo.Direction.REVERSE);
+        rintake.setDirection(CRServo.Direction.REVERSE);
+        lintake.setDirection(CRServo.Direction.FORWARD);
 
 
         door = hardwareMap.get(Servo.class, "door");
