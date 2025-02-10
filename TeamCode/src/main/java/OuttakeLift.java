@@ -1,3 +1,4 @@
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -5,13 +6,14 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Config
 public class OuttakeLift {
     public DcMotorEx llift1, llift2, rlift1, rlift2;
     public TouchSensor touchSensor;
 
     private PIDController controller;
-    private static double p = 0.045, i = 0, d = 0.000, f = 0.1;
-    private static int target = 250;
+    public static double p = 0.045, i = 0, d = 0.000, f = 0.1;
+    public static int target = 250;
 
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
