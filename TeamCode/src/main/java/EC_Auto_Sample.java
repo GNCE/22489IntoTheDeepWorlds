@@ -192,14 +192,14 @@ public class EC_Auto_Sample extends OpMode{
             case 3:
                 resetEncoderFSM();
                 if(!follower.isBusy() && resetFSM == -1){
-                    intake.startIntake();
+                    intake.setIntakeState(Intake.IntakeState.INTAKE);
                     intake.ManualExtend();
                     setPathState(4);
                 }
                 break;
             case 4:
                 if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.isCorrectColor()){
-                    intake.flipUp();
+                    intake.setIntakeState(Intake.IntakeState.FLIP_UP);
                     intake.ManualRetract();
 //                    if(intake.leintake.getCurrentPosition()<20) {
 //                        intake.depositOnly();
@@ -216,7 +216,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 6:
                 // Transfer sequence
-                intake.flipUp();
+                intake.setIntakeState(Intake.IntakeState.FLIP_UP);
                 pickupsequence();
                 if (transferRealFSM ==-1){
                     if(pathTimer.getElapsedTimeSeconds()>2.5) {

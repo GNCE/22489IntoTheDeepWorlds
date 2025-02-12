@@ -99,23 +99,6 @@ public class Intake{
     boolean isIntakeDown = false;
     // Intake Loop
     public void intakeLoop(){
-        sensedColor = colorSensor.getNormalizedColors();
-        Color.colorToHSV(sensedColor.toColor(), hsvValues);
-
-        telemetry.addLine()
-                .addData("Red", "%.3f", sensedColor.red)
-                .addData("Green", "%.3f", sensedColor.green)
-                .addData("Blue", "%.3f", sensedColor.blue);
-        telemetry.addLine()
-                .addData("Hue", "%.3f", hsvValues[0])
-                .addData("Saturation", "%.3f", hsvValues[1])
-                .addData("Value", "%.3f", hsvValues[2]);
-        telemetry.addData("Alpha", "%.3f", sensedColor.alpha);
-        if (colorSensor instanceof DistanceSensor) {
-            telemetry.addData("Distance (cm)", "%.3f", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
-        }
-        telemetry.update();
-
         double INTAKE_TRANSFER_POS = 0.5;
 
         switch(intakeState){
@@ -176,6 +159,8 @@ public class Intake{
     }
 
     public boolean isCorrectColor(){
+        sensedColor = colorSensor.getNormalizedColors();
+        Color.colorToHSV(sensedColor.toColor(), hsvValues);
         return hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
     }
 
@@ -249,7 +234,7 @@ public class Intake{
     }
 
     static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
-    public void setDoorState(IntakeTest.DoorState doorState){
+    public void setDoorState(DoorState doorState){
         switch (doorState){
             case OPEN:
                 door.setPosition(DOOR_OPEN_POS);
@@ -261,21 +246,5 @@ public class Intake{
                 door.setPosition(DOOR_CLOSE_POS);
                 break;
         }
-    }
-
-    public void flipUp(){
-        intakeState = IntakeState.FLIP_UP;
-    }
-    public void deposit(){
-        intakeState = IntakeState.DEPOSIT;
-    }
-    public void startIntake(){
-        intakeState = IntakeState.INTAKE;
-    }
-    public void shootOut(){
-        intakeState = IntakeState.SHOOT;
-    }
-    public void flipToTransfer(){
-        intakeState = IntakeState.TRANSFER;
     }
 }

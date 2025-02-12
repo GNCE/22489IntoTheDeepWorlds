@@ -1,4 +1,5 @@
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -10,8 +11,10 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class OuttakeLift {
     public DcMotorEx llift1, llift2, rlift1, rlift2;
     public TouchSensor touchSensor;
-
     private PIDController controller;
+
+    private static boolean FOUR_MOTOR_LIFT = false;
+
     public static double p = 0.045, i = 0, d = 0.000, f = 0.1;
     public static int target = 250;
 
@@ -39,13 +42,15 @@ public class OuttakeLift {
 
         llift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rlift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         controller = new PIDController(p, i, d);
-
         touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
 
         this.lopMode = opMode;
+    }
+    public int getCurrentPosition(){
+        return (llift1.getCurrentPosition() + llift2.getCurrentPosition() + rlift1.getCurrentPosition() + rlift2.getCurrentPosition()) / 4;
     }
     public void HoldLift(){
         if(touchSensor.isPressed()){
@@ -61,23 +66,31 @@ public class OuttakeLift {
             target = 30;
         }
 
-        if (Math.abs(lopMode.gamepad2.left_stick_y)>0.3){
+        double power;
+        if (Math.abs(lopMode.gamepad2.left_stick_y)>0.1){
             // Manual Takeover. Disable PID or limits
-            rlift1.setPower(-lopMode.gamepad2.left_stick_y);
-            llift1.setPower(-lopMode.gamepad2.left_stick_y);
-            target = rlift1.getCurrentPosition();
+            power = -lopMode.gamepad2.left_stick_y;
+            target = getCurrentPosition();
         } else {
             // PIDF Controller
-            controller.setPID(p, i, d);
-            int liftPos = (rlift1.getCurrentPosition() + llift1.getCurrentPosition() + rlift2.getCurrentPosition() + llift2.getCurrentPosition())/4;
-            double pid = controller.calculate(liftPos, target);
+            double pid = controller.calculate(getCurrentPosition(), target);
             double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
-            double power = pid + ff;
-            rlift1.setPower(power);
-            llift1.setPower(power);
-            rlift2.setPower(power);
+            power = pid + ff;
+        }
+
+        llift1.setPower(power);
+        rlift1.setPower(power);
+        if(FOUR_MOTOR_LIFT){
             llift2.setPower(power);
+            rlift2.setPower(power);
+            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            llift2.setPower(0);
+            rlift2.setPower(0);
+            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
     }
     public void LiftTarget(int input){
@@ -117,7 +130,7 @@ public class OuttakeLift {
                 target = 450;
                 break;
             case BACK_PICKUP: //doesnt exist
-                target = 0;
+                target = 200;
                 break;
             default:
                 break;
@@ -125,8 +138,5 @@ public class OuttakeLift {
     }
     public boolean isBusy(){
         return Math.abs(target - getCurrentPosition()) <= 4;
-    }
-    public int getCurrentPosition(){
-        return rlift1.getCurrentPosition();
     }
 }

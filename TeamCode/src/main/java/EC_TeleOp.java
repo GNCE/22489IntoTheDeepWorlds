@@ -49,7 +49,7 @@ public class EC_TeleOp extends OpMode {
                 outtakeLift.rlift1.setPower(.4);
                 outtakeLift.llift1.setPower(.4);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
-                intake.flipUp();
+                intake.setIntakeState(Intake.IntakeState.FLIP_UP);
                 if (elapsedTime.seconds() > 2){
                     initfsm = 2;
                 }
@@ -84,10 +84,10 @@ public class EC_TeleOp extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.left_bumper) intake.startIntake();
-        if (gamepad1.right_stick_button) intake.shootOut();
+        if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
+        if (gamepad1.right_stick_button) intake.setIntakeState(Intake.IntakeState.SHOOT);
         intake.TeleopExtend(gamepad1.left_trigger);
-        if (gamepad1.right_trigger > 0.2) intake.deposit();
+        if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.DEPOSIT);
         if (gamepad2.y){
             outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
         }else if (gamepad2.b){
