@@ -10,6 +10,12 @@ public class Outtake {
     private Servo Ldiffy;
     private Servo rpivhigh;
     private Servo lpivhigh;
+
+    public static double DEFAULT_LDIFFY_POS = 0.28;
+    public static double DEFAULT_RDIFFY_POS = 0.13;
+    public static double LdiffyPos = DEFAULT_LDIFFY_POS;
+    public static double RdiffyPos = DEFAULT_RDIFFY_POS;
+
     double ArmPosition = 0;
     boolean clawOpen = false;
     final double CLAW_CLOSED = 0.655;
@@ -37,76 +43,53 @@ public class Outtake {
         Rdiffy.setDirection(Servo.Direction.FORWARD);
         Ldiffy.setDirection(Servo.Direction.REVERSE);
     }
-    public enum DiffyState {
-        ORIENTATION_UP,
-        ORIENTATION_DOWN,
-        UPDOWN_TRANSFER,
-        UPDOWN_SPECBACKSCORE,
-        UPDOWN_SPECFRONT,
-        UPDOWN_SAMPLESCORE,
 
+    static class DIFFY_POSITIONS {
+        static double SAMPLE_SCORE = 0;
+        static double TRANSFER = 0;
+        static double SPECIMEN_FRONT = 0;
+        static double SPECIMEN_BACK = 0;
+        static double ORIENTATION_UP = 0;
+        static double ORIENTATION_DOWN = 200;
     }
-    DiffyState UPDOWNdiffyState = DiffyState.UPDOWN_TRANSFER;
-    DiffyState ORIENTATIONdiffyState = DiffyState.ORIENTATION_UP;
-    double rightDiffyPos = 0;
-    double leftDiffyPos = 0;
-    double upDownPos = 0;
-    double orientationPos = 0;
 
-    //tune these values vvvvv
-    static double DIFFY_SAMPLESCOREPOS = 0;
-    static double DIFFY_TRANSFERPOS = 0;
-    static double DIFFY_SPECFRONTPOS = 0;
-    static double DIFFY_SPECBACKPOS = 0;
-    static double DIFFY_ORIENTATION_UP = 0;
-    static double DIFFY_ORIENTATION_DOWN = 0;
-    public void DiffyControl(DiffyState UPDOWNdiffyState, DiffyState ORIENTATIONdiffyState){
-        switch (UPDOWNdiffyState){
-            case UPDOWN_SAMPLESCORE:
-                upDownPos = DIFFY_SAMPLESCOREPOS;
-                break;
-            case UPDOWN_SPECBACKSCORE:
-                upDownPos = DIFFY_SPECBACKPOS;
-                break;
-            case UPDOWN_SPECFRONT:
-                upDownPos = DIFFY_SPECFRONTPOS;
-                break;
-            case UPDOWN_TRANSFER:
-                upDownPos = DIFFY_TRANSFERPOS;
-                break;
-        }
-        switch (ORIENTATIONdiffyState){
-            case ORIENTATION_DOWN:
-                orientationPos = DIFFY_ORIENTATION_UP;
-                break;
-            case ORIENTATION_UP:
-                orientationPos = DIFFY_ORIENTATION_DOWN;
-                break;
-        }
-        rightDiffyPos = upDownPos + orientationPos;
-        leftDiffyPos = upDownPos - orientationPos;
+    private void setPivotPosition(double UpDownAngle, double Orientation){
+        double ServoRange = 300;
+        LdiffyPos = DEFAULT_LDIFFY_POS + UpDownAngle/ServoRange + Orientation*((double) 18/52)/ServoRange;
+        RdiffyPos = DEFAULT_RDIFFY_POS + UpDownAngle/ServoRange - Orientation*((double) 18/52)/ServoRange;
     }
+
+    private void updatePivotPosition(){
+        if(Ldiffy.getPosition() != LdiffyPos || Rdiffy.getPosition() != RdiffyPos){
+            Ldiffy.setPosition(LdiffyPos);
+            Rdiffy.setPosition(RdiffyPos);
+        }
+    }
+
     OuttakeState outtakeState = OuttakeState.TRANSFER;
     public void loop(){
         switch(outtakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
                 clawOpen = true;
-                DiffyControl(DiffyState.UPDOWN_TRANSFER,DiffyState.ORIENTATION_UP);
+                setPivotPosition(DIFFY_POSITIONS.TRANSFER, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SAMPLESCORE:
                 ArmPosition = ARM_SAMPSCORE_POS;
-                DiffyControl(DiffyState.UPDOWN_SAMPLESCORE,DiffyState.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.SAMPLE_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case SPECFRONT:
                 ArmPosition = ARM_FRONTSPEC_POS;
-                DiffyControl(DiffyState.UPDOWN_SPECFRONT, DiffyState.ORIENTATION_UP);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSPEC_POS;
-                DiffyControl(DiffyState.UPDOWN_SPECBACKSCORE, DiffyState.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
+
+        updatePivotPosition();
+
         if (ArmPosition != rpivhigh.getPosition()){
             rpivhigh.setPosition(ArmPosition);
             lpivhigh.setPosition(ArmPosition);
@@ -115,10 +98,6 @@ public class Outtake {
             clamp.setPosition(CLAW_CLOSED);
         } else if ((clamp.getPosition()!=CLAW_OPENED) && clawOpen){
             clamp.setPosition(CLAW_OPENED);
-        }
-        if((Rdiffy.getPosition() != rightDiffyPos)||(Ldiffy.getPosition() != leftDiffyPos)){
-            Rdiffy.setPosition(rightDiffyPos);
-            Ldiffy.setPosition(leftDiffyPos);
         }
     }
 

@@ -1,9 +1,13 @@
 
 
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -12,46 +16,36 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+@Config
 public class Intake{
-    // Parts
     public static float COLOR_SENSOR_GAIN = 10;
     public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.5;
     public static double intakePower = 0;
-    public static boolean amIRed = true;
     public static float[] hsvValues = new float[3];
     public static double distance;
     public static NormalizedRGBA colors;
-    public static double flipPosition = 0.3;
+    public static double pivotPosition = 0.3;
     private OpMode opMode;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket packet;
-    CRServo rintake;
-    CRServo lintake;
-    Servo intakePivot;
-    public Servo reintake;
-    public Servo leintake;
-    public static double extendoPos = 0;
-
-    Servo door;
+    CRServo lintake, rintake;
+    public Servo intakePivot, reintake, leintake, door;
     NormalizedColorSensor colorSensor;
 
-
-    static double INTAKE_DOWN_EXTENSION_LIMIT = 300;
+    ElapsedTime intakeTime, pivotTime, extensionTime;
+    public static double INTAKE_DOWN_EXTENSION_LIMIT = 120;
 
     /** LINKAGE EXTENSION VARIABLES */
-    double extPos = 280;
-    // Length of first linkage (Linkage that connects to servo) (mm) (correct)
-    final double LINK1 = 310;
-    // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
-    final double LINK2 = 324;
-    // Offset X axis (CURRENT VALUE IS CORRECT)
-    final double XOFFSET = 107;
-    // Offset Y axis (CURRENT VALUE IS CORRECT)
-    final double YOFFSET = 8.25;
-    // Length of the slides when fully extended (mm)
-    final double FULL_EXTENSION = 0.3;
-    // Default servo angle (correct)
+    public static double extPos = 0;
+    final double LINK1 = 310; // Length of first linkage (Linkage that connects to servo) (mm) (correct)
+    final double LINK2 = 324; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
+    final double XOFFSET = 107; // Offset X axis (CURRENT VALUE IS CORRECT)
+    final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
+    final double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
+    final double EXTENSION_ZERO_OFFSET = 0; // Servo Zero Offset
+    final int SERVO_RANGE = 300; // Servo Range in degrees
 
     Telemetry telemetry;
 
@@ -78,101 +72,180 @@ public class Intake{
         intakeTime = new ElapsedTime();
         intakeTime.startTime();
 
+        pivotTime = new ElapsedTime();
+        pivotTime.startTime();
+
+        extensionTime = new ElapsedTime();
+        extensionTime.startTime();
+
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;
     }
 
     // Intake Init
     public void initiate(){
-        intakeExtendTo(0);
+        extendTo(extPos);
         rintake.setPower(0);
         lintake.setPower(0);
         intakePivot.setPosition(0);
         door.setPosition(0);
     }
 
-    boolean isIntakeDown = false;
     private final double INTAKE_TRANSFER_POS = 0.8;
     private final double INTAKE_DOWN_POS = 0.13;
 
     // Intake Loop
     public static double INTAKE_POWER = 1.0;
+    private double pivotWaitTime = 0, extensionWaitTime = 0;
+    private boolean reverseIntake = false;
     public void intakeLoop(){
-        switch(intakeState){
-            case FLIP_UP:
-                isIntakeDown = false;
-                flipPosition = 1;
+        // Color Sensor Control
+        switch (intakeState){
+            case INTAKE:
+            case SHOOT:
+                useColorSensor = true;
                 break;
+            default:
+                useColorSensor = reverseIntake;
+                break;
+        }
+
+        if(useColorSensor) updateColorSensorReading();
+
+        // Intake Wheel, Door, and Intake State Control
+        switch(intakeState){
             case INTAKE:
                 if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) setIntakeState(IntakeState.TRANSFER);
-                flipPosition = INTAKE_DOWN_POS;
                 intakePower = INTAKE_POWER;
-                if(intakeTime.time() > 0.5){
-                    if(isWrongColor()){
-                        intakePower = INTAKE_POWER;
-                        setDoorState(DoorState.OPEN);
-                    } else if(isCorrectColor()){
-                        intakePower = 0;
-                        setDoorState(DoorState.CLOSE);
-                        setIntakeState(IntakeState.TRANSFER);
-                    } else {
-                        intakePower = INTAKE_POWER;
-                        setDoorState(DoorState.REST);
+                if(!isPivotBusy()){
+                    switch (getCurrentSampleState(false)){
+                        case INCORRECT:
+                            intakePower = INTAKE_POWER;
+                            setDoorState(DoorState.OPEN);
+                            break;
+                        case CORRECT:
+                            intakePower = 0;
+                            setDoorState(DoorState.CLOSE);
+                            setIntakeState(IntakeState.TRANSFER);
+                            break;
+                        case NOTHING:
+                            intakePower = INTAKE_POWER;
+                            setDoorState(DoorState.REST);
+                            break;
                     }
-                }
-                break;
-            case DEPOSIT:
-                intakePower = -1;
-                if(!isCorrectColor()){
-                    intakePower = 0;
-                    setIntakeState(IntakeState.FLIP_UP);
                 }
                 break;
             case SHOOT:
-                flipPosition = INTAKE_DOWN_POS;
-                if(intakeTime.time() > 0.5){
-                    isIntakeDown = true;
-                    intakePower = -1;
-                    if(!isCorrectColor()){
-                        intakePower = 0;
-                        setIntakeState(IntakeState.TRANSFER);
-                    }
-                }
-            case TRANSFER:
-                flipPosition = INTAKE_TRANSFER_POS;
-                if(intakeTime.time() > 1){
-                    isIntakeDown = false;
-                }
+                startReverseIntake();
+                break;
             default:
                 break;
         }
+
+        if(reverseIntake){
+            if(!isPivotBusy()){
+                intakePower = -1;
+                if(getCurrentSampleState(false) == Intake.SENSOR_READING.NOTHING){
+                    intakePower = 0;
+                    reverseIntake = false;
+                }
+            }
+        }
+
+        // Intake Pivot Control
+        switch (intakeState){
+            case FLIP_UP:
+                updateIntakePivot(1);
+                break;
+            case SHOOT:
+            case INTAKE:
+                updateIntakePivot(INTAKE_DOWN_POS);
+                break;
+            case TRANSFER:
+                updateIntakePivot(INTAKE_TRANSFER_POS);
+                break;
+        }
+
+        // Intake Wheels
+        if (rintake.getPower()!= intakePower){
+            rintake.setPower(intakePower);
+            lintake.setPower(intakePower);
+        }
+
+        // Intake Extension
+        extendTo(extPos);
+    }
+
+    // Intake Reverse
+    public void startReverseIntake(){
+        reverseIntake = true;
+    }
+
+    // Intake Pivot
+    private void updateIntakePivot(double targetPosition){
+        if (intakePivot.getPosition()!= targetPosition) {
+            pivotTime.reset();
+            pivotWaitTime = Math.abs(intakePivot.getPosition() - targetPosition);
+            intakePivot.setPosition(targetPosition);
+        }
+    }
+
+    public boolean isPivotBusy(){
+        return pivotTime.time() <= pivotWaitTime;
+    }
+
+    public boolean isIntakeDown(){
+        return intakePivot.getPosition() == INTAKE_DOWN_POS;
     }
 
     // Color Sensor
-    private boolean isRed(){
-        return hsvValues[0] <= 62;
+    public enum SENSOR_READING {
+        RED, BLUE, YELLOW, NOTHING, CORRECT, INCORRECT
+    }
+    SENSOR_READING currentSensorReading;
+    static boolean useColorSensor = false;
+    private void updateColorSensorReading(){
+        colorSensor.setGain(COLOR_SENSOR_GAIN);
+
+        colors = colorSensor.getNormalizedColors();
+        Color.colorToHSV(colors.toColor(), hsvValues);
+
+        if(colorSensor instanceof DistanceSensor)
+            distance = ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM);
+
+        if(distance > 5 || hsvValues[1] < 0.5) currentSensorReading = SENSOR_READING.NOTHING;
+        else if(hsvValues[0] <= 62) currentSensorReading = SENSOR_READING.RED;
+        else if(hsvValues[0] >= 200 && hsvValues[0] <= 250) currentSensorReading = SENSOR_READING.BLUE;
+        else if(hsvValues[0] >= 70 && hsvValues[0] <= 120) currentSensorReading = SENSOR_READING.YELLOW;
+        else currentSensorReading = SENSOR_READING.NOTHING;
     }
 
-    private boolean isBlue(){
-        return hsvValues[0] >= 200 && hsvValues[0] <= 250;
+    public SENSOR_READING getCurrentSensorReading(){
+        return currentSensorReading;
     }
 
-    private boolean isYellow(){
-        return hsvValues[0] >= 70 && hsvValues[0] <= 120;
+    public SENSOR_READING getCurrentSampleState(boolean allianceSpecific){
+        SENSOR_READING cur = getCurrentSensorReading();
+        boolean correct;
+        switch (cur){
+            case YELLOW:
+                correct = !allianceSpecific;
+                break;
+            case RED:
+                correct = Storage.isRed;
+                break;
+            case BLUE:
+                correct = !Storage.isRed;
+                break;
+            default:
+                return SENSOR_READING.NOTHING;
+        }
+        return correct ? SENSOR_READING.CORRECT : SENSOR_READING.INCORRECT;
     }
 
-    public boolean isCorrectColor(){
-        return distance < 5 && hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
-    }
-
-    public boolean isWrongColor(){
-        return distance < 5 && hsvValues[1] > 0.5 && (!Storage.isRed && isRed()) || (Storage.isRed && isBlue());
-    }
-
+    // Intake Door States
     public enum DoorState{
-        OPEN,
-        CLOSE,
-        REST,
+        OPEN, CLOSE, REST
     }
 
     public void setDoorState(Intake.DoorState doorState){
@@ -196,60 +269,38 @@ public class Intake{
         double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
         return (180 - beta - gamma)/servoRange;
     }
-    private void intakeExtendTo(double length){
-        double targetPos = getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, 360*5);
-        leintake.setPosition(targetPos);
-        reintake.setPosition(targetPos);
+    private void extendTo(double length){
+        double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
+        if(leintake.getPosition() != targetPos){
+            extensionWaitTime = Math.abs(targetPos - leintake.getPosition());
+            extensionTime.reset();
+
+            leintake.setPosition(targetPos);
+            reintake.setPosition(targetPos);
+        }
     }
-    public void setIntakeExtensionTarget(double target){
+    public boolean isExtensionBusy(){
+        return extensionTime.time() <= extensionWaitTime;
+    }
+    public void setExtensionTarget(double target){
         if(target > FULL_EXTENSION) target = FULL_EXTENSION;
-        else if(isIntakeDown && target < INTAKE_DOWN_EXTENSION_LIMIT) target = INTAKE_DOWN_EXTENSION_LIMIT;
+        else if(isIntakeDown() && target < INTAKE_DOWN_EXTENSION_LIMIT) target = INTAKE_DOWN_EXTENSION_LIMIT;
         else if(target < 0) target = 0;
         extPos = target;
-    }
-    public void extendoLoop(){
-        if (intakePivot.getPosition()!= flipPosition) {
-            intakePivot.setPosition(flipPosition);
-        }
-        if (rintake.getPower()!= intakePower){
-            rintake.setPower(intakePower);
-            lintake.setPower(intakePower);
-        }
-        intakeExtendTo(extPos);
-    }
-    public void ManualExtend(){
-        setIntakeExtensionTarget(FULL_EXTENSION);
-    }
-    public void ManualRetract(){
-        setIntakeExtensionTarget(0);
     }
     public void TeleopExtend(double valueFromZeroToOne){
         if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
         else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
-        setIntakeExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
-    }
-    public boolean isRetracted(){
-        return false;
+        setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
 
     // Intake States
-
-
     public enum IntakeState {
-        FLIP_UP,
-        INTAKE,
-        DEPOSIT,
-        SHOOT,
-        TRANSFER,
+        FLIP_UP, INTAKE, SHOOT, TRANSFER
     }
-
     IntakeState intakeState = IntakeState.FLIP_UP;
-    ElapsedTime intakeTime;
-
     public void setIntakeState(IntakeState intakeState) {
         this.intakeState = intakeState;
         intakeTime.reset();
     }
-
-
 }

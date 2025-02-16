@@ -193,14 +193,14 @@ public class EC_Auto_Sample extends OpMode{
                 resetEncoderFSM();
                 if(!follower.isBusy() && resetFSM == -1){
                     intake.setIntakeState(Intake.IntakeState.INTAKE);
-                    intake.ManualExtend();
+                    intake.setExtensionTarget(0);
                     setPathState(4);
                 }
                 break;
             case 4:
-                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.isCorrectColor()){
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
                     intake.setIntakeState(Intake.IntakeState.FLIP_UP);
-                    intake.ManualRetract();
+                    intake.setExtensionTarget(0);
 //                    if(intake.leintake.getCurrentPosition()<20) {
 //                        intake.depositOnly();
 //                        setPathState(5);
@@ -292,7 +292,6 @@ public class EC_Auto_Sample extends OpMode{
         follower.update();
         autonomousPathUpdate();
         misc.door();
-        intake.extendoLoop();
         intake.intakeLoop();
         outtake.loop();
         outtakeLift.HoldLift();

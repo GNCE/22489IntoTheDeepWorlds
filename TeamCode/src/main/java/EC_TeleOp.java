@@ -40,9 +40,9 @@ public class EC_TeleOp extends OpMode {
 
     private ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
     private ToggleButton controlFlipButton = new ToggleButton(true);
-//
-//    @Override
-//    public void init_loop(){
+
+    @Override
+    public void init_loop(){
 //        outtake.loop();
 //        switch (initfsm){
 //            case 1:
@@ -67,13 +67,13 @@ public class EC_TeleOp extends OpMode {
 //                initfsm = -1;
 //            break;
 //        }
-//
-//        teamColorButton.input(gamepad1.dpad_up);
-//        Storage.isRed = teamColorButton.getVal();
-//        telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
-//        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
-//        telemetry.update();
-//    }
+
+        teamColorButton.input(gamepad1.dpad_up);
+        Storage.isRed = teamColorButton.getVal();
+        telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
+        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+        telemetry.update();
+    }
 
     @Override
     public void start() {
@@ -87,7 +87,7 @@ public class EC_TeleOp extends OpMode {
         if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
         if (gamepad1.right_stick_button) intake.setIntakeState(Intake.IntakeState.SHOOT);
         intake.TeleopExtend(gamepad1.left_trigger);
-        if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.DEPOSIT);
+        if (gamepad1.right_trigger > 0.2) intake.startReverseIntake();
 //        if (gamepad2.y){
 //            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
 //        }else if (gamepad2.b){
@@ -114,26 +114,23 @@ public class EC_TeleOp extends OpMode {
 //        outtakeLift.HoldLift();
 //        outtake.loop();
         intake.intakeLoop();
-        intake.extendoLoop();
 //        misc.loop();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
-        if (intake.extPos != 0) {
-            //Slower because is intaking
+        // Movement Speed Adjustments for Intake
+        if (intake.isIntakeDown()) {
             follower.setTeleOpMovementVectors(
                     flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-        }else {
-            //faster because is travelling
+        } else {
             follower.setTeleOpMovementVectors(
                     flip * Math.pow(-gamepad1.left_stick_y,2),
                     flip * Math.pow(-gamepad1.left_stick_x,2),
                     -gamepad1.right_stick_x, true);
         }
         follower.update();
-
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
         telemetry.addData("X", follower.getPose().getX());
@@ -143,7 +140,7 @@ public class EC_TeleOp extends OpMode {
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
         //telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
-        telemetry.addData("extendo target position", intake.extPos);
+        telemetry.addData("extendo target position", Intake.extPos);
         telemetry.addData("extendo position", intake.leintake.getPosition());
         telemetry.update();
     }

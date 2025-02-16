@@ -40,12 +40,12 @@ public class Macros {
                 }
                 break;
             case OPEN_CLAW:
-                if(intake.isCorrectColor()){
-                    intake.ManualRetract();
-                    if(intake.isRetracted()){
-                        outtake.setClawOpen(false);
-                        setTransferState(TransferState.NOTHING);
-                    }
+                if(intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
+                    intake.setExtensionTarget(0);
+//                    if(intake.isRetracted()){
+//                        outtake.setClawOpen(false);
+//                        setTransferState(TransferState.NOTHING);
+//                    }
                 }
                 break;
             case CLOSE_CLAW:

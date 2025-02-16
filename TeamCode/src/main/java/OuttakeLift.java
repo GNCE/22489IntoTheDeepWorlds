@@ -139,4 +139,7 @@ public class OuttakeLift {
     public boolean isBusy(){
         return Math.abs(target - getCurrentPosition()) <= 4;
     }
+    public void setFourMotorLift(boolean newVal){
+        FOUR_MOTOR_LIFT = newVal;
+    }
 }

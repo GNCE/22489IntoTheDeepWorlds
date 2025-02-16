@@ -153,7 +153,7 @@ public class EC_Auto_Specimen extends OpMode {
                 }
                 break;
             case INTAKE:
-                if(intake.isCorrectColor() || pathTimer.getElapsedTimeSeconds() > 4){
+                if(intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT || pathTimer.getElapsedTimeSeconds() > 4){
                     intake.ManualRetract();
                     if(intake.extendo.getCurrentPosition() < 15){
                         intake.depositandflip();
