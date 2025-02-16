@@ -1,87 +1,83 @@
 
 
-import android.graphics.Color;
-
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Intake{
     // Parts
-    private Servo intakePivot;
-    private TouchSensor touchSensor;
-    public CRServo lintake;
-    public CRServo rintake;
-    public Servo leintake;
-    public Servo reintake;
+    public static float COLOR_SENSOR_GAIN = 10;
+    public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.5;
+    public static double intakePower = 0;
+    private static double ip = 0;
+    public static boolean amIRed = true;
+    public static float[] hsvValues = new float[3];
+    public static double distance;
+    public static NormalizedRGBA colors;
+    public static double flipPosition = 0.3;
+    private OpMode opMode;
+    FtcDashboard dashboard = FtcDashboard.getInstance();
+    TelemetryPacket packet;
+    CRServo rintake;
+    CRServo lintake;
+    Servo intakePivot;
+    private Servo reintake;
+    private Servo leintake;
+    public static double extendoPos = 0;
 
-    public Servo door;
+    Servo door;
     NormalizedColorSensor colorSensor;
 
-    // Constants
-    private final double INTAKE_POWER = 1;
-
-    // Values
-
-    public NormalizedRGBA sensedColor;
-    public float[] hsvValues = new float[3];
-    OpMode opMode;
-
-
-    double fin = 0;
-    double intakePower = 0;
 
     static double INTAKE_DOWN_EXTENSION_LIMIT = 300;
 
     /** LINKAGE EXTENSION VARIABLES */
-    double extPos = 0;
-    // Length of first linkage (Linkage that connects to servo) (mm)
-    final double LINK1 = 200;
-    // Length of second linkage (Linkage that connects to the slide) (mm)
-    final double LINK2 = 300;
+    double extPos = 280;
+    // Length of first linkage (Linkage that connects to servo) (mm) (correct)
+    final double LINK1 = 310;
+    // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
+    final double LINK2 = 324;
     // Offset X axis (CURRENT VALUE IS CORRECT)
     final double XOFFSET = 107;
     // Offset Y axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25;
     // Length of the slides when fully extended (mm)
-    final double FULL_EXTENSION = 1000;
-    // Default servo angle
+    final double FULL_EXTENSION = 0.3;
+    // Default servo angle (correct)
 
 
     Telemetry telemetry;
 
     public Intake(HardwareMap hardwareMap, OpMode opMode) {
+        packet = new TelemetryPacket();
+
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
+        rintake.setDirection(CRServo.Direction.REVERSE);
+        lintake.setDirection(CRServo.Direction.FORWARD);
         intakePivot = hardwareMap.get(Servo.class, "fintake");
-        rintake.setDirection(CRServo.Direction.FORWARD);
-        lintake.setDirection(CRServo.Direction.REVERSE);
-        intakePivot.setDirection(Servo.Direction.REVERSE);
+        reintake = hardwareMap.get(Servo.class,"reintake");
+        leintake = hardwareMap.get(Servo.class, "leintake");
+        reintake.setDirection(Servo.Direction.REVERSE);
 
         door = hardwareMap.get(Servo.class, "intake_door");
         door.setDirection(Servo.Direction.FORWARD);
-
-        leintake = hardwareMap.get(Servo.class, "leintake");
-        reintake = hardwareMap.get(Servo.class, "reintake");
-        reintake.setDirection(Servo.Direction.FORWARD);
-        leintake.setDirection(Servo.Direction.REVERSE);
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
         if (colorSensor instanceof SwitchableLight) {
             ((SwitchableLight)colorSensor).enableLight(true);
         }
 
-        touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch_intake");
+
 
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;
@@ -97,18 +93,19 @@ public class Intake{
     }
 
     boolean isIntakeDown = false;
+    private final double INTAKE_TRANSFER_POS = 0.8;
+    private final double INTAKE_DOWN_POS = 0.13;
+
     // Intake Loop
     public void intakeLoop(){
-        double INTAKE_TRANSFER_POS = 0.5;
-
         switch(intakeState){
             case FLIP_UP:
                 isIntakeDown = false;
-                fin = 0;
+                flipPosition = 1;
                 break;
             case INTAKE:
                 if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) setIntakeState(IntakeState.TRANSFER);
-                fin = INTAKE_DOWN_POS;
+                flipPosition = INTAKE_DOWN_POS;
                 intakePower = INTAKE_POWER;
                 if(intakeTime.time() > 0.5){
                     isIntakeDown = true;
@@ -126,7 +123,7 @@ public class Intake{
                 }
                 break;
             case SHOOT:
-                fin = INTAKE_DOWN_POS;
+                flipPosition = INTAKE_DOWN_POS;
                 if(intakeTime.time() > 0.5){
                     isIntakeDown = true;
                     intakePower = -1;
@@ -136,7 +133,7 @@ public class Intake{
                     }
                 }
             case TRANSFER:
-                fin = INTAKE_TRANSFER_POS;
+                flipPosition = INTAKE_TRANSFER_POS;
                 if(intakeTime.time() > 1){
                     isIntakeDown = false;
                 }
@@ -147,7 +144,7 @@ public class Intake{
 
     // Color Sensor
     private boolean isRed(){
-        return hsvValues[0] <= 65;
+        return hsvValues[0] <= 62;
     }
 
     private boolean isBlue(){
@@ -155,14 +152,38 @@ public class Intake{
     }
 
     private boolean isYellow(){
-        return hsvValues[0] >= 80 && hsvValues[0] <= 120;
+        return hsvValues[0] >= 70 && hsvValues[0] <= 120;
     }
 
     public boolean isCorrectColor(){
-        sensedColor = colorSensor.getNormalizedColors();
-        Color.colorToHSV(sensedColor.toColor(), hsvValues);
-        return hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
+        return distance < 5 && hsvValues[1] > 0.5 && (isYellow() || (Storage.isRed && isRed()) || (!Storage.isRed && isBlue()));
     }
+
+    public boolean isWrongColor(){
+        return distance < 5 && hsvValues[1] > 0.5 && (!Storage.isRed && isRed()) || (Storage.isRed && isBlue());
+    }
+
+    public enum DoorState{
+        OPEN,
+        CLOSE,
+        REST,
+    }
+
+    public void setDoorState(IntakeTest.DoorState doorState){
+        switch (doorState){
+            case OPEN:
+                door.setPosition(DOOR_OPEN_POS);
+                break;
+            case REST:
+                door.setPosition(DOOR_REST_POS);
+                break;
+            case CLOSE:
+                door.setPosition(DOOR_CLOSE_POS);
+                break;
+        }
+    }
+
+
 
     // Intake Extension
     private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
@@ -183,8 +204,8 @@ public class Intake{
         extPos = target;
     }
     public void extendoLoop(){
-        if (intakePivot.getPosition()!=fin) {
-            intakePivot.setPosition(fin);
+        if (intakePivot.getPosition()!= flipPosition) {
+            intakePivot.setPosition(flipPosition);
         }
         if (rintake.getPower()!= intakePower){
             rintake.setPower(intakePower);
@@ -204,11 +225,11 @@ public class Intake{
         setIntakeExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
     public boolean isRetracted(){
-        return touchSensor.isPressed();
+        return false;
     }
 
     // Intake States
-    private final double INTAKE_DOWN_POS = 0.919;
+
 
     public enum IntakeState {
         FLIP_UP,
@@ -226,25 +247,5 @@ public class Intake{
         intakeTime.reset();
     }
 
-    // Door States
-    public enum DoorState{
-        OPEN,
-        CLOSE,
-        REST,
-    }
 
-    static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
-    public void setDoorState(DoorState doorState){
-        switch (doorState){
-            case OPEN:
-                door.setPosition(DOOR_OPEN_POS);
-                break;
-            case REST:
-                door.setPosition(DOOR_REST_POS);
-                break;
-            case CLOSE:
-                door.setPosition(DOOR_CLOSE_POS);
-                break;
-        }
-    }
 }

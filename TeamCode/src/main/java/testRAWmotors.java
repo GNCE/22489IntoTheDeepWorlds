@@ -6,20 +6,42 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 @Disabled
 @TeleOp (name = "motor test")
 public class testRAWmotors extends OpMode {
-    private DcMotor rlift;
-    private DcMotor llift;
-    private DcMotor extendo;
+    private DcMotor rlift1;
+    private DcMotor llift1;
+    private DcMotor rlift2;
+    private DcMotor llift2;
     public void init(){
-        rlift = hardwareMap.get(DcMotorEx.class, "rlift");
-        llift = hardwareMap.get(DcMotorEx.class, "llift");
-        llift.setDirection(DcMotor.Direction.FORWARD);
-        rlift.setDirection(DcMotor.Direction.REVERSE);
-        extendo = hardwareMap.get(DcMotor.class, "extendo");
-        extendo.setDirection(DcMotor.Direction.REVERSE);
+        llift1 = hardwareMap.get(DcMotorEx.class, "llift1");
+        rlift1 = hardwareMap.get(DcMotorEx.class, "rlift1");
+        llift2 = hardwareMap.get(DcMotorEx.class, "llift2");
+        rlift2 = hardwareMap.get(DcMotorEx.class, "rlift2");
+
+        llift1.setDirection(DcMotor.Direction.REVERSE);
+        rlift1.setDirection(DcMotor.Direction.FORWARD);
+        llift2.setDirection(DcMotor.Direction.REVERSE);
+        rlift2.setDirection(DcMotor.Direction.FORWARD);
+
+        llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        llift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rlift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        llift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        llift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rlift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
     public void loop(){
-        rlift.setPower(-gamepad2.left_stick_y);
-        llift.setPower(-gamepad2.left_stick_y);
-        extendo.setPower(-gamepad2.right_stick_y);
+        rlift1.setPower(-gamepad2.left_stick_y);
+        llift1.setPower(-gamepad2.left_stick_y);
+        if (gamepad1.right_bumper) {
+            rlift2.setPower(-gamepad2.left_stick_y);
+            llift2.setPower(-gamepad2.left_stick_y);
+        }
     }
 }

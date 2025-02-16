@@ -23,17 +23,22 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class IntakeTest extends OpMode {
     public static float COLOR_SENSOR_GAIN = 10;
-    public static double DOOR_OPEN_POS = 0.5, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.1;
+    public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.5;
     public static double intakePower = 0;
     private static double ip = 0;
     public static boolean amIRed = true;
     public static float[] hsvValues = new float[3];
     public static double distance;
     public static NormalizedRGBA colors;
+    public static double flipPosition = 0.3;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket packet;
     CRServo rintake;
     CRServo lintake;
+    Servo intakePivot;
+    private Servo reintake;
+    private Servo leintake;
+    public static double extendoPos = 0;
 
     Servo door;
     NormalizedColorSensor colorSensor;
@@ -46,9 +51,12 @@ public class IntakeTest extends OpMode {
         lintake = hardwareMap.get(CRServo.class, "lintake");
         rintake.setDirection(CRServo.Direction.REVERSE);
         lintake.setDirection(CRServo.Direction.FORWARD);
+        intakePivot = hardwareMap.get(Servo.class, "fintake");
+        reintake = hardwareMap.get(Servo.class,"reintake");
+        leintake = hardwareMap.get(Servo.class, "leintake");
+        reintake.setDirection(Servo.Direction.REVERSE);
 
-
-        door = hardwareMap.get(Servo.class, "door");
+        door = hardwareMap.get(Servo.class, "intake_door");
         door.setDirection(Servo.Direction.FORWARD);
 
         colorSensor = hardwareMap.get(NormalizedColorSensor.class, "sensor_color");
@@ -102,7 +110,9 @@ public class IntakeTest extends OpMode {
 
         rintake.setPower(ip);
         lintake.setPower(ip);
-
+        intakePivot.setPosition(flipPosition);
+        reintake.setPosition(extendoPos);
+        leintake.setPosition(extendoPos);
 
 
         colorSensor.setGain(COLOR_SENSOR_GAIN);
@@ -136,6 +146,7 @@ public class IntakeTest extends OpMode {
         if(colorSensor instanceof  DistanceSensor){
             packet.put("Distance", ((DistanceSensor) colorSensor).getDistance(DistanceUnit.CM));
         }
+        packet.put("ExtensionPosition", extendoPos);
 
         dashboard.sendTelemetryPacket(packet);
 

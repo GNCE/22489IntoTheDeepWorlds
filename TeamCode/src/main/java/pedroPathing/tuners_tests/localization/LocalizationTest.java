@@ -109,8 +109,8 @@ public class LocalizationTest extends OpMode {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
         double leftFrontPower = (y + x + rx) / denominator;
         double leftRearPower = (y - x + rx) / denominator;
-        double rightFrontPower = (y - x - rx) / denominator;
-        double rightRearPower = (y + x - rx) / denominator;
+        double rightFrontPower = (y + x - rx) / denominator;
+        double rightRearPower = (y - x - rx) / denominator;
 
         leftFront.setPower(leftFrontPower);
         leftRear.setPower(leftRearPower);
