@@ -18,7 +18,6 @@ public class Intake{
     public static float COLOR_SENSOR_GAIN = 10;
     public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.5;
     public static double intakePower = 0;
-    private static double ip = 0;
     public static boolean amIRed = true;
     public static float[] hsvValues = new float[3];
     public static double distance;
@@ -30,8 +29,8 @@ public class Intake{
     CRServo rintake;
     CRServo lintake;
     Servo intakePivot;
-    private Servo reintake;
-    private Servo leintake;
+    public Servo reintake;
+    public Servo leintake;
     public static double extendoPos = 0;
 
     Servo door;
@@ -53,7 +52,6 @@ public class Intake{
     // Length of the slides when fully extended (mm)
     final double FULL_EXTENSION = 0.3;
     // Default servo angle (correct)
-
 
     Telemetry telemetry;
 
@@ -77,7 +75,8 @@ public class Intake{
             ((SwitchableLight)colorSensor).enableLight(true);
         }
 
-
+        intakeTime = new ElapsedTime();
+        intakeTime.startTime();
 
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;
@@ -97,6 +96,7 @@ public class Intake{
     private final double INTAKE_DOWN_POS = 0.13;
 
     // Intake Loop
+    public static double INTAKE_POWER = 1.0;
     public void intakeLoop(){
         switch(intakeState){
             case FLIP_UP:
@@ -108,10 +108,16 @@ public class Intake{
                 flipPosition = INTAKE_DOWN_POS;
                 intakePower = INTAKE_POWER;
                 if(intakeTime.time() > 0.5){
-                    isIntakeDown = true;
-                    if(isCorrectColor()){
+                    if(isWrongColor()){
+                        intakePower = INTAKE_POWER;
+                        setDoorState(DoorState.OPEN);
+                    } else if(isCorrectColor()){
                         intakePower = 0;
+                        setDoorState(DoorState.CLOSE);
                         setIntakeState(IntakeState.TRANSFER);
+                    } else {
+                        intakePower = INTAKE_POWER;
+                        setDoorState(DoorState.REST);
                     }
                 }
                 break;
@@ -169,7 +175,7 @@ public class Intake{
         REST,
     }
 
-    public void setDoorState(IntakeTest.DoorState doorState){
+    public void setDoorState(Intake.DoorState doorState){
         switch (doorState){
             case OPEN:
                 door.setPosition(DOOR_OPEN_POS);
@@ -182,8 +188,6 @@ public class Intake{
                 break;
         }
     }
-
-
 
     // Intake Extension
     private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
