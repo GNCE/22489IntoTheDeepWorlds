@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "Outtake Claw Test")
 @Config
 public class OuttakeClawTest extends OpMode {
-    private Servo clamp;
     private Servo Rdiffy;
     private Servo Ldiffy;
 
@@ -21,7 +20,6 @@ public class OuttakeClawTest extends OpMode {
 
     @Override
     public void init(){
-        clamp = hardwareMap.get(Servo.class, "clamp");
         Rdiffy = hardwareMap.get(Servo.class,"Rdiffy");
         Ldiffy = hardwareMap.get(Servo.class,"Ldiffy");
         Rdiffy.setDirection(Servo.Direction.REVERSE);

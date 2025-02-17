@@ -3,7 +3,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-@Disabled
+
 @TeleOp (name = "motor test")
 public class testRAWmotors extends OpMode {
     private DcMotor rlift1;
@@ -40,8 +40,13 @@ public class testRAWmotors extends OpMode {
         rlift1.setPower(-gamepad2.left_stick_y);
         llift1.setPower(-gamepad2.left_stick_y);
         if (gamepad1.right_bumper) {
+            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             rlift2.setPower(-gamepad2.left_stick_y);
             llift2.setPower(-gamepad2.left_stick_y);
+        } else {
+            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
     }
 }

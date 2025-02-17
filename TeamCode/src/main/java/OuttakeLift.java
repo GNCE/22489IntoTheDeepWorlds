@@ -3,6 +3,7 @@ import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -13,9 +14,9 @@ public class OuttakeLift {
     public TouchSensor touchSensor;
     private PIDController controller;
 
-    private static boolean FOUR_MOTOR_LIFT = false;
+    public static boolean FOUR_MOTOR_LIFT = true;
 
-    public static double p = 0.045, i = 0, d = 0.000, f = 0.1;
+    public static double p = 0.045, i = 0, d = 0.000, f = 0;
     public static int target = 250;
 
     OpMode lopMode;
@@ -25,10 +26,10 @@ public class OuttakeLift {
         llift2 = hardwareMap.get(DcMotorEx.class, "llift2");
         rlift2 = hardwareMap.get(DcMotorEx.class, "rlift2");
 
-        llift1.setDirection(DcMotor.Direction.REVERSE);
-        rlift1.setDirection(DcMotor.Direction.FORWARD);
-        llift2.setDirection(DcMotor.Direction.REVERSE);
-        rlift2.setDirection(DcMotor.Direction.FORWARD);
+        llift1.setDirection(DcMotor.Direction.FORWARD);
+        rlift1.setDirection(DcMotor.Direction.REVERSE);
+        llift2.setDirection(DcMotor.Direction.FORWARD);
+        rlift2.setDirection(DcMotor.Direction.REVERSE);
 
         llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

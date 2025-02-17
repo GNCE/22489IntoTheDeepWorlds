@@ -7,6 +7,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -21,12 +22,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Config
 public class Intake{
     public static float COLOR_SENSOR_GAIN = 10;
-    public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.3, DOOR_CLOSE_POS = 0.5;
+    public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.4, DOOR_CLOSE_POS = 0.6;
     public static double intakePower = 0;
     public static float[] hsvValues = new float[3];
     public static double distance;
     public static NormalizedRGBA colors;
-    public static double pivotPosition = 0.3;
     private OpMode opMode;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     TelemetryPacket packet;
@@ -54,8 +54,8 @@ public class Intake{
 
         rintake = hardwareMap.get(CRServo.class, "rintake");
         lintake = hardwareMap.get(CRServo.class, "lintake");
-        rintake.setDirection(CRServo.Direction.REVERSE);
-        lintake.setDirection(CRServo.Direction.FORWARD);
+        rintake.setDirection(CRServo.Direction.FORWARD);
+        lintake.setDirection(CRServo.Direction.REVERSE);
         intakePivot = hardwareMap.get(Servo.class, "fintake");
         reintake = hardwareMap.get(Servo.class,"reintake");
         leintake = hardwareMap.get(Servo.class, "leintake");
@@ -92,7 +92,7 @@ public class Intake{
     }
 
     private final double INTAKE_TRANSFER_POS = 0.8;
-    private final double INTAKE_DOWN_POS = 0.13;
+    private final double INTAKE_DOWN_POS = 0.12;
 
     // Intake Loop
     public static double INTAKE_POWER = 1.0;
@@ -134,6 +134,10 @@ public class Intake{
                             break;
                     }
                 }
+                break;
+            case FLIP_UP:
+            case TRANSFER:
+                intakePower = 0;
                 break;
             case SHOOT:
                 startReverseIntake();

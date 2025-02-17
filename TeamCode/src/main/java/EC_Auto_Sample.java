@@ -142,6 +142,7 @@ public class EC_Auto_Sample extends OpMode{
     private int sampleCounter = 0;
     int resetFSM = -1;
     public void resetEncoderFSM(){
+        /*
         switch (resetFSM){
             case 1://reset stuff
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
@@ -160,6 +161,7 @@ public class EC_Auto_Sample extends OpMode{
 
                 }
         }
+         */
     }
     public void autonomousPathUpdate() {
         switch (pathState) {

@@ -27,10 +27,10 @@ public class EC_TeleOp extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        //outtake = new Outtake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
         elapsedTime = new ElapsedTime();
         intake = new Intake(hardwareMap,this);
-        //outtakeLift = new OuttakeLift(hardwareMap, this);
+        outtakeLift = new OuttakeLift(hardwareMap, this);
         //misc = new Misc(hardwareMap);
         //misc.initiate();
 
@@ -79,7 +79,6 @@ public class EC_TeleOp extends OpMode {
     public void start() {
         intake.initiate();
         follower.startTeleopDrive();
-
     }
 
     @Override
@@ -87,7 +86,9 @@ public class EC_TeleOp extends OpMode {
         if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
         if (gamepad1.right_stick_button) intake.setIntakeState(Intake.IntakeState.SHOOT);
         intake.TeleopExtend(gamepad1.left_trigger);
-        if (gamepad1.right_trigger > 0.2) intake.startReverseIntake();
+        if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.TRANSFER);
+        if (gamepad1.right_bumper) intake.startReverseIntake();
+
 //        if (gamepad2.y){
 //            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
 //        }else if (gamepad2.b){
@@ -111,25 +112,26 @@ public class EC_TeleOp extends OpMode {
 
 //        if (gamepad1.right_bumper) misc.startSweep();
 
-//        outtakeLift.HoldLift();
-//        outtake.loop();
+        outtakeLift.HoldLift();
+        //outtake.loop();
         intake.intakeLoop();
 //        misc.loop();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
         // Movement Speed Adjustments for Intake
-        if (intake.isIntakeDown()) {
-            follower.setTeleOpMovementVectors(
-                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-        } else {
-            follower.setTeleOpMovementVectors(
-                    flip * Math.pow(-gamepad1.left_stick_y,2),
-                    flip * Math.pow(-gamepad1.left_stick_x,2),
-                    -gamepad1.right_stick_x, true);
-        }
+        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
+//        if (intake.isIntakeDown()) {
+//            follower.setTeleOpMovementVectors(
+//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
+//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
+//                    0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+//        } else {
+//            follower.setTeleOpMovementVectors(
+//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
+//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
+//                    -gamepad1.right_stick_x, true);
+//        }
         follower.update();
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
@@ -139,7 +141,7 @@ public class EC_TeleOp extends OpMode {
         telemetry.addLine();
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
-        //telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
+        telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
         telemetry.addData("extendo target position", Intake.extPos);
         telemetry.addData("extendo position", intake.leintake.getPosition());
         telemetry.update();
