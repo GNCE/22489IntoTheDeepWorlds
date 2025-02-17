@@ -43,8 +43,8 @@ public class Intake{
     final double LINK2 = 324; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
     final double XOFFSET = 107; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    final double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
-    final double EXTENSION_ZERO_OFFSET = 0; // Servo Zero Offset
+    public static double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
+    public static double EXTENSION_ZERO_OFFSET = 0; // Servo Zero Offset
     final int SERVO_RANGE = 300; // Servo Range in degrees
 
     Telemetry telemetry;
