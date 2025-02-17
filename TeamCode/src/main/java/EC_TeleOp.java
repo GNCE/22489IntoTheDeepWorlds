@@ -22,6 +22,7 @@ public class EC_TeleOp extends OpMode {
     private final Pose startPose = Storage.CurrentPose;
     int flip = 1;
     int initfsm = 0;
+
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
@@ -117,7 +118,7 @@ public class EC_TeleOp extends OpMode {
     SPECIMEN_SEQUENCE specimenSequence;
     OUTTAKE_SEQUENCE outtakeSequence;
 
-    private ToggleButton bucketSequenceNextButton, bucketSequencePrevButton, specimenSequenceNextButton, specimenSequencePrevButton;
+    private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true);
 
     @Override
     public void loop() {
