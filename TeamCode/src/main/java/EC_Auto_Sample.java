@@ -64,7 +64,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 4:
                 outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_WAIT);
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
                 outtake.setClawOpen(true);
                 if (elapsedTime.seconds() > 1){
                     elapsedTime.reset();
@@ -72,7 +72,7 @@ public class EC_Auto_Sample extends OpMode{
                 }
                 break;
             case 5:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER_GRAB);
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
                 if (!outtakeLift.isBusy()){
                     outtake.setClawOpen(false);
                     elapsedTime.reset();
@@ -238,7 +238,7 @@ public class EC_Auto_Sample extends OpMode{
                 break;
             case 7:
                 if(!follower.isBusy()){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                 }
                 break;
             default:

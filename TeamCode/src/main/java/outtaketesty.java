@@ -11,7 +11,7 @@ public class outtaketesty extends OpMode {
 
     public void loop() {
         if (gamepad1.y){
-            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
+            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
         }else if (gamepad1.x){
             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
         }else if (gamepad1.a){

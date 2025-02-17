@@ -16,20 +16,22 @@ public class Outtake {
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
-    double ArmPosition = 0;
-    boolean clawOpen = false;
-    final double CLAW_CLOSED = 0.655;
-    final double CLAW_OPENED = 0.627;
+    public static double ArmPosition = 0;
+    public static boolean clawOpen = false;
+    public static double CLAW_CLOSED = 0.655;
+    public static double CLAW_OPENED = 0.627;
     //tune these values vvvvv
-    static double ARM_SAMPSCORE_POS = 1;
-    static double ARM_TRANSFER_POS = 0;
-    static double ARM_FRONTSPEC_POS = 0;
-    static double ARM_BACKSPEC_POS = 1;
+    public static double ARM_SAMPSCORE_POS = 1;
+    public static double ARM_TRANSFER_POS = 0;
+    public static double ARM_FRONTSPEC_POS = 0;
+    public static double ARM_BACKSPEC_POS = 1;
     public enum OuttakeState {
-        SPECFRONT,
+        SPECFRONTPICKUP,
+        SPECFRONTSCORE,
         TRANSFER,
         SAMPLESCORE,
-        SPECBACKSCORE
+        SPECBACKSCORE,
+        SPECBACKPICKUP,
 
     }
     public Outtake(HardwareMap hardwareMap) {
@@ -44,11 +46,12 @@ public class Outtake {
         Ldiffy.setDirection(Servo.Direction.REVERSE);
     }
 
-    static class DIFFY_POSITIONS {
+    @Config
+    public static class DIFFY_POSITIONS {
         static double SAMPLE_SCORE = 0;
         static double TRANSFER = 0;
-        static double SPECIMEN_FRONT = 0;
-        static double SPECIMEN_BACK = 0;
+        static double SPECIMEN_FRONT_PICKUP = 0;
+        static double SPECIMEN_BACK_SCORE = 0;
         static double ORIENTATION_UP = 0;
         static double ORIENTATION_DOWN = 200;
     }
@@ -71,20 +74,19 @@ public class Outtake {
         switch(outtakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
-                clawOpen = true;
                 setPivotPosition(DIFFY_POSITIONS.TRANSFER, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SAMPLESCORE:
                 ArmPosition = ARM_SAMPSCORE_POS;
                 setPivotPosition(DIFFY_POSITIONS.SAMPLE_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
-            case SPECFRONT:
+            case SPECFRONTPICKUP:
                 ArmPosition = ARM_FRONTSPEC_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT, DIFFY_POSITIONS.ORIENTATION_UP);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSPEC_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
 

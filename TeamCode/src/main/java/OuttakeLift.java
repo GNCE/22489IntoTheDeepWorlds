@@ -17,7 +17,7 @@ public class OuttakeLift {
     public static boolean FOUR_MOTOR_LIFT = true;
 
     public static double p = 0.045, i = 0, d = 0.000, f = 0;
-    public static int target = 250;
+    public static int target = 0;
 
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
@@ -98,40 +98,40 @@ public class OuttakeLift {
         target = input;
     }
     public enum OuttakeLiftPositions {
-        TRANSFER_WAIT,
-        TRANSFER_GRAB,
-        LIFT_BUCKET,
-        FRONT_SCORE_WAIT,
-        FRONT_SCORE_DONE,
-        FRONT_PICKUP,
-        BACK_SCORE,
-        BACK_PICKUP
+        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP
     }
+
+    public static int TRANSFER_POS = 0;
+    public static int BUCKET_POS = 0;
+    public static int FRONT_SCORE_WAIT_POS = 0;
+    public static int FRONT_SCORE_DONE_POS = 0;
+    public static int FRONT_PICKUP_POS = 0;
+    public static int BACK_SCORE_POS = 0;
+    public static int BACK_PICKUP_POS = 0;
+
+
     public void LiftTo(OuttakeLiftPositions input){
         switch(input){
-            case TRANSFER_WAIT:
-                target = 0;
-                break;
-            case TRANSFER_GRAB:
-                target = 0;
+            case TRANSFER:
+                target = TRANSFER_POS;
                 break;
             case LIFT_BUCKET:
-                target = 1200;
+                target = BUCKET_POS;
                 break;
             case FRONT_SCORE_WAIT:
-                target = 0;
+                target = FRONT_SCORE_WAIT_POS;
                 break;
             case FRONT_SCORE_DONE:
-                target = 450;
+                target = FRONT_SCORE_DONE_POS;
                 break;
             case FRONT_PICKUP:
-                target = 200;
+                target = FRONT_PICKUP_POS;
                 break;
             case BACK_SCORE:
-                target = 450;
+                target = BACK_SCORE_POS;
                 break;
-            case BACK_PICKUP: //doesnt exist
-                target = 200;
+            case BACK_PICKUP:
+                target = BACK_PICKUP_POS;
                 break;
             default:
                 break;

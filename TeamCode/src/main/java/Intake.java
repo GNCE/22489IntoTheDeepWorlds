@@ -35,7 +35,8 @@ public class Intake{
     NormalizedColorSensor colorSensor;
 
     ElapsedTime intakeTime, pivotTime, extensionTime;
-    public static double INTAKE_DOWN_EXTENSION_LIMIT = 120;
+    public static double INTAKE_DOWN_EXTENSION_LIMIT = 100;
+    public static double TRANSFER_EXTENSION_POS = 80;
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
@@ -141,6 +142,7 @@ public class Intake{
                 break;
             case SHOOT:
                 startReverseIntake();
+                if(!reverseIntake) setIntakeState(IntakeState.TRANSFER);
                 break;
             default:
                 break;
@@ -200,6 +202,9 @@ public class Intake{
 
     public boolean isIntakeDown(){
         return intakePivot.getPosition() == INTAKE_DOWN_POS;
+    }
+    public boolean isIntakeTransfer(){
+        return intakePivot.getPosition() == INTAKE_TRANSFER_POS;
     }
 
     // Color Sensor
@@ -289,6 +294,7 @@ public class Intake{
     public void setExtensionTarget(double target){
         if(target > FULL_EXTENSION) target = FULL_EXTENSION;
         else if(isIntakeDown() && target < INTAKE_DOWN_EXTENSION_LIMIT) target = INTAKE_DOWN_EXTENSION_LIMIT;
+        else if(isIntakeTransfer() && target < INTAKE_TRANSFER_POS) target = INTAKE_TRANSFER_POS;
         else if(target < 0) target = 0;
         extPos = target;
     }
