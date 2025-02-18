@@ -18,13 +18,13 @@ public class Outtake {
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.655;
-    public static double CLAW_OPENED = 0.627;
+    public static double CLAW_CLOSED = 0.67;
+    public static double CLAW_OPENED = 0.9;
     //tune these values vvvvv
-    public static double ARM_SAMPSCORE_POS = 1;
-    public static double ARM_TRANSFER_POS = 0;
-    public static double ARM_FRONTSPEC_POS = 0;
-    public static double ARM_BACKSPEC_POS = 1;
+    public static double ARM_SAMPSCORE_POS = 0.75;
+    public static double ARM_TRANSFER_POS = 0.5;
+    public static double ARM_FRONTSPEC_POS = 0.5;
+    public static double ARM_BACKSPEC_POS = 0.75;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
@@ -48,12 +48,12 @@ public class Outtake {
 
     @Config
     public static class DIFFY_POSITIONS {
-        static double SAMPLE_SCORE = 0;
-        static double TRANSFER = 0;
-        static double SPECIMEN_FRONT_PICKUP = 0;
-        static double SPECIMEN_BACK_SCORE = 0;
-        static double ORIENTATION_UP = 0;
-        static double ORIENTATION_DOWN = 200;
+        public static double SAMPLE_SCORE = 0;
+        public static double TRANSFER = 90;
+        public static double SPECIMEN_FRONT_PICKUP = 0;
+        public static double SPECIMEN_BACK_SCORE = 0;
+        public static double ORIENTATION_UP = 0;
+        public static double ORIENTATION_DOWN = -180;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
@@ -70,7 +70,7 @@ public class Outtake {
     }
 
     OuttakeState outtakeState = OuttakeState.TRANSFER;
-    public void loop(){
+    public void outtakeLoop(){
         switch(outtakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
@@ -96,7 +96,7 @@ public class Outtake {
             rpivhigh.setPosition(ArmPosition);
             lpivhigh.setPosition(ArmPosition);
         }
-        if ((clamp.getPosition()!=CLAW_CLOSED )&& !clawOpen){
+        if ((clamp.getPosition()!=CLAW_CLOSED) && !clawOpen){
             clamp.setPosition(CLAW_CLOSED);
         } else if ((clamp.getPosition()!=CLAW_OPENED) && clawOpen){
             clamp.setPosition(CLAW_OPENED);

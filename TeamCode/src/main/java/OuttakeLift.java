@@ -16,7 +16,7 @@ public class OuttakeLift {
 
     public static boolean FOUR_MOTOR_LIFT = true;
 
-    public static double p = 0.045, i = 0, d = 0.000, f = 0;
+    public static double p = 0.033, i = 0, d = 0.0005, f = 0.05;
     public static int target = 0;
 
     OpMode lopMode;
@@ -74,6 +74,7 @@ public class OuttakeLift {
             target = getCurrentPosition();
         } else {
             // PIDF Controller
+            controller.setPID(p, i, d);
             double pid = controller.calculate(getCurrentPosition(), target);
             double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;

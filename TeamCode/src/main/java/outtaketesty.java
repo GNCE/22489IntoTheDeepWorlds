@@ -20,7 +20,7 @@ public class outtaketesty extends OpMode {
             outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
         }
         outtake.setClawOpen(gamepad1.left_bumper);
-        outtake.loop();
+        outtake.outtakeLoop();
         telemetry.update();
     }
 }

@@ -114,9 +114,9 @@ public class EC_TeleOp extends OpMode {
     }
 
 
-    BUCKET_SEQUENCE bucketSequence;
-    SPECIMEN_SEQUENCE specimenSequence;
-    OUTTAKE_SEQUENCE outtakeSequence;
+    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
+    SPECIMEN_SEQUENCE specimenSequence = SPECIMEN_SEQUENCE.OPEN_CLAW;
+    OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
 
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true);
 
@@ -217,7 +217,7 @@ public class EC_TeleOp extends OpMode {
 //        if (gamepad1.right_bumper) misc.startSweep();
 
         outtakeLift.HoldLift();
-        //outtake.loop();
+        outtake.outtakeLoop();
         intake.intakeLoop();
 //        misc.loop();
 
@@ -248,6 +248,10 @@ public class EC_TeleOp extends OpMode {
         telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
         telemetry.addData("extendo target position", Intake.extPos);
         telemetry.addData("extendo position", intake.leintake.getPosition());
+        telemetry.addLine()
+                        .addData("TeleOp Outtake Sequence", outtakeSequence)
+                        .addData("TeleOp Sample Sequence", bucketSequence)
+                        .addData("TeleOp Specimen Sequence", specimenSequence);
         telemetry.update();
     }
 }

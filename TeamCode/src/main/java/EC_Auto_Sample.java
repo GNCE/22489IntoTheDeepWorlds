@@ -295,7 +295,7 @@ public class EC_Auto_Sample extends OpMode{
         autonomousPathUpdate();
         misc.door();
         intake.intakeLoop();
-        outtake.loop();
+        outtake.outtakeLoop();
         outtakeLift.HoldLift();
         pickupsequence();
         misc.loop();

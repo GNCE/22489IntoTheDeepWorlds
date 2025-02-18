@@ -294,7 +294,7 @@ public class Intake{
     public void setExtensionTarget(double target){
         if(target > FULL_EXTENSION) target = FULL_EXTENSION;
         else if(isIntakeDown() && target < INTAKE_DOWN_EXTENSION_LIMIT) target = INTAKE_DOWN_EXTENSION_LIMIT;
-        else if(isIntakeTransfer() && target < INTAKE_TRANSFER_POS) target = INTAKE_TRANSFER_POS;
+        else if(isIntakeTransfer() && target < TRANSFER_EXTENSION_POS) target = TRANSFER_EXTENSION_POS;
         else if(target < 0) target = 0;
         extPos = target;
     }
