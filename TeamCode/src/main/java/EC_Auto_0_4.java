@@ -28,6 +28,7 @@ public class EC_Auto_0_4 extends OpMode{
     private Misc misc;
     private int transferRealFSM = -1;
     private Timer pathTimer, opmodeTimer;
+    private ElapsedTime sequenceTime, resetEncoderDelay;
     private int pathState;
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
@@ -56,38 +57,7 @@ public class EC_Auto_0_4 extends OpMode{
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
     private PathChain[] grabPickups, scorePickups;
     ElapsedTime elapsedTime;
-    public void pickupsequence(){
-        switch (transferRealFSM){
-            case 3:
-                elapsedTime.reset();
-                transferRealFSM = 4;
-                break;
-            case 4:
-                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
-                outtake.setClawOpen(true);
-                if (elapsedTime.seconds() > 1){
-                    elapsedTime.reset();
-                    transferRealFSM = 5;
-                }
-                break;
-            case 5:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
-                if (!outtakeLift.isBusy()){
-                    outtake.setClawOpen(false);
-                    elapsedTime.reset();
-                    transferRealFSM = 6;
-                }
-                break;
-            case 6:
-                if (elapsedTime.seconds() > .3){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
-                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
-                    transferRealFSM = -1;
-                }
-                break;
-        }
-    }
+
     public void buildPaths() {
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
@@ -141,104 +111,78 @@ public class EC_Auto_0_4 extends OpMode{
 
     private int sampleCounter = 0;
     int resetFSM = -1;
-    public void resetEncoderFSM(){
-        /*
-        switch (resetFSM){
-            case 1://reset stuff
-                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONT);
-                outtakeLift.LiftTarget(600);
-                if(!outtakeLift.isBusy()){
-                    elapsedTime.reset();
-                    resetFSM = 2;
-                }
-                break;
-            case 2:
-                if (elapsedTime.seconds() >1){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                    outtakeLift.LiftTarget(-100);
-                    if (outtakeLift.touchSensor.isPressed()){
-                        resetFSM = -1;}
 
-                }
-        }
-         */
-    }
     public void autonomousPathUpdate() {
         switch (pathState) {
 
             case 0:
                 follower.followPath(scorePreload);
-                outtake.setClawOpen(false);
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
-                outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
-
+                outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
+                bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
+                sequenceTime.reset();
                 setPathState(1);
                 break;
             case 1:
                 // Preload
-                if(pathTimer.getElapsedTimeSeconds()>1.6) {
-                    outtake.setClawOpen(true);
-                    if (pathTimer.getElapsedTimeSeconds() > 2.3){
-                        resetFSM = 1;
+                if(!follower.isBusy() && !outtakeLift.isBusy()) {
+                        sequenceTime.reset();
                         setPathState(2);
-                    }
                 }
                 break;
             case 2:
+                // Score
+                bucketSequence = BUCKET_SEQUENCE.SCORE;
+                if (outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 2){
+                    sequenceTime.reset();
+                    setPathState(5);
+                }
+            case 5:
                 // Loop Begins
                 // Outtake ready to transfer & goes to grab a sample
-                resetEncoderFSM();
+                bucketSequence = BUCKET_SEQUENCE.TRANSFER;
                 follower.followPath(grabPickups[sampleCounter],true);
-                setPathState(3);
-                break;
-            case 3:
-                resetEncoderFSM();
-                if(!follower.isBusy() && resetFSM == -1){
-                    intake.setIntakeState(Intake.IntakeState.INTAKE);
-                    intake.setExtensionTarget(0);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
-                    intake.setIntakeState(Intake.IntakeState.FLIP_UP);
-                    intake.setExtensionTarget(0);
-//                    if(intake.leintake.getCurrentPosition()<20) {
-//                        intake.depositOnly();
-//                        setPathState(5);
-//                    }
-                }
-                break;
-            case 5:
-                if (pathTimer.getElapsedTimeSeconds() >  1){
-                    transferRealFSM = 3;
-                    follower.followPath(scorePickups[sampleCounter], true);
-                    setPathState(6);
-                }
+
+                setPathState(6);
                 break;
             case 6:
-                // Transfer sequence
-                intake.setIntakeState(Intake.IntakeState.FLIP_UP);
-                pickupsequence();
-                if (transferRealFSM ==-1){
-                    if(pathTimer.getElapsedTimeSeconds()>2.5) {
-                        outtake.setClawOpen(true);
-                        if (pathTimer.getElapsedTimeSeconds() > 3.5){
-                            sampleCounter++;
-                            if(sampleCounter < 3) {setPathState(2); resetFSM = 1;}
-                            else{
-                                outtakeLift.LiftTarget(900);
-                                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                                follower.followPath(park, false);
-                                setPathState(7);
-                            }
-                        }
-                    }
+                if(!follower.isBusy()){
+                    intake.setIntakeState(Intake.IntakeState.INTAKE);
+                    intake.setExtensionTarget(intake.FULL_EXTENSION);
+                    setPathState(7);
                 }
                 break;
             case 7:
-                if(!follower.isBusy()){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
+                    intake.setIntakeState(Intake.IntakeState.TRANSFER);
+                    intake.setExtensionTarget(0);
+                    sequenceTime.reset();
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if (pathTimer.getElapsedTimeSeconds() >  2){
+                    bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
+                    follower.followPath(scorePickups[sampleCounter], true);
+                    sequenceTime.reset();
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                // Score
+                bucketSequence = BUCKET_SEQUENCE.SCORE;
+                if (outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 2){
+                    sequenceTime.reset();
+                    setPathState(10);
+                }
+            case 10:
+                // check
+                sampleCounter++;
+                if (sampleCounter < 3) {
+                    setPathState(5);
+                } else {
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+                    follower.followPath(park, false);
+                    setPathState(-1);
                 }
                 break;
             default:
@@ -263,13 +207,15 @@ public class EC_Auto_0_4 extends OpMode{
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);
         elapsedTime = new ElapsedTime();
+        resetEncoderDelay = new ElapsedTime();
+        sequenceTime = new ElapsedTime();
         buildPaths();
     }
     @Override
     public void start(){
         intake.initiate();
         outtakeLift.HoldLift();
-        misc.initiate();
+       // misc.initiate();
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
@@ -285,19 +231,62 @@ public class EC_Auto_0_4 extends OpMode{
     }
 
     private static double prevTime;
+    public enum BUCKET_SEQUENCE{
+        TRANSFER, GRAB_AND_LIFT, SCORE;
+        private static final BUCKET_SEQUENCE[] vals = values();
+        public BUCKET_SEQUENCE next(){
+            return vals[(this.ordinal() + 1) % vals.length];
+        }
+        public BUCKET_SEQUENCE prev(){
+            return vals[(this.ordinal() - 1 + vals.length) % vals.length];
+        }
+    }
+    enum OUTTAKE_SEQUENCE {
+        BUCKET_SEQUENCE,
+        SPECIMEN_SEQUENCE,
+    }
+    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
+    OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
 
     @Override
     public void loop() {
+        switch(outtakeSequence) {
+            case BUCKET_SEQUENCE:
+                switch (bucketSequence) {
+                    case TRANSFER:
+                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
+                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                        outtake.setClawOpen(true);
+                        break;
+                    case GRAB_AND_LIFT:
+                        intake.startReverseIntake();
+                        outtake.setClawOpen(false);
+                        if (sequenceTime.time() > 0.4) {
+                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                            resetEncoderDelay.reset();
+                        }
+                        break;
+                    case SCORE:
+                        outtake.setClawOpen(true);
+                        if (resetEncoderDelay.time() > 0.4) {
+                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                        }
+                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30) {
+                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                        }
+                        break;
 
 
+                }
+                break;
+        }
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-        misc.door();
         intake.intakeLoop();
         outtake.outtakeLoop();
         outtakeLift.HoldLift();
-        pickupsequence();
         misc.loop();
 
         Storage.CurrentPose = follower.getPose();

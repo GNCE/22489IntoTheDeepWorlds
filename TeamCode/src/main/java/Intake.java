@@ -44,7 +44,7 @@ public class Intake{
     final double LINK2 = 324; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
     final double XOFFSET = 107; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    public static double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
+    public double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
     public static double EXTENSION_ZERO_OFFSET = 0; // Servo Zero Offset
     final int SERVO_RANGE = 300; // Servo Range in degrees
 
@@ -116,7 +116,7 @@ public class Intake{
         // Intake Wheel, Door, and Intake State Control
         switch(intakeState){
             case INTAKE:
-                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) setIntakeState(IntakeState.TRANSFER);
+                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT;
                 intakePower = INTAKE_POWER;
                 if(!isPivotBusy()){
                     switch (getCurrentSampleState(false)){
@@ -141,6 +141,7 @@ public class Intake{
                 intakePower = 0;
                 break;
             case SHOOT:
+                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT;
                 startReverseIntake();
                 if(!reverseIntake) setIntakeState(IntakeState.TRANSFER);
                 break;
