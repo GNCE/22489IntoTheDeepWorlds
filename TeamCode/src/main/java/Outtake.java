@@ -90,7 +90,7 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case RESET_ENCODER:
-                ArmPosition = 0.65;
+                ArmPosition = 0.6;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
         }
 
