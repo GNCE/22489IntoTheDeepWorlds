@@ -18,7 +18,7 @@ public class EC_TeleOp extends OpMode {
     private Intake intake;
     private OuttakeLift outtakeLift;
     private Misc misc;
-    private ElapsedTime elapsedTime, sequenceTime;
+    private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
     int flip = 1;
     int initfsm = 0;
@@ -31,6 +31,7 @@ public class EC_TeleOp extends OpMode {
         outtake = new Outtake(hardwareMap);
         elapsedTime = new ElapsedTime();
         sequenceTime = new ElapsedTime();
+        resetEncoderDelay = new ElapsedTime();
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
         //misc = new Misc(hardwareMap);
@@ -38,6 +39,7 @@ public class EC_TeleOp extends OpMode {
 
         sequenceTime.startTime();
         elapsedTime.startTime();
+        resetEncoderDelay.startTime();
         initfsm = 1;
     }
 
@@ -82,6 +84,8 @@ public class EC_TeleOp extends OpMode {
     public void start() {
         intake.initiate();
         follower.startTeleopDrive();
+        outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+        intake.setIntakeState(Intake.IntakeState.TRANSFER);
     }
 
     public enum BUCKET_SEQUENCE{
@@ -124,7 +128,7 @@ public class EC_TeleOp extends OpMode {
     public void loop() {
         if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
         if (gamepad1.right_stick_button) intake.setIntakeState(Intake.IntakeState.SHOOT);
-        if (gamepad1.left_stick_button){
+        if (gamepad1.left_stick_button && (bucketSequence != BUCKET_SEQUENCE.TRANSFER)){
             intake.setIntakeState(Intake.IntakeState.FLIP_UP);
             intake.startReverseIntake();
         }
@@ -162,15 +166,25 @@ public class EC_TeleOp extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case GRAB_AND_LIFT:
+                        intake.startReverseIntake();
                         outtake.setClawOpen(false);
                         if(sequenceTime.time() > 0.4){
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                            resetEncoderDelay.reset();
                         }
                         break;
                     case SCORE:
                         outtake.setClawOpen(true);
+                        if (resetEncoderDelay.time() > 0.4){
+                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                        }
+                    if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30){
+                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                        }
                         break;
+
+
                 }
                 break;
             case SPECIMEN_SEQUENCE:

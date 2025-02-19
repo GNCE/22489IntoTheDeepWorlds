@@ -36,7 +36,7 @@ public class Intake{
 
     ElapsedTime intakeTime, pivotTime, extensionTime;
     public static double INTAKE_DOWN_EXTENSION_LIMIT = 200;
-    public static double TRANSFER_EXTENSION_POS = 130;
+    public static double TRANSFER_EXTENSION_POS = 0;
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
@@ -88,7 +88,7 @@ public class Intake{
         extendTo(extPos);
         rintake.setPower(0);
         lintake.setPower(0);
-        intakePivot.setPosition(0);
+        intakePivot.setPosition(0.8);
         door.setPosition(0);
     }
 
@@ -308,7 +308,7 @@ public class Intake{
     public enum IntakeState {
         FLIP_UP, INTAKE, SHOOT, TRANSFER
     }
-    IntakeState intakeState = IntakeState.FLIP_UP;
+    IntakeState intakeState = IntakeState.TRANSFER;
     public void setIntakeState(IntakeState intakeState) {
         this.intakeState = intakeState;
         intakeTime.reset();

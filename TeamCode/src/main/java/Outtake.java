@@ -22,7 +22,7 @@ public class Outtake {
     public static double CLAW_OPENED = 0.7;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
-    public static double ARM_TRANSFER_POS = 0.35;
+    public static double ARM_TRANSFER_POS = 0.115;
     public static double ARM_FRONTSPEC_POS = 0.35;
     public static double ARM_BACKSPEC_POS = 0.85;
     public enum OuttakeState {
@@ -32,6 +32,7 @@ public class Outtake {
         SAMPLESCORE,
         SPECBACKSCORE,
         SPECBACKPICKUP,
+        RESET_ENCODER
 
     }
     public Outtake(HardwareMap hardwareMap) {
@@ -49,7 +50,7 @@ public class Outtake {
     @Config
     public static class DIFFY_POSITIONS {
         public static double SAMPLE_SCORE = 120;
-        public static double TRANSFER = 90;
+        public static double TRANSFER = 145;
         public static double SPECIMEN_FRONT_PICKUP = 90;
         public static double SPECIMEN_BACK_SCORE = 75;
         public static double ORIENTATION_UP = -140;
@@ -88,6 +89,9 @@ public class Outtake {
                 ArmPosition = ARM_BACKSPEC_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
+            case RESET_ENCODER:
+                ArmPosition = 0.7;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
         }
 
         updatePivotPosition();

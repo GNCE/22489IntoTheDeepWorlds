@@ -17,7 +17,7 @@ public class OuttakeLift {
     public static boolean FOUR_MOTOR_LIFT = true;
 
     public static double p = 0.017, i = 0, d = 0.00023, f = 0.05;
-    public static int target = 0;
+    public int target = 0;
 
     OpMode lopMode;
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
@@ -102,10 +102,10 @@ public class OuttakeLift {
         target = input;
     }
     public enum OuttakeLiftPositions {
-        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP
+        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER
     }
 
-    public static int TRANSFER_POS = 0;
+    public static int TRANSFER_POS = 465;
     public static int BUCKET_POS = 1400;
     public static int FRONT_SCORE_WAIT_POS = 0;
     public static int FRONT_SCORE_DONE_POS = 0;
@@ -137,6 +137,8 @@ public class OuttakeLift {
             case BACK_PICKUP:
                 target = BACK_PICKUP_POS;
                 break;
+            case RESET_ENCODER:
+                target = -120;
             default:
                 break;
         }
