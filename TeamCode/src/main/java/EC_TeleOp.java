@@ -245,9 +245,15 @@ public class EC_TeleOp extends OpMode {
         telemetry.addLine();
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
-        telemetry.addData("lift position",outtakeLift.rlift1.getCurrentPosition());
-        telemetry.addData("extendo target position", Intake.extPos);
-        telemetry.addData("extendo position", intake.leintake.getPosition());
+        telemetry.addData("Lift Position",outtakeLift.getCurrentPosition());
+        telemetry.addData("LLift1", outtakeLift.llift1.getCurrentPosition());
+        telemetry.addData("LLift2", outtakeLift.llift2.getCurrentPosition());
+        telemetry.addData("RLift1", outtakeLift.rlift1.getCurrentPosition());
+        telemetry.addData("RLift2", outtakeLift.rlift2.getCurrentPosition());
+        telemetry.addData("Lift Target", outtakeLift.getTargetPosition());
+
+        telemetry.addData("Horizontal Extension Target Position", Intake.extPos);
+        telemetry.addData("Horizontal Extension Servo Angle", intake.leintake.getPosition());
         telemetry.addLine()
                         .addData("TeleOp Outtake Sequence", outtakeSequence)
                         .addData("TeleOp Sample Sequence", bucketSequence)

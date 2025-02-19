@@ -16,7 +16,7 @@ public class OuttakeLift {
 
     public static boolean FOUR_MOTOR_LIFT = true;
 
-    public static double p = 0.033, i = 0, d = 0.0005, f = 0.05;
+    public static double p = 0.017, i = 0, d = 0.00023, f = 0.05;
     public static int target = 0;
 
     OpMode lopMode;
@@ -51,7 +51,10 @@ public class OuttakeLift {
         this.lopMode = opMode;
     }
     public int getCurrentPosition(){
-        return (llift1.getCurrentPosition() + llift2.getCurrentPosition() + rlift1.getCurrentPosition() + rlift2.getCurrentPosition()) / 4;
+        return (llift1.getCurrentPosition() + llift2.getCurrentPosition() + rlift1.getCurrentPosition()) / 3;
+    }
+    public int getTargetPosition(){
+        return target;
     }
     public void HoldLift(){
         if(touchSensor.isPressed()){
@@ -103,11 +106,11 @@ public class OuttakeLift {
     }
 
     public static int TRANSFER_POS = 0;
-    public static int BUCKET_POS = 0;
+    public static int BUCKET_POS = 1400;
     public static int FRONT_SCORE_WAIT_POS = 0;
     public static int FRONT_SCORE_DONE_POS = 0;
-    public static int FRONT_PICKUP_POS = 0;
-    public static int BACK_SCORE_POS = 0;
+    public static int FRONT_PICKUP_POS = 50;
+    public static int BACK_SCORE_POS = 330;
     public static int BACK_PICKUP_POS = 0;
 
 

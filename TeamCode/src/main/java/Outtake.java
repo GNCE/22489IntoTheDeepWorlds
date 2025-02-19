@@ -18,13 +18,13 @@ public class Outtake {
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.67;
-    public static double CLAW_OPENED = 0.9;
+    public static double CLAW_CLOSED = 0.46;
+    public static double CLAW_OPENED = 0.7;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
-    public static double ARM_TRANSFER_POS = 0.5;
-    public static double ARM_FRONTSPEC_POS = 0.5;
-    public static double ARM_BACKSPEC_POS = 0.75;
+    public static double ARM_TRANSFER_POS = 0.35;
+    public static double ARM_FRONTSPEC_POS = 0.35;
+    public static double ARM_BACKSPEC_POS = 0.85;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
@@ -48,12 +48,12 @@ public class Outtake {
 
     @Config
     public static class DIFFY_POSITIONS {
-        public static double SAMPLE_SCORE = 0;
+        public static double SAMPLE_SCORE = 120;
         public static double TRANSFER = 90;
-        public static double SPECIMEN_FRONT_PICKUP = 0;
-        public static double SPECIMEN_BACK_SCORE = 0;
-        public static double ORIENTATION_UP = 0;
-        public static double ORIENTATION_DOWN = -180;
+        public static double SPECIMEN_FRONT_PICKUP = 90;
+        public static double SPECIMEN_BACK_SCORE = 75;
+        public static double ORIENTATION_UP = -140;
+        public static double ORIENTATION_DOWN = 70;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){

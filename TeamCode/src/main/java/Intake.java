@@ -35,12 +35,12 @@ public class Intake{
     NormalizedColorSensor colorSensor;
 
     ElapsedTime intakeTime, pivotTime, extensionTime;
-    public static double INTAKE_DOWN_EXTENSION_LIMIT = 100;
-    public static double TRANSFER_EXTENSION_POS = 80;
+    public static double INTAKE_DOWN_EXTENSION_LIMIT = 200;
+    public static double TRANSFER_EXTENSION_POS = 130;
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
-    final double LINK1 = 310; // Length of first linkage (Linkage that connects to servo) (mm) (correct)
+    final double LINK1 = 308; // Length of first linkage (Linkage that connects to servo) (mm) (correct)
     final double LINK2 = 324; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
     final double XOFFSET = 107; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
