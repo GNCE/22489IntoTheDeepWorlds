@@ -19,7 +19,7 @@ import pedroPathing.constants.LConstants;
 
 
 @Autonomous (name = "first Pedro auton")
-public class EC_Auto_Sample extends OpMode{
+public class EC_Auto_0_4 extends OpMode{
     private Follower follower;
 
     private Intake intake;

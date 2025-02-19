@@ -10,9 +10,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-/*
+
 @Autonomous (name = "Specimen Auto")
-public class EC_Auto_Specimen extends OpMode {
+public class EC_Auto_4_0_PUSHING extends OpMode {
     private Follower follower;
     private Intake intake;
     private OuttakeLift outtakeLift;
@@ -101,8 +101,8 @@ public class EC_Auto_Specimen extends OpMode {
     enum AutoState {
         DRIVE_TO_PRELOAD_SCORE,
         SCORE_PRELOAD,
-        READY_FOR_INTAKE,
-        INTAKE,
+        READY_FOR_PUSHING,
+        PUSHING,
         READY_FOR_PICKUP,
         PICKUP,
         SCORE,
@@ -121,74 +121,54 @@ public class EC_Auto_Specimen extends OpMode {
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreloadPath,true);
                 outtake.setClawOpen(false);
-                outtake.POS_SpecimanFront();
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
                 setPathState(AutoState.SCORE_PRELOAD);
                 break;
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
-                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
-                    if(!outtakeLift.isBusy()){
-                        outtake.setClawOpen(true);
-                        if(!outtake.isClawBusy()){
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
+                    outtake.setClawOpen(true);
+                        if(pathTimer.getElapsedTimeSeconds() > 0.3){
                             follower.followPath(firstIntakePath, true);
                             counter = 0;
-                            setPathState(AutoState.READY_FOR_INTAKE);
+                            setPathState(AutoState.READY_FOR_PUSHING);
                         }
-                    }
+
                 }
                 break;
-            case READY_FOR_INTAKE:
-                if(!outtakeLift.isBusy()){
-                    outtake.setClawOpen(false);
-                    if(!outtake.isClawBusy()){
-                        outtake.pivotToPickupBack();
-                    }
-                }
+            case READY_FOR_PUSHING:
                 if(!follower.isBusy()){
-                    intake.startIntake();
-                    intake.ManualExtend();
-                    setPathState(AutoState.INTAKE);
+                    setPathState(AutoState.PUSHING);
                 }
                 break;
-            case INTAKE:
-                if(intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT || pathTimer.getElapsedTimeSeconds() > 4){
-                    intake.ManualRetract();
-                    if(intake.extendo.getCurrentPosition() < 15){
-                        intake.depositandflip();
-                        counter++;
-                        if(counter < 3){
-                            follower.followPath(intakePaths[counter], true);
-                            setPathState(AutoState.READY_FOR_INTAKE);
-                        } else {
-                            setPathState(AutoState.READY_FOR_PICKUP);
-                            counter = 0;
-                            outtake.setClawOpen(true);
-                            follower.followPath(pickupPaths[counter], true);
-                        }
-                    }
+            case PUSHING:
+                counter++;
+                if(counter < 3){
+                    follower.followPath(intakePaths[counter], true);
+                    setPathState(AutoState.READY_FOR_PUSHING);
+                } else {
+                    setPathState(AutoState.READY_FOR_PICKUP);
+                    counter = 0;
+                    outtake.setClawOpen(true);
+                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                    follower.followPath(pickupPaths[counter], true);
                 }
                 break;
             case READY_FOR_PICKUP:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_PICKUP);
+                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                outtake.setClawOpen(true);
                 if(!outtakeLift.isBusy()){
-                    outtake.setClawOpen(false);
-                    if(!outtake.isClawBusy()){
-                        outtake.pivotToPickupBack();
-                        if(!outtake.isArmBusy()){
-                            outtake.setClawOpen(true);
                             setPathState(AutoState.PICKUP);
-                        }
+
                     }
-                }
+
                 break;
             case PICKUP:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5){
                     outtake.setClawOpen(false);
-                    if(!outtake.isClawBusy()){
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
-                        outtake.POS_SpecimanFront();
+                    if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);
                         setPathState(AutoState.SCORE);
                     }
@@ -196,12 +176,10 @@ public class EC_Auto_Specimen extends OpMode {
                 break;
             case SCORE:
                 if(!follower.isBusy()){
-                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_SCORE_DONE);
-                    if(!outtakeLift.isBusy()){
                         outtake.setClawOpen(true);
-                        if(!outtake.isClawBusy()){
+                        if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                             counter++;
-                            if(counter < 4){
+                            if (counter < 4) {
                                 follower.followPath(pickupPaths[counter], true);
                                 setPathState(AutoState.READY_FOR_PICKUP);
                             } else {
@@ -209,13 +187,11 @@ public class EC_Auto_Specimen extends OpMode {
                                 setPathState(AutoState.PARK);
                             }
                         }
-                    }
+
                 }
                 break;
             case PARK:
-                if(pathTimer.getElapsedTimeSeconds() > 5){
-                    intake.ManualExtend();
-                }
+
                 break;
             default:
                 break;
@@ -236,14 +212,12 @@ public class EC_Auto_Specimen extends OpMode {
     @Override
     public void start(){
         intake.initiate();
-        outtakeLift.HoldLift();
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
     @Override
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);
-
         Storage.isRed = teamColorButton.getVal();
 
         telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
@@ -253,9 +227,7 @@ public class EC_Auto_Specimen extends OpMode {
     public void loop(){
         follower.update();
         autonomousPathUpdate();
-        intake.extendoLoop();
         intake.intakeLoop();
-        outtake.loop();
         outtakeLift.HoldLift();
 
         Storage.CurrentPose = follower.getPose();
@@ -263,4 +235,3 @@ public class EC_Auto_Specimen extends OpMode {
         telemetry.update();
     }
 }
-*/
