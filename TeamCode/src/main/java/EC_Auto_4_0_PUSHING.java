@@ -46,7 +46,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private PathChain scorePreloadPath, parkFromFourthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
 
-    private PathChain[] pushPaths, pickupPaths, scorePaths;
+    private PathChain[] pushWaitPaths, pushDonePaths, pickupPaths, scorePaths;
     public void buildPaths(){
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
@@ -105,7 +105,8 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
                 .setLinearHeadingInterpolation(fourthScorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pushPaths = new PathChain[]{goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample};
+        pushWaitPaths = new PathChain[]{goToFirstPush, goToSecondPush};
+        pushDonePaths = new PathChain[]{pushFirstSample, pushSecondSample};
         pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath,fourthPickupPath};
         scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath};
     }
@@ -117,6 +118,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         PUSHING,
         READY_FOR_PICKUP,
         PICKUP,
+        READY_TO_SCORE,
         SCORE,
         PARK
     }
@@ -131,18 +133,20 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
-                follower.followPath(scorePreloadPath,true);
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
-                setPathState(AutoState.SCORE_PRELOAD);
+                if(pathTimer.getElapsedTimeSeconds() > 1){
+                    follower.followPath(scorePreloadPath,true);
+                    setPathState(AutoState.SCORE_PRELOAD);
+                }
                 break;
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
                     outtake.setClawOpen(true);
                         if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                            follower.followPath(pushPaths[0], true);
                             counter = 0;
+                            follower.followPath(pushWaitPaths[counter], true);
                             setPathState(AutoState.READY_FOR_PUSHING);
                         }
 
@@ -150,59 +154,64 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
                 break;
             case READY_FOR_PUSHING:
                 if(!follower.isBusy()){
+                    follower.followPath(pushDonePaths[counter], true);
                     setPathState(AutoState.PUSHING);
                 }
                 break;
             case PUSHING:
-                counter++;
-                if(counter < 4){
-                    follower.followPath(pushPaths[counter], true);
-                    setPathState(AutoState.READY_FOR_PUSHING);
-                } else {
-                    setPathState(AutoState.READY_FOR_PICKUP);
-                    counter = 0;
-                    outtake.setClawOpen(true);
-                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
-                    follower.followPath(pickupPaths[counter], true);
+                if(!follower.isBusy()){
+                    counter++;
+                    if(counter < 2){
+                        follower.followPath(pushWaitPaths[counter]);
+                        setPathState(AutoState.READY_FOR_PUSHING);
+                    } else {
+                        counter = 0;
+                        setPathState(AutoState.READY_FOR_PICKUP);
+                        outtake.setClawOpen(true);
+                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                        follower.followPath(pickupPaths[counter], true);
+                    }
                 }
                 break;
             case READY_FOR_PICKUP:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
                 outtake.setClawOpen(true);
-                if(!outtakeLift.isBusy()){
-                            setPathState(AutoState.PICKUP);
-
-                    }
-
+                if(!outtakeLift.isBusy() && !follower.isBusy()){
+                    setPathState(AutoState.PICKUP);
+                }
                 break;
             case PICKUP:
-                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5){
+                if(pathTimer.getElapsedTimeSeconds() > 0.3){
                     outtake.setClawOpen(false);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.6){
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);
-                        setPathState(AutoState.SCORE);
+                        setPathState(AutoState.READY_TO_SCORE);
                     }
                 }
                 break;
-            case SCORE:
+            case READY_TO_SCORE:
                 if(!follower.isBusy()){
-                        outtake.setClawOpen(true);
-                        if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                            counter++;
-                            if (counter < 4) {
-                                follower.followPath(pickupPaths[counter], true);
-                                setPathState(AutoState.READY_FOR_PICKUP);
-                            } else {
-                                follower.followPath(parkFromFourthPath, true);
-                                intake.initiate();
-                                outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
-                                setPathState(AutoState.PARK);
-                            }
+                    setPathState(AutoState.SCORE);
+                }
+                break;
+            case SCORE:
+                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                    outtake.setClawOpen(true);
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        counter++;
+                        if (counter < 4) {
+                            follower.followPath(pickupPaths[counter], true);
+                            setPathState(AutoState.READY_FOR_PICKUP);
+                        } else {
+                            follower.followPath(parkFromFourthPath, true);
+                            intake.initiate();
+                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            setPathState(AutoState.PARK);
                         }
-
+                    }
                 }
                 break;
             case PARK:
@@ -243,7 +252,10 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     public void loop(){
         follower.update();
         autonomousPathUpdate();
+        intake.intakeLoop();
+        outtake.outtakeLoop();
         outtakeLift.HoldLift();
+
 
         Storage.CurrentPose = follower.getPose();
         telemetry.update();

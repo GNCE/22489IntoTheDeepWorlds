@@ -34,8 +34,8 @@ public class EC_TeleOp extends OpMode {
         resetEncoderDelay = new ElapsedTime();
         intake = new Intake(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
-        //misc = new Misc(hardwareMap);
-        //misc.initiate();
+        misc = new Misc(hardwareMap);
+        misc.initiate();
 
         sequenceTime.startTime();
         elapsedTime.startTime();
@@ -228,28 +228,22 @@ public class EC_TeleOp extends OpMode {
 //            outtake.setClawOpen(false);
 //        }
 
-//        if (gamepad1.right_bumper) misc.startSweep();
+        if (gamepad1.right_bumper) misc.startSweep();
+        else misc.endSweep();
 
         outtakeLift.HoldLift();
         outtake.outtakeLoop();
         intake.intakeLoop();
-//        misc.loop();
+        misc.loop();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
-        // Movement Speed Adjustments for Intake
-        follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
-//        if (intake.isIntakeDown()) {
-//            follower.setTeleOpMovementVectors(
-//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
-//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
-//                    0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-//        } else {
-//            follower.setTeleOpMovementVectors(
-//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
-//                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
-//                    -gamepad1.right_stick_x, true);
-//        }
+
+           follower.setTeleOpMovementVectors(
+                   flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                   flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                   0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+
         follower.update();
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");

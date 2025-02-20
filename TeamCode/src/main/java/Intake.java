@@ -40,12 +40,12 @@ public class Intake{
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
-    final double LINK1 = 308; // Length of first linkage (Linkage that connects to servo) (mm) (correct)
-    final double LINK2 = 324; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
-    final double XOFFSET = 107; // Offset X axis (CURRENT VALUE IS CORRECT)
+    final double LINK1 = Math.sqrt(97408); // Length of first linkage (Linkage that connects to servo) (mm) (correct)
+    final double LINK2 = 320; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
+    final double XOFFSET = 97; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    public double FULL_EXTENSION = 120*4; // Length of the slides when fully extended (mm)
-    public static double EXTENSION_ZERO_OFFSET = 0; // Servo Zero Offset
+    public static double FULL_EXTENSION = 530; // Length of the slides when fully extended (mm)
+    public static double EXTENSION_ZERO_OFFSET = -0.02; // Servo Zero Offset
     final int SERVO_RANGE = 300; // Servo Range in degrees
 
     Telemetry telemetry;
@@ -275,9 +275,9 @@ public class Intake{
     // Intake Extension
     private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
         // All units are mm and degrees.
-        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
+        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2.0*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
         double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
-        return (180 - beta - gamma)/servoRange;
+        return (180.0 - beta - gamma)/servoRange;
     }
     private void extendTo(double length){
         double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);

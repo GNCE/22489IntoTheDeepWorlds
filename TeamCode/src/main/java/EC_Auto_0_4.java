@@ -132,10 +132,11 @@ public class EC_Auto_0_4 extends OpMode{
             case 2:
                 // Score
                 bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if (outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 2){
+                if ( pathTimer.getElapsedTimeSeconds() > 2){
                     sequenceTime.reset();
                     setPathState(5);
                 }
+                break;
             case 5:
                 // Loop Begins
                 // Outtake ready to transfer & goes to grab a sample
@@ -147,17 +148,17 @@ public class EC_Auto_0_4 extends OpMode{
             case 6:
                 if(!follower.isBusy()){
                     intake.setIntakeState(Intake.IntakeState.INTAKE);
-                    intake.setExtensionTarget(intake.FULL_EXTENSION);
-                    setPathState(7);
+                    intake.setExtensionTarget(pathTimer.getElapsedTimeSeconds()*200);
+                    if (pathTimer.getElapsedTimeSeconds() > 3 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
+                    setPathState(7);}
                 }
                 break;
             case 7:
-                if (pathTimer.getElapsedTimeSeconds() > 3.5 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
                     intake.setIntakeState(Intake.IntakeState.TRANSFER);
                     intake.setExtensionTarget(0);
                     sequenceTime.reset();
                     setPathState(8);
-                }
+
                 break;
             case 8:
                 if (pathTimer.getElapsedTimeSeconds() >  2){
@@ -170,7 +171,7 @@ public class EC_Auto_0_4 extends OpMode{
             case 9:
                 // Score
                 bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if (outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 2){
+                if (!outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 3){
                     sequenceTime.reset();
                     setPathState(10);
                 }

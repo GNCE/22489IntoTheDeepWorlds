@@ -52,7 +52,7 @@ public class Outtake {
         public static double SAMPLE_SCORE = 120;
         public static double TRANSFER = 145;
         public static double SPECIMEN_FRONT_PICKUP = 90;
-        public static double SPECIMEN_BACK_SCORE = 75;
+        public static double SPECIMEN_BACK_SCORE = 65;
         public static double ORIENTATION_UP = -140;
         public static double ORIENTATION_DOWN = 70;
     }
@@ -90,7 +90,7 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case RESET_ENCODER:
-                ArmPosition = 0.6;
+                ArmPosition = 0.55;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
         }
 

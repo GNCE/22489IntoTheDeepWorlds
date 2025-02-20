@@ -106,11 +106,11 @@ public class OuttakeLift {
     }
 
     public static int TRANSFER_POS = 465;
-    public static int BUCKET_POS = 1400;
+    public static int BUCKET_POS = 1500;
     public static int FRONT_SCORE_WAIT_POS = 0;
     public static int FRONT_SCORE_DONE_POS = 0;
     public static int FRONT_PICKUP_POS = 50;
-    public static int BACK_SCORE_POS = 330;
+    public static int BACK_SCORE_POS = 470;
     public static int BACK_PICKUP_POS = 0;
 
 
