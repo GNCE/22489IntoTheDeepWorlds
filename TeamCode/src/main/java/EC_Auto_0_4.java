@@ -18,7 +18,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous (name = "first Pedro auton")
+@Autonomous (name = "0+4 auton pls worky")
 public class EC_Auto_0_4 extends OpMode{
     private Follower follower;
 
@@ -110,7 +110,6 @@ public class EC_Auto_0_4 extends OpMode{
     }
 
     private int sampleCounter = 0;
-    int resetFSM = -1;
 
     public void autonomousPathUpdate() {
         switch (pathState) {
@@ -155,23 +154,24 @@ public class EC_Auto_0_4 extends OpMode{
                 break;
             case 7:
                     intake.setIntakeState(Intake.IntakeState.TRANSFER);
-                    intake.setExtensionTarget(0);
+                    intake.setExtensionTarget(Intake.TRANSFER_EXTENSION_POS);
+                if (pathTimer.getElapsedTimeSeconds() >  2) {
                     sequenceTime.reset();
                     setPathState(8);
-
+                }
                 break;
             case 8:
-                if (pathTimer.getElapsedTimeSeconds() >  2){
                     bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
                     follower.followPath(scorePickups[sampleCounter], true);
-                    sequenceTime.reset();
-                    setPathState(9);
-                }
+                    if (pathTimer.getElapsedTimeSeconds() > 3) {
+                        sequenceTime.reset();
+                        setPathState(9);
+                    }
                 break;
             case 9:
                 // Score
                 bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if (!outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds() > 3){
+                if (pathTimer.getElapsedTimeSeconds() > 3){
                     sequenceTime.reset();
                     setPathState(10);
                 }
