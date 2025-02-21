@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Misc{
     private Servo sweeper;
 
-    public static double OPEN_POS = 0.07, CLOSE_POS = 0;
+    public static double OPEN_POS = 0.4, CLOSE_POS = 0.06;
 
     public Misc(HardwareMap hardwareMap) {
         sweeper = hardwareMap.get(Servo.class, "sweeper");

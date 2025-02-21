@@ -123,6 +123,7 @@ public class EC_TeleOp extends OpMode {
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
 
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true);
+    private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
 
     @Override
     public void loop() {
@@ -135,7 +136,10 @@ public class EC_TeleOp extends OpMode {
         intake.TeleopExtend(gamepad1.left_trigger);
         if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.TRANSFER);
         if (gamepad1.right_bumper) intake.startReverseIntake();
-
+        specimenHeadingLockButton.input(gamepad1.dpad_right);
+        if(specimenHeadingLockButton.getVal()){
+            follower.turnToDegrees(180);
+        }
 
         if(bucketSequenceNextButton.input(gamepad1.a)){
             outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;

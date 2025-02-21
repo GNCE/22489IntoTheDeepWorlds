@@ -18,8 +18,8 @@ public class Outtake {
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.46;
-    public static double CLAW_OPENED = 0.7;
+    public static double CLAW_CLOSED = 0.4;
+    public static double CLAW_OPENED = 0.19;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
     public static double ARM_TRANSFER_POS = 0.115;
@@ -37,6 +37,7 @@ public class Outtake {
     }
     public Outtake(HardwareMap hardwareMap) {
         clamp = hardwareMap.get(Servo.class, "clamp");
+        clamp.setDirection(Servo.Direction.REVERSE);
         rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
         lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
