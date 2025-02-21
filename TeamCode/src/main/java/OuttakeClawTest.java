@@ -10,8 +10,8 @@ public class OuttakeClawTest extends OpMode {
     private Servo Rdiffy;
     private Servo Ldiffy;
 
-    public static double DEFAULT_LDIFFY_POS = 0.28;
-    public static double DEFAULT_RDIFFY_POS = 0.13;
+    public static double DEFAULT_LDIFFY_POS = 0.01;
+    public static double DEFAULT_RDIFFY_POS = 0.23;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 

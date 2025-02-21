@@ -20,8 +20,8 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private Outtake outtake;
     private Misc misc;
     private Timer pathTimer;
-    private final double scoreX = 41;
-    private final double scoreY = 75;
+    private final double scoreX =40;
+    private final double scoreY = 80;
 
 
     private final Pose startPose = new Pose(7.1, 65.5, Math.toRadians(180));
@@ -37,7 +37,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
     private final Pose secondSampleEnd = new Pose(18, 14, Math.toRadians(180));
 
-    private final Pose outtakePickupPose = new Pose(8.3, 30, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(9.5, 30, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
     private final Pose outtakePickupControl1 = new Pose(15, 68, Math.toRadians(180));
     private final Pose outtakePickupControl2 = new Pose(37, 28, Math.toRadians(180));
@@ -148,13 +148,13 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
-                if(pathTimer.getElapsedTimeSeconds() > 1){
+                if(pathTimer.getElapsedTimeSeconds() > 1.5){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
             case SCORE_PRELOAD:
-                if(pathTimer.getElapsedTimeSeconds() > 0.75){
+                if(!follower.isBusy()){
                     outtake.setClawOpen(true);
                     setPathState(AutoState.DRIVE_TO_PUSHING);
                 }
@@ -196,14 +196,14 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
             case READY_FOR_PICKUP:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
                 outtake.setClawOpen(true);
-                if(!outtakeLift.isBusy() && !follower.isBusy()){
+                if(!follower.isBusy()){
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.6){
                     outtake.setClawOpen(false);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.9){
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);

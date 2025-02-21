@@ -136,8 +136,7 @@ public class EC_TeleOp extends OpMode {
         intake.TeleopExtend(gamepad1.left_trigger);
         if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.TRANSFER);
         if (gamepad1.right_bumper) intake.startReverseIntake();
-        specimenHeadingLockButton.input(gamepad1.dpad_right);
-        if(specimenHeadingLockButton.getVal()){
+        if(specimenHeadingLockButton.input(gamepad1.dpad_right)){
             follower.turnToDegrees(180);
         }
 
@@ -170,8 +169,10 @@ public class EC_TeleOp extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case GRAB_AND_LIFT:
-                        intake.startReverseIntake();
                         outtake.setClawOpen(false);
+                        if(sequenceTime.time() > 0.1){
+                            intake.startReverseIntake();
+                        }
                         if(sequenceTime.time() > 0.4){
                             outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
@@ -197,8 +198,9 @@ public class EC_TeleOp extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case FRONT_GRAB:
+                            {
                         outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
-                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);}
                         break;
                     case CLOSE_CLAW:
                         outtake.setClawOpen(false);
@@ -243,12 +245,12 @@ public class EC_TeleOp extends OpMode {
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
 
-           follower.setTeleOpMovementVectors(
+        follower.setTeleOpMovementVectors(
                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
                    0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-
         follower.update();
+        Storage.CurrentPose = follower.getPose();
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
         telemetry.addData("X", follower.getPose().getX());

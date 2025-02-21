@@ -11,19 +11,19 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.28;
-    public static double DEFAULT_RDIFFY_POS = 0.13;
+    public static double DEFAULT_LDIFFY_POS = 0.01;
+    public static double DEFAULT_RDIFFY_POS = 0.23;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.4;
-    public static double CLAW_OPENED = 0.19;
+    public static double CLAW_OPENED = 0.1;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
-    public static double ARM_TRANSFER_POS = 0.115;
-    public static double ARM_FRONTSPEC_POS = 0.35;
+    public static double ARM_TRANSFER_POS = 0.14;
+    public static double ARM_FRONTSPEC_POS = 0.38;
     public static double ARM_BACKSPEC_POS = 0.85;
     public enum OuttakeState {
         SPECFRONTPICKUP,
@@ -44,18 +44,18 @@ public class Outtake {
         lpivhigh.setDirection(Servo.Direction.REVERSE);
         Rdiffy = hardwareMap.get(Servo.class,"Rdiffy");
         Ldiffy = hardwareMap.get(Servo.class,"Ldiffy");
-        Rdiffy.setDirection(Servo.Direction.FORWARD);
-        Ldiffy.setDirection(Servo.Direction.REVERSE);
+        Rdiffy.setDirection(Servo.Direction.REVERSE);
+        Ldiffy.setDirection(Servo.Direction.FORWARD);
     }
 
     @Config
     public static class DIFFY_POSITIONS {
-        public static double SAMPLE_SCORE = 120;
-        public static double TRANSFER = 145;
-        public static double SPECIMEN_FRONT_PICKUP = 90;
-        public static double SPECIMEN_BACK_SCORE = 65;
-        public static double ORIENTATION_UP = -140;
-        public static double ORIENTATION_DOWN = 70;
+        public static double SAMPLE_SCORE = 60;
+        public static double TRANSFER = 30;
+        public static double SPECIMEN_FRONT_PICKUP = 105;
+        public static double SPECIMEN_BACK_SCORE = 115;
+        public static double ORIENTATION_UP = 200;
+        public static double ORIENTATION_DOWN = 0;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
