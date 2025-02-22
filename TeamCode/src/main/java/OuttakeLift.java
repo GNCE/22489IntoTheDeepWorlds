@@ -67,7 +67,7 @@ public class OuttakeLift {
             rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            target = 30;
+            if(target < 50) target = 30;
         }
 
         double power;
@@ -105,8 +105,8 @@ public class OuttakeLift {
         TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER
     }
 
-    public static int TRANSFER_POS = 420;
-    public static int BUCKET_POS = 1500;
+    public static int TRANSFER_POS = 425;
+    public static int BUCKET_POS = 1550;
     public static int FRONT_SCORE_WAIT_POS = 0;
     public static int FRONT_SCORE_DONE_POS = 0;
     public static int FRONT_PICKUP_POS = 0;

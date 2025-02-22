@@ -1,6 +1,9 @@
 
 
+import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -12,6 +15,7 @@ import pedroPathing.constants.LConstants;
 
 
 @TeleOp(name = "Main TeleOp", group = "Real OpModes")
+@Config
 public class EC_TeleOp extends OpMode {
     private Follower follower;
     private Outtake outtake;
@@ -20,6 +24,7 @@ public class EC_TeleOp extends OpMode {
     private Misc misc;
     private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
+    private double targetHeading = 180, headingError, headingCorrection;
     int flip = 1;
     int initfsm = 0;
 
@@ -75,6 +80,8 @@ public class EC_TeleOp extends OpMode {
 
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
+        follower.update();
+        Storage.CurrentPose = follower.getPose();
         telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
         telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         telemetry.update();
@@ -125,6 +132,9 @@ public class EC_TeleOp extends OpMode {
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true);
     private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
 
+    public static double hp = 0.01, hi = 0, hd = 0.001;
+    PIDController headingPIDController = new PIDController(hp, hi, hd);
+
     @Override
     public void loop() {
         if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
@@ -136,9 +146,6 @@ public class EC_TeleOp extends OpMode {
         intake.TeleopExtend(gamepad1.left_trigger);
         if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.TRANSFER);
         if (gamepad1.right_bumper) intake.startReverseIntake();
-        if(specimenHeadingLockButton.input(gamepad1.dpad_right)){
-            follower.turnToDegrees(180);
-        }
 
         if(bucketSequenceNextButton.input(gamepad1.a)){
             outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
@@ -245,14 +252,40 @@ public class EC_TeleOp extends OpMode {
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
 
-        follower.setTeleOpMovementVectors(
-                   flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                   flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                   0.26 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        if(specimenHeadingLockButton.input(gamepad1.dpad_right)){
+            targetHeading = follower.getPose().getHeading();
+        }
+        if(specimenHeadingLockButton.getVal()){
+            headingError = targetHeading - follower.getPose().getHeading();
+            headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);
+            if(headingError > 2*Math.PI - headingError){
+                headingError = headingError - 2*Math.PI;
+            }
+
+            if(Math.abs(headingError) < Math.toRadians(3)){
+                headingCorrection = 0;
+            } else {
+                headingPIDController.setPID(hp, hi, hd);
+                headingCorrection = headingPIDController.calculate(headingError);
+            }
+
+            follower.setTeleOpMovementVectors(
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -headingCorrection);
+        } else {
+            follower.setTeleOpMovementVectors(
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.21 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        }
         follower.update();
         Storage.CurrentPose = follower.getPose();
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
+        telemetry.addData("Heading Lock:", specimenHeadingLockButton.getVal() ? "Locked" : "Unlocked");
+        telemetry.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
+        telemetry.addData("Angle Error in Degrees", Math.toDegrees(headingError));
+        telemetry.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));

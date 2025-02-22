@@ -116,7 +116,7 @@ public class Intake{
         // Intake Wheel, Door, and Intake State Control
         switch(intakeState){
             case INTAKE:
-                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT;
+                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT + 50;
                 intakePower = INTAKE_POWER;
                 if(!isPivotBusy()){
                     switch (getCurrentSampleState(false)){
@@ -166,7 +166,8 @@ public class Intake{
                 break;
             case SHOOT:
             case INTAKE:
-                updateIntakePivot(INTAKE_DOWN_POS);
+                if (!(extPos < INTAKE_DOWN_EXTENSION_LIMIT)){
+                updateIntakePivot(INTAKE_DOWN_POS);}
                 break;
             case TRANSFER:
                 updateIntakePivot(INTAKE_TRANSFER_POS);

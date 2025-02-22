@@ -11,15 +11,15 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.01;
-    public static double DEFAULT_RDIFFY_POS = 0.23;
+    public static double DEFAULT_LDIFFY_POS = 0.00;
+    public static double DEFAULT_RDIFFY_POS = 0.22;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.4;
-    public static double CLAW_OPENED = 0.1;
+    public static double CLAW_CLOSED = 0.523;
+    public static double CLAW_OPENED = 0.21;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
     public static double ARM_TRANSFER_POS = 0.14;
@@ -53,9 +53,9 @@ public class Outtake {
         public static double SAMPLE_SCORE = 60;
         public static double TRANSFER = 30;
         public static double SPECIMEN_FRONT_PICKUP = 105;
-        public static double SPECIMEN_BACK_SCORE = 115;
-        public static double ORIENTATION_UP = 200;
-        public static double ORIENTATION_DOWN = 0;
+        public static double SPECIMEN_BACK_SCORE = 130;
+        public static double ORIENTATION_UP = 0;
+        public static double ORIENTATION_DOWN = 211;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
