@@ -53,7 +53,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - 12, Math.toRadians(180));
     private final Pose parkPose = new Pose(20, 50, Math.toRadians(230));
 
-    private final double zeroPowerAccelerationMultiplierForPickup = 3.57, zeroPowerAccelerationMultiplierForPush = 4.9;
+    private final double zeroPowerAccelerationMultiplierForPickup = 3.5, zeroPowerAccelerationMultiplierForPush = 4.9;
 
     private PathChain scorePreloadPath, parkFromFourthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
