@@ -18,8 +18,8 @@ public class Outtake {
 
     public static double ArmPosition = 0;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.523;
-    public static double CLAW_OPENED = 0.21;
+    public static double CLAW_CLOSED = 0.535;
+    public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
     public static double ARM_TRANSFER_POS = 0.14;
