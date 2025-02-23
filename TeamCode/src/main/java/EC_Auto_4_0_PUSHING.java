@@ -37,10 +37,10 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
     private final Pose secondSampleEnd = new Pose(18, 14, Math.toRadians(180));
 
-    private final Pose outtakePickupPose = new Pose(8.6, 30, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(8.65, 30, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
     private final Pose outtakePickupControl1 = new Pose(15, 68, Math.toRadians(180));
-    private final Pose outtakePickupControl2 = new Pose(37, 20, Math.toRadians(180));
+    private final Pose outtakePickupControl2 = new Pose(37, 19, Math.toRadians(180));
 
     private final double scoreControlX = 12;
     private final Pose firstScorePose = new Pose(scoreX, scoreY-3, Math.toRadians(180));
@@ -53,7 +53,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
     private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - 12, Math.toRadians(180));
     private final Pose parkPose = new Pose(20, 50, Math.toRadians(230));
 
-    private final double zeroPowerAccelerationMultiplierForPickup = 3.5, zeroPowerAccelerationMultiplierForPush = 4.9;
+    private final double zeroPowerAccelerationMultiplierForPickup = 2.75 , zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 4.3;
 
     private PathChain scorePreloadPath, parkFromFourthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
@@ -90,6 +90,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         firstScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(firstScoreControl), new Point(firstScorePose)))
                 .setLinearHeadingInterpolation(outtakePickupPose.getHeading(),firstScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
         secondPickupPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(firstScorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupPose)))
@@ -99,6 +100,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose),new Point(secondScoreControl), new Point(secondScorePose)))
                 .setLinearHeadingInterpolation(outtakePickupPose.getHeading(), secondScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
         thirdPickupPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(secondScorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupPose)))
@@ -108,6 +110,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         thirdScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(thirdScoreControl),new Point(thirdScorePose)))
                 .setLinearHeadingInterpolation(outtakePickupPose.getHeading(), thirdScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
         fourthPickupPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(thirdScorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupPose)))
@@ -117,6 +120,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         fourthScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(fourthScoreControl), new Point(fourthScorePose)))
                 .setLinearHeadingInterpolation(outtakePickupPose.getHeading(), fourthScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
         parkFromFourthPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(fourthScorePose), new Point(parkPose)))
@@ -156,7 +160,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
-                if(pathTimer.getElapsedTimeSeconds() > 2){
+                if(pathTimer.getElapsedTimeSeconds() > 1.7){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
@@ -245,7 +249,8 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
                 }
                 break;
             case PARK:
-                intake.setExtensionTarget(intake.FULL_EXTENSION);
+                if (!follower.isBusy()){
+                intake.setExtensionTarget(intake.FULL_EXTENSION);}
                 intake.intakeLoop();
                 break;
             default:

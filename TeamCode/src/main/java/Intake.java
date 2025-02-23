@@ -35,6 +35,7 @@ public class Intake{
     NormalizedColorSensor colorSensor;
 
     ElapsedTime intakeTime, pivotTime, extensionTime;
+    public ElapsedTime intakeDelay;
     public static double INTAKE_DOWN_EXTENSION_LIMIT = 200;
     public static double TRANSFER_EXTENSION_POS = 0;
 
@@ -72,6 +73,9 @@ public class Intake{
 
         intakeTime = new ElapsedTime();
         intakeTime.startTime();
+
+        intakeDelay = new ElapsedTime();
+        intakeDelay.startTime();
 
         pivotTime = new ElapsedTime();
         pivotTime.startTime();
@@ -116,7 +120,8 @@ public class Intake{
         // Intake Wheel, Door, and Intake State Control
         switch(intakeState){
             case INTAKE:
-                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT + 50;
+                if(extPos < INTAKE_DOWN_EXTENSION_LIMIT) extPos = INTAKE_DOWN_EXTENSION_LIMIT + 100;
+                if (extPos < 80) intakeDelay.reset();
                 intakePower = INTAKE_POWER;
                 if(!isPivotBusy()){
                     switch (getCurrentSampleState(false)){
@@ -166,7 +171,7 @@ public class Intake{
                 break;
             case SHOOT:
             case INTAKE:
-                if (!(extPos < INTAKE_DOWN_EXTENSION_LIMIT)){
+                if (!(extPos < INTAKE_DOWN_EXTENSION_LIMIT) && intakeDelay.time() > 0.39){
                 updateIntakePivot(INTAKE_DOWN_POS);}
                 break;
             case TRANSFER:

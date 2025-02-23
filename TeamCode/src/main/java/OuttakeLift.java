@@ -105,7 +105,7 @@ public class OuttakeLift {
         TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER
     }
 
-    public static int TRANSFER_POS = 425;
+    public static int TRANSFER_POS = 480;
     public static int BUCKET_POS = 1550;
     public static int FRONT_SCORE_WAIT_POS = 0;
     public static int FRONT_SCORE_DONE_POS = 0;

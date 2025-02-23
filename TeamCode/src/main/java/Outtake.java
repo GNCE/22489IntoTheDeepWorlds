@@ -22,7 +22,7 @@ public class Outtake {
     public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
-    public static double ARM_TRANSFER_POS = 0.14;
+    public static double ARM_TRANSFER_POS = 0.12;
     public static double ARM_FRONTSPEC_POS = 0.38;
     public static double ARM_BACKSPEC_POS = 0.85;
     public enum OuttakeState {

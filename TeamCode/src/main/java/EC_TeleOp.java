@@ -125,7 +125,7 @@ public class EC_TeleOp extends OpMode {
     }
 
 
-    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
+    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.SCORE;
     SPECIMEN_SEQUENCE specimenSequence = SPECIMEN_SEQUENCE.OPEN_CLAW;
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
 
