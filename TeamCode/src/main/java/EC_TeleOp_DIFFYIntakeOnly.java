@@ -12,7 +12,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@TeleOp(name = "Main TeleOp", group = "Real OpModes")
+@TeleOp(name = "Intake Only - TeleOp", group = "Real OpModes")
 @Config
 public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
     private Follower follower;
@@ -71,7 +71,7 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
         }
     }
     INTAKE_SEQUENCE intakeSequence = INTAKE_SEQUENCE.TRANSFER;
-    private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true);
+    private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true);
     @Override
     public void loop() {
         if(intakeSequenceNextButton.input(gamepad1.left_bumper)){
@@ -88,6 +88,17 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
+                if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
+                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
+                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 90){
+                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
+                    }
+                } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
+                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
+                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
+                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 90;
+                    }
+                }
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_ARM_PICKUP);
@@ -98,7 +109,9 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
                 break;
             case TRANSFER:
                 diffyClawIntake.setExtensionTarget(DiffyClawIntake.TRANSFER_EXTENSION_POS);
-                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER);
+                DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                if (!diffyClawIntake.isExtensionBusy()){
+                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER);}
                 break;
         }
         diffyClawIntake.intakeLoop();
@@ -114,9 +127,9 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
                     0.21 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         } else { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
-                    flip * 0.44 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                    flip * 0.44 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.15 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.42 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.135 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
 
         }
         follower.update();

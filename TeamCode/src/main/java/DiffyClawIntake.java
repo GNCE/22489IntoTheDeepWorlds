@@ -20,15 +20,15 @@ public class DiffyClawIntake {
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
-    public static double ArmPosition = 0;
+    public static double ArmPosition = 0.285;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.535;
     public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
     public static double ARM_REST = 0;
-    public static double ARM_TRANSFER_POS = 0;
-    public static double ARM_PICKUP_READY = 0;
-    public static double ARM_PICKUP_DOWN = 0;
+    public static double ARM_TRANSFER_POS = 0.3;
+    public static double ARM_PICKUP_READY = 0.53;
+    public static double ARM_PICKUP_DOWN = 0.58;
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
@@ -36,7 +36,7 @@ public class DiffyClawIntake {
     final double LINK2 = 320; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
     final double XOFFSET = 97; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    public static double FULL_EXTENSION = 530; // Length of the slides when fully extended (mm)
+    public static double FULL_EXTENSION = 400; // Length of the slides when fully extended (mm)
     public static double EXTENSION_ZERO_OFFSET = -0.02; // Servo Zero Offset
     final int SERVO_RANGE = 300; // Servo Range in degrees
 
@@ -59,12 +59,12 @@ public class DiffyClawIntake {
     public DiffyClawIntake(HardwareMap hardwareMap) {
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
         IntakeClamp.setDirection(Servo.Direction.REVERSE);
-        RightArmPivot = hardwareMap.get(Servo.class, "rpivhigh");
-        LeftArmPivot = hardwareMap.get(Servo.class, "lpivhigh");
+        RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");
+        LeftArmPivot = hardwareMap.get(Servo.class, "leftArmPivot");
         RightArmPivot.setDirection(Servo.Direction.FORWARD);
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
-        IntakeRDiffy = hardwareMap.get(Servo.class,"Rdiffy");
-        IntakeLDiffy = hardwareMap.get(Servo.class,"Ldiffy");
+        IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
+        IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
         IntakeRDiffy.setDirection(Servo.Direction.REVERSE);
         IntakeLDiffy.setDirection(Servo.Direction.FORWARD);
         reintake = hardwareMap.get(Servo.class,"reintake");
@@ -75,16 +75,14 @@ public class DiffyClawIntake {
         extensionTime.startTime();
 
     }
-    public static double Aligned_Position = 211;
-
     @Config
     public static class DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 90;
-        public static double INTAKE_POS = 90;
+        public static double TRANSFER_POS = 170;
+        public static double INTAKE_POS = 0;
 
         public static double ORIENTATION_UP = 0;
-        public static double ORIENTATION_DOWN = 211;
-        public static double ORIENTATION_ALIGNED = Aligned_Position;
+        public static double ORIENTATION_DOWN = 200;
+        public static double ORIENTATION_ALIGNED = 0;
 
     }
 
@@ -110,7 +108,7 @@ public class DiffyClawIntake {
     private void extendTo(double length){
         double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
         if(leintake.getPosition() != targetPos){
-            extensionWaitTime = Math.abs(targetPos - leintake.getPosition());
+            extensionWaitTime = Math.abs((targetPos - leintake.getPosition() )* 3.5);
             extensionTime.reset();
 
             leintake.setPosition(targetPos);
