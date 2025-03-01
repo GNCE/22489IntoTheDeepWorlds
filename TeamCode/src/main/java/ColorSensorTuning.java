@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 
-
+@Deprecated
 @TeleOp(name = "Tuning Color Sensor", group = "Tuning")
 public class ColorSensorTuning extends OpMode {
     ColorSensor colorSensor;

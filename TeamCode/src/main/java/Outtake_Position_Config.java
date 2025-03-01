@@ -1,6 +1,7 @@
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
-
+@Disabled
 public class Outtake_Position_Config extends OpMode {
     private Servo clamp;
     private Servo Rdiffy;

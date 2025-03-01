@@ -1,5 +1,5 @@
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+@Deprecated
 public class Macros {
     private Intake intake;
     private OuttakeLift outtakeLift;

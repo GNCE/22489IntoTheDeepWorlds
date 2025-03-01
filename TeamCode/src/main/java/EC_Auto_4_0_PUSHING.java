@@ -7,11 +7,15 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+
+//TODO CURRENTLY NOT WORKING. MIGRATE TO NEW INTAKE.
+@Disabled
 @Autonomous (name = "Specimen Auto")
 public class EC_Auto_4_0_PUSHING extends OpMode {
     private Follower follower;

@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.SwitchableLight;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-
+@Deprecated
 @TeleOp (name = "Intake Test")
 @Config
 public class IntakeTest extends OpMode {

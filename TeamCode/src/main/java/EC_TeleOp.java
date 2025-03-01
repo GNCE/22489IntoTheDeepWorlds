@@ -6,6 +6,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -13,8 +14,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-
-@TeleOp(name = "Main TeleOp", group = "Real OpModes")
+@Disabled
+@TeleOp(name = " OLD Main TeleOp", group = "Real OpModes")
 @Config
 public class EC_TeleOp extends OpMode {
     private Follower follower;
