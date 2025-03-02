@@ -61,7 +61,7 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
 
     }
     public enum INTAKE_SEQUENCE{
-        TRANSFER, READY, GRAB;
+        TRANSFER_WAIT, READY, GRAB;
         private static final INTAKE_SEQUENCE[] vals = values();
         public INTAKE_SEQUENCE next(){
             return vals[(this.ordinal() + 1) % vals.length];
@@ -70,7 +70,7 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
             return vals[(this.ordinal() - 1 + vals.length) % vals.length];
         }
     }
-    INTAKE_SEQUENCE intakeSequence = INTAKE_SEQUENCE.TRANSFER;
+    INTAKE_SEQUENCE intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
     private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true);
     @Override
     public void loop() {
@@ -90,13 +90,13 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
                 }
                 if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
                     DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
-                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 90){
+                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
                         DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
                     }
                 } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
                     DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
                     if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
-                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 90;
+                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
                 break;
@@ -106,12 +106,15 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
                 }
+                if (intakeSequenceTime.time() > 0.4){
+                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_ARM_READY);
+                }
                 break;
-            case TRANSFER:
+            case TRANSFER_WAIT:
                 diffyClawIntake.setExtensionTarget(DiffyClawIntake.TRANSFER_EXTENSION_POS);
-                DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 if (!diffyClawIntake.isExtensionBusy()){
-                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER);}
+                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER_WAIT);}
                 break;
         }
         diffyClawIntake.intakeLoop();
@@ -120,7 +123,7 @@ public class EC_TeleOp_DIFFYIntakeOnly extends OpMode {
         flip = controlFlipButton.getVal() ? 1 : -1;
 
 
-        if (intakeSequence == INTAKE_SEQUENCE.TRANSFER) {
+        if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT) {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),

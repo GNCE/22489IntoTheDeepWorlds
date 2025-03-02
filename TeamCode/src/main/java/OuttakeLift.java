@@ -23,35 +23,25 @@ public class OuttakeLift {
     public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         llift1 = hardwareMap.get(DcMotorEx.class, "llift1");
         rlift1 = hardwareMap.get(DcMotorEx.class, "rlift1");
-        llift2 = hardwareMap.get(DcMotorEx.class, "llift2");
-        rlift2 = hardwareMap.get(DcMotorEx.class, "rlift2");
 
         llift1.setDirection(DcMotor.Direction.FORWARD);
         rlift1.setDirection(DcMotor.Direction.REVERSE);
-        llift2.setDirection(DcMotor.Direction.FORWARD);
-        rlift2.setDirection(DcMotor.Direction.REVERSE);
 
         llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        llift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rlift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         llift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         llift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rlift1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         controller = new PIDController(p, i, d);
         touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
 
         this.lopMode = opMode;
     }
     public int getCurrentPosition(){
-        return (llift1.getCurrentPosition() + llift2.getCurrentPosition() + rlift1.getCurrentPosition()) / 3;
+        return (llift1.getCurrentPosition() + rlift1.getCurrentPosition()) / 2;
     }
     public int getTargetPosition(){
         return target;
@@ -60,13 +50,9 @@ public class OuttakeLift {
         if(touchSensor.isPressed()){
             llift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rlift1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            llift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rlift2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             llift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rlift1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            llift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            rlift2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             if(target < 50) target = 30;
         }
 
@@ -86,23 +72,12 @@ public class OuttakeLift {
 
         llift1.setPower(power);
         rlift1.setPower(power);
-        if(FOUR_MOTOR_LIFT){
-            llift2.setPower(power);
-            rlift2.setPower(power);
-            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        } else {
-            llift2.setPower(0);
-            rlift2.setPower(0);
-            llift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            rlift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        }
     }
     public void LiftTarget(int input){
         target = input;
     }
     public enum OuttakeLiftPositions {
-        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER
+        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE
     }
 
     public static int TRANSFER_POS = 480;
@@ -139,6 +114,8 @@ public class OuttakeLift {
                 break;
             case RESET_ENCODER:
                 target = -120;
+            case AVOID_INTAKE:
+                target = 500;
             default:
                 break;
         }

@@ -27,6 +27,7 @@ public class DiffyClawIntake {
     //tune these values vvvvv
     public static double ARM_REST = 0;
     public static double ARM_TRANSFER_POS = 0.3;
+    public static double ARM_TRANSFER_WAIT_POS = 0.48;
     public static double ARM_PICKUP_READY = 0.53;
     public static double ARM_PICKUP_DOWN = 0.58;
 
@@ -51,6 +52,7 @@ public class DiffyClawIntake {
 
     public enum IntakeState {
         TRANSFER,
+        TRANSFER_WAIT,
         INTAKE_ARM_READY,
         INTAKE_ARM_PICKUP,
         INTAKE_REST,
@@ -79,7 +81,7 @@ public class DiffyClawIntake {
     public static class DIFFY_POSITIONS {
         public static double TRANSFER_POS = 170;
         public static double INTAKE_POS = 0;
-
+        public static double REST_POS = 80;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
         public static double ORIENTATION_ALIGNED = 0;
@@ -108,7 +110,7 @@ public class DiffyClawIntake {
     private void extendTo(double length){
         double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
         if(leintake.getPosition() != targetPos){
-            extensionWaitTime = Math.abs((targetPos - leintake.getPosition() )* 3.5);
+            extensionWaitTime = Math.abs((targetPos - leintake.getPosition() )* 14);
             extensionTime.reset();
 
             leintake.setPosition(targetPos);
@@ -138,6 +140,10 @@ public class DiffyClawIntake {
                 ArmPosition = ARM_TRANSFER_POS;
                 setPivotPosition(DIFFY_POSITIONS.TRANSFER_POS, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
+            case TRANSFER_WAIT:
+                ArmPosition = ARM_TRANSFER_WAIT_POS;
+                setPivotPosition(DIFFY_POSITIONS.TRANSFER_POS, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
             case INTAKE_ARM_READY:
                 ArmPosition = ARM_PICKUP_READY;
                 setPivotPosition(DIFFY_POSITIONS.INTAKE_POS, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
@@ -148,7 +154,7 @@ public class DiffyClawIntake {
                 break;
             case INTAKE_REST:
                 ArmPosition = ARM_REST;
-                setPivotPosition(DIFFY_POSITIONS.TRANSFER_POS, DIFFY_POSITIONS.ORIENTATION_UP);
+                setPivotPosition(DIFFY_POSITIONS.REST_POS, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
 
@@ -164,6 +170,7 @@ public class DiffyClawIntake {
             IntakeClamp.setPosition(CLAW_OPENED);
         }
     }
+
 
     public void setIntakeState(IntakeState intakeState){
         this.intakeState = intakeState;

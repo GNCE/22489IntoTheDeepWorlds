@@ -22,7 +22,7 @@ public class Outtake {
     public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.75;
-    public static double ARM_TRANSFER_POS = 0.12;
+    public static double ARM_TRANSFER_POS = 0.6; // not correct
     public static double ARM_FRONTSPEC_POS = 0.38;
     public static double ARM_BACKSPEC_POS = 0.85;
     public enum OuttakeState {
@@ -36,14 +36,14 @@ public class Outtake {
 
     }
     public Outtake(HardwareMap hardwareMap) {
-        clamp = hardwareMap.get(Servo.class, "clamp");
+        clamp = hardwareMap.get(Servo.class, "outtakeClamp");
         clamp.setDirection(Servo.Direction.REVERSE);
-        rpivhigh = hardwareMap.get(Servo.class, "rpivhigh");
-        lpivhigh = hardwareMap.get(Servo.class, "lpivhigh");
+        rpivhigh = hardwareMap.get(Servo.class, "outtakeRightArm");
+        lpivhigh = hardwareMap.get(Servo.class, "outtakeLeftArm");
         rpivhigh.setDirection(Servo.Direction.FORWARD);
         lpivhigh.setDirection(Servo.Direction.REVERSE);
-        Rdiffy = hardwareMap.get(Servo.class,"Rdiffy");
-        Ldiffy = hardwareMap.get(Servo.class,"Ldiffy");
+        Rdiffy = hardwareMap.get(Servo.class,"outtakeRDiffy");
+        Ldiffy = hardwareMap.get(Servo.class,"outtakeLDiffy");
         Rdiffy.setDirection(Servo.Direction.REVERSE);
         Ldiffy.setDirection(Servo.Direction.FORWARD);
     }

@@ -3,7 +3,6 @@
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,7 +16,7 @@ import pedroPathing.constants.LConstants;
 @Disabled
 @TeleOp(name = " OLD Main TeleOp", group = "Real OpModes")
 @Config
-public class EC_TeleOp extends OpMode {
+public class EC_OLD_TeleOp extends OpMode {
     private Follower follower;
     private Outtake outtake;
     private Intake intake;
