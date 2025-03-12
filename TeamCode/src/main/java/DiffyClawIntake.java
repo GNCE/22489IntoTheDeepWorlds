@@ -22,13 +22,13 @@ public class DiffyClawIntake {
 
     public static double ArmPosition = 0.285;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.535;
-    public static double CLAW_OPENED = 0.215;
+    public static double CLAW_CLOSED = 0.39;
+    public static double CLAW_OPENED = 0.18;
     //tune these values vvvvv
     public static double ARM_REST = 0;
     public static double ARM_TRANSFER_POS = 0.3;
-    public static double ARM_TRANSFER_WAIT_POS = 0.48;
-    public static double ARM_PICKUP_READY = 0.53;
+    public static double ARM_TRANSFER_WAIT_POS = 0.52;
+    public static double ARM_PICKUP_READY = 0.5;
     public static double ARM_PICKUP_DOWN = 0.58;
 
     /** LINKAGE EXTENSION VARIABLES */
