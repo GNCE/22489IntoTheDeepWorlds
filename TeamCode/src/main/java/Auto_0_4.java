@@ -20,10 +20,10 @@ import pedroPathing.constants.LConstants;
 
 @Disabled
 @Autonomous (name = "0+4 auton pls worky")
-public class EC_Auto_0_4 extends OpMode{
+public class Auto_0_4 extends OpMode{
     private Follower follower;
 
-    private Intake intake;
+    private Old_Intake_DoNotUse intake;
     private OuttakeLift outtakeLift;
     private Outtake outtake;
     private Misc misc;
@@ -147,15 +147,15 @@ public class EC_Auto_0_4 extends OpMode{
                 break;
             case 6:
                 if(!follower.isBusy()){
-                    intake.setIntakeState(Intake.IntakeState.INTAKE);
+                    intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.INTAKE);
                     intake.setExtensionTarget(pathTimer.getElapsedTimeSeconds()*200);
-                    if (pathTimer.getElapsedTimeSeconds() > 3 || intake.getCurrentSampleState(false) == Intake.SENSOR_READING.CORRECT){
+                    if (pathTimer.getElapsedTimeSeconds() > 3 || intake.getCurrentSampleState(false) == Old_Intake_DoNotUse.SENSOR_READING.CORRECT){
                     setPathState(7);}
                 }
                 break;
             case 7:
-                    intake.setIntakeState(Intake.IntakeState.TRANSFER);
-                    intake.setExtensionTarget(Intake.TRANSFER_EXTENSION_POS);
+                    intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.TRANSFER);
+                    intake.setExtensionTarget(Old_Intake_DoNotUse.TRANSFER_EXTENSION_POS);
                 if (pathTimer.getElapsedTimeSeconds() >  2) {
                     sequenceTime.reset();
                     setPathState(8);
@@ -204,7 +204,7 @@ public class EC_Auto_0_4 extends OpMode{
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        intake = new Intake(hardwareMap, this);
+        intake = new Old_Intake_DoNotUse(hardwareMap, this);
         misc = new Misc(hardwareMap);
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);

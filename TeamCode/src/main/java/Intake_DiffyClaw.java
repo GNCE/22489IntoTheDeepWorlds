@@ -4,10 +4,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.opencv.features2d.AKAZE;
-
 @Config
-public class DiffyClawIntake {
+public class Intake_DiffyClaw {
     private Servo IntakeClamp;
     private Servo IntakeRDiffy;
     private Servo IntakeLDiffy;
@@ -58,7 +56,7 @@ public class DiffyClawIntake {
         INTAKE_REST,
 
     }
-    public DiffyClawIntake(HardwareMap hardwareMap) {
+    public Intake_DiffyClaw(HardwareMap hardwareMap) {
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
         IntakeClamp.setDirection(Servo.Direction.REVERSE);
         RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");

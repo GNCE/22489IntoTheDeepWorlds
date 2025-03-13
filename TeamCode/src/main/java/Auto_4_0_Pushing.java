@@ -17,9 +17,9 @@ import pedroPathing.constants.LConstants;
 //TODO CURRENTLY NOT WORKING. MIGRATE TO NEW INTAKE.
 @Disabled
 @Autonomous (name = "Specimen Auto")
-public class EC_Auto_4_0_PUSHING extends OpMode {
+public class Auto_4_0_Pushing extends OpMode {
     private Follower follower;
-    private Intake intake;
+    private Old_Intake_DoNotUse intake;
     private OuttakeLift outtakeLift;
     private Outtake outtake;
     private Misc misc;
@@ -268,7 +268,7 @@ public class EC_Auto_4_0_PUSHING extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
 
-        intake = new Intake(hardwareMap, this);
+        intake = new Old_Intake_DoNotUse(hardwareMap, this);
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);
         buildPaths();

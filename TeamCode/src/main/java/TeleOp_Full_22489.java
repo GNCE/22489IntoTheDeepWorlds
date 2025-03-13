@@ -8,19 +8,17 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.prefs.BackingStoreException;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
 @TeleOp(name = "Full Main - TeleOp", group = "Real OpModes")
 @Config
-public class EC_TeleOp_Full extends OpMode {
+public class TeleOp_Full_22489 extends OpMode {
     private Follower follower;
     private Outtake outtake;
     private OuttakeLift outtakeLift;
-    private DiffyClawIntake diffyClawIntake;
+    private Intake_DiffyClaw diffyClawIntake;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
@@ -36,7 +34,7 @@ public class EC_TeleOp_Full extends OpMode {
         intakeSequenceTime = new ElapsedTime();
         outtakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        diffyClawIntake = new DiffyClawIntake(hardwareMap);
+        diffyClawIntake = new Intake_DiffyClaw(hardwareMap);
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);
         intakeSequenceTime.startTime();
@@ -64,7 +62,7 @@ public class EC_TeleOp_Full extends OpMode {
     public void start() {
         follower.startTeleopDrive();
         outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-        diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_REST);
+        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
 
     }
 
@@ -137,38 +135,38 @@ public class EC_TeleOp_Full extends OpMode {
         }
         switch (intakeSequence){
             case READY:
-                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_ARM_READY);
-                diffyClawIntake.setExtensionTarget(DiffyClawIntake.FULL_EXTENSION);
+                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.FULL_EXTENSION);
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
                 if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
-                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
-                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
+                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
+                    if (Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
+                        Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
                     }
                 } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
-                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
-                    if (DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
-                        DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
+                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
+                    if (Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
+                        Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
                 break;
             case GRAB:
-                diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_ARM_PICKUP);
-                diffyClawIntake.setExtensionTarget(DiffyClawIntake.FULL_EXTENSION);
+                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
                 }
                 if (intakeSequenceTime.time() > 0.4){
-                    DiffyClawIntake.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-                    diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_ARM_READY);
+                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
                 break;
             case TRANSFER_WAIT:
-                diffyClawIntake.setExtensionTarget(DiffyClawIntake.TRANSFER_EXTENSION_POS);
+                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.TRANSFER_EXTENSION_POS);
                 if (!diffyClawIntake.isExtensionBusy() && !isTransfering && !isScoringSpecs){
-                    diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER_WAIT);}
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
                 break;
         }
         diffyClawIntake.intakeLoop();
@@ -220,7 +218,7 @@ public class EC_TeleOp_Full extends OpMode {
                         break;
                     case GRAB_AND_LIFT:
                         isTransfering = true;
-                        diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER);
+                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                         if (outtakeSequenceTime.time() > 0.23){
                             outtake.setClawOpen(false);
                         }
@@ -268,14 +266,14 @@ public class EC_TeleOp_Full extends OpMode {
             case OVERRIDE_TO_SPEC:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
-                    diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.INTAKE_REST);
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                     outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
                 }
                 break;
             case OVERRIDE_TO_INTAKE:
                 outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
-                    diffyClawIntake.setIntakeState(DiffyClawIntake.IntakeState.TRANSFER_WAIT);
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
                 }
                 break;
@@ -315,7 +313,7 @@ public class EC_TeleOp_Full extends OpMode {
         telemetry.addLine();
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
-        telemetry.addData("Horizontal Extension Target Position", Intake.extPos);
+        telemetry.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
         telemetry.addData("Horizontal Extension Servo Angle", diffyClawIntake.leintake.getPosition());
 
         telemetry.update();

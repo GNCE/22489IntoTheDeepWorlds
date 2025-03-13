@@ -19,7 +19,7 @@ import pedroPathing.constants.LConstants;
 public class EC_OLD_TeleOp extends OpMode {
     private Follower follower;
     private Outtake outtake;
-    private Intake intake;
+    private Old_Intake_DoNotUse intake;
     private OuttakeLift outtakeLift;
     private Misc misc;
     private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
@@ -37,7 +37,7 @@ public class EC_OLD_TeleOp extends OpMode {
         elapsedTime = new ElapsedTime();
         sequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        intake = new Intake(hardwareMap,this);
+        intake = new Old_Intake_DoNotUse(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
         misc = new Misc(hardwareMap);
         misc.initiate();
@@ -92,7 +92,7 @@ public class EC_OLD_TeleOp extends OpMode {
         intake.initiate();
         follower.startTeleopDrive();
         outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-        intake.setIntakeState(Intake.IntakeState.TRANSFER);
+        intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.TRANSFER);
     }
 
     public enum BUCKET_SEQUENCE{
@@ -137,14 +137,14 @@ public class EC_OLD_TeleOp extends OpMode {
 
     @Override
     public void loop() {
-        if (gamepad1.left_bumper) intake.setIntakeState(Intake.IntakeState.INTAKE);
-        if (gamepad1.right_stick_button) intake.setIntakeState(Intake.IntakeState.SHOOT);
+        if (gamepad1.left_bumper) intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.INTAKE);
+        if (gamepad1.right_stick_button) intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.SHOOT);
         if (gamepad1.left_stick_button && (bucketSequence != BUCKET_SEQUENCE.TRANSFER)){
-            intake.setIntakeState(Intake.IntakeState.FLIP_UP);
+            intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.FLIP_UP);
             intake.startReverseIntake();
         }
         intake.TeleopExtend(gamepad1.left_trigger);
-        if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Intake.IntakeState.TRANSFER);
+        if (gamepad1.right_trigger > 0.2) intake.setIntakeState(Old_Intake_DoNotUse.IntakeState.TRANSFER);
         if (gamepad1.right_bumper) intake.startReverseIntake();
 
         if(bucketSequenceNextButton.input(gamepad1.a)){
@@ -299,7 +299,7 @@ public class EC_OLD_TeleOp extends OpMode {
         telemetry.addData("RLift2", outtakeLift.rlift2.getCurrentPosition());
         telemetry.addData("Lift Target", outtakeLift.getTargetPosition());
 
-        telemetry.addData("Horizontal Extension Target Position", Intake.extPos);
+        telemetry.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
         telemetry.addData("Horizontal Extension Servo Angle", intake.leintake.getPosition());
         telemetry.addLine()
                         .addData("TeleOp Outtake Sequence", outtakeSequence)

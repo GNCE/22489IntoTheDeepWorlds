@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -20,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Deprecated
 @Config
-public class Intake{
+public class Old_Intake_DoNotUse {
     public static float COLOR_SENSOR_GAIN = 10;
     public static double DOOR_OPEN_POS = 0.1, DOOR_REST_POS = 0.4, DOOR_CLOSE_POS = 0.6;
     public static double intakePower = 0;
@@ -51,7 +50,7 @@ public class Intake{
 
     Telemetry telemetry;
 
-    public Intake(HardwareMap hardwareMap, OpMode opMode) {
+    public Old_Intake_DoNotUse(HardwareMap hardwareMap, OpMode opMode) {
         packet = new TelemetryPacket();
 
         rintake = hardwareMap.get(CRServo.class, "rintake");
@@ -157,7 +156,7 @@ public class Intake{
         if(reverseIntake){
             if(!isPivotBusy()){
                 intakePower = -1;
-                if(getCurrentSampleState(false) == Intake.SENSOR_READING.NOTHING){
+                if(getCurrentSampleState(false) == Old_Intake_DoNotUse.SENSOR_READING.NOTHING){
                     intakePower = 0;
                     reverseIntake = false;
                 }
@@ -264,7 +263,7 @@ public class Intake{
         OPEN, CLOSE, REST
     }
 
-    public void setDoorState(Intake.DoorState doorState){
+    public void setDoorState(Old_Intake_DoNotUse.DoorState doorState){
         switch (doorState){
             case OPEN:
                 door.setPosition(DOOR_OPEN_POS);

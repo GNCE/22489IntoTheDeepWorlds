@@ -1,11 +1,10 @@
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 @TeleOp (name = "motor test")
-public class testRAWmotors extends OpMode {
+public class OuttakeLift_MotorTest extends OpMode {
     private DcMotor rlift1;
     private DcMotor llift1;
     private DcMotor rlift2;
