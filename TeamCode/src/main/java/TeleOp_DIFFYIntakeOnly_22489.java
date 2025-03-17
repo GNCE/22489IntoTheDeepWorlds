@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.UnifiedTelemetry;
 
 
 @TeleOp(name = "Intake Only - TeleOp", group = "Real OpModes")
@@ -28,6 +29,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     int flip = 1;
     int initfsm = 0;
     public static String key = "sigmaboy";
+    private UnifiedTelemetry tel;
 
     ToggleButton takeSnapshotButton = new ToggleButton(false);
 
@@ -40,6 +42,9 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         intakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
         diffyClawIntake = new Intake_DiffyClaw(hardwareMap);
+
+        tel = new UnifiedTelemetry();
+        tel.init(this.telemetry);
 
         intakeSequenceTime.startTime();
         elapsedTime.startTime();
@@ -119,7 +124,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
-                if (result != null) {
+                if (result != null && diffyClawIntake.limelight.isRunning()) {
                     double tx = result.getTx(); // How far left or right the target is (degrees)
                     double ty = result.getTy(); // How far up or down the target is (degrees)
                     double ta = result.getTa(); // How big the target looks (0%-100% of the image)
@@ -185,23 +190,20 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 telemetry.addData("Python Output", pythonOutputs[0]);
             }
         } else {
-            telemetry.addData("Limelight", "Null");
+            tel.addData("Limelight", "Null");
         }
 
-        telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
-        telemetry.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
-        telemetry.addData("Angle Error in Degrees", Math.toDegrees(headingError));
-        telemetry.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-        telemetry.addLine();
-        telemetry.addData("Elapsed Time", elapsedTime.toString());
-        telemetry.addLine();
-        telemetry.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
-        telemetry.addData("Horizontal Extension Servo Angle", diffyClawIntake.leintake.getPosition());
-        telemetry.addData("Horizontal Extension Target Reached?", diffyClawIntake.isExtensionBusy());
-
-        telemetry.update();
+        tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
+        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
+        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
+        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
+        tel.addData("X", follower.getPose().getX());
+        tel.addData("Y", follower.getPose().getY());
+        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        tel.addData("Elapsed Time", elapsedTime.toString());
+        tel.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
+        tel.addData("Horizontal Extension Servo Angle", diffyClawIntake.leintake.getPosition());
+        tel.addData("Horizontal Extension Target Reached?", diffyClawIntake.isExtensionBusy());
+        tel.update();
     }
 }
