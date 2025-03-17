@@ -124,9 +124,9 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                     double ty = result.getTy(); // How far up or down the target is (degrees)
                     double ta = result.getTa(); // How big the target looks (0%-100% of the image)
 
-                    if(ta > 4){
+                    if(ta > 4){ // Ignore small spots
                         follower.setTeleOpMovementVectors((targetX - tx) * mx, (targetY -  ty) * my, 0);
-                        double angle = -result.getPythonOutput()[0];
+                        double angle = -result.getPythonOutput()[0]; // Output 0 is sample angle
                         if(Math.abs(angle) > 80){
                             if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
                             else angle = -80;
@@ -169,9 +169,10 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         follower.update();
         Storage.CurrentPose = follower.getPose();
 
-        if(result == null) telemetry.addData("LIMELIGHT", "NULL");
         if (result != null) {
             telemetry.addData("Data Validity", result.isValid());
+            telemetry.addData("Data Staleness", result.getStaleness());
+
             double tx = result.getTx(); // How far left or right the target is (degrees)
             double ty = result.getTy(); // How far up or down the target is (degrees)
             double ta = result.getTa(); // How big the target looks (0%-100% of the image)
@@ -184,7 +185,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 telemetry.addData("Python Output", pythonOutputs[0]);
             }
         } else {
-            telemetry.addData("Limelight", "No Targets");
+            telemetry.addData("Limelight", "Null");
         }
 
         telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
