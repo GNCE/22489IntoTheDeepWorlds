@@ -1,5 +1,7 @@
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,9 +14,12 @@ public class Intake_DiffyClaw {
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
     public Servo leintake, reintake;
+    Limelight3A limelight;
 
-    public static double DEFAULT_LDIFFY_POS = 0.00;
-    public static double DEFAULT_RDIFFY_POS = 0.22;
+    public static int pipelineNumber = 4;
+
+    public static double DEFAULT_LDIFFY_POS = 0.399;
+    public static double DEFAULT_RDIFFY_POS = 0.369;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -25,9 +30,9 @@ public class Intake_DiffyClaw {
     //tune these values vvvvv
     public static double ARM_REST = 0;
     public static double ARM_TRANSFER_POS = 0.3;
-    public static double ARM_TRANSFER_WAIT_POS = 0.52;
+    public static double ARM_TRANSFER_WAIT_POS = 0.3;
     public static double ARM_PICKUP_READY = 0.5;
-    public static double ARM_PICKUP_DOWN = 0.58;
+    public static double ARM_PICKUP_DOWN = 0.57;
 
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
@@ -65,21 +70,24 @@ public class Intake_DiffyClaw {
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
-        IntakeRDiffy.setDirection(Servo.Direction.REVERSE);
-        IntakeLDiffy.setDirection(Servo.Direction.FORWARD);
+        IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
+        IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
         reintake = hardwareMap.get(Servo.class,"reintake");
         leintake = hardwareMap.get(Servo.class, "leintake");
         reintake.setDirection(Servo.Direction.REVERSE);
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight.setPollRateHz(100);
+        limelight.start();
 
         extensionTime = new ElapsedTime();
         extensionTime.startTime();
-
     }
     @Config
-    public static class DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 170;
-        public static double INTAKE_POS = 0;
-        public static double REST_POS = 80;
+    public static class INTAKE_DIFFY_POSITIONS {
+        public static double TRANSFER_POS = 60;
+        public static double INTAKE_POS = -115;
+        public static double INTAKE_FINAL_POS = -100;
+        public static double REST_POS = 20;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
         public static double ORIENTATION_ALIGNED = 0;
@@ -87,7 +95,7 @@ public class Intake_DiffyClaw {
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
-        double ServoRange = 300;
+        double ServoRange = 360*5;
         LdiffyPos = DEFAULT_LDIFFY_POS + UpDownAngle/ServoRange + Orientation*((double) 18/52)/ServoRange;
         RdiffyPos = DEFAULT_RDIFFY_POS + UpDownAngle/ServoRange - Orientation*((double) 18/52)/ServoRange;
     }
@@ -132,27 +140,28 @@ public class Intake_DiffyClaw {
 
     IntakeState intakeState = IntakeState.TRANSFER;
     public void intakeLoop(){
+        limelight.pipelineSwitch(pipelineNumber);
         extendTo(extPos);
         switch(intakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
-                setPivotPosition(DIFFY_POSITIONS.TRANSFER_POS, DIFFY_POSITIONS.ORIENTATION_UP);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.TRANSFER_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case TRANSFER_WAIT:
                 ArmPosition = ARM_TRANSFER_WAIT_POS;
-                setPivotPosition(DIFFY_POSITIONS.TRANSFER_POS, DIFFY_POSITIONS.ORIENTATION_UP);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.TRANSFER_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case INTAKE_ARM_READY:
                 ArmPosition = ARM_PICKUP_READY;
-                setPivotPosition(DIFFY_POSITIONS.INTAKE_POS, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.INTAKE_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case INTAKE_ARM_PICKUP:
                 ArmPosition = ARM_PICKUP_DOWN;
-                setPivotPosition(DIFFY_POSITIONS.INTAKE_POS, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.INTAKE_FINAL_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case INTAKE_REST:
                 ArmPosition = ARM_REST;
-                setPivotPosition(DIFFY_POSITIONS.REST_POS, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.REST_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
 

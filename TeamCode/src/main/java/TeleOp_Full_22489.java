@@ -141,14 +141,14 @@ public class TeleOp_Full_22489 extends OpMode {
                     diffyClawIntake.setClawOpen(true);
                 }
                 if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
-                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
-                    if (Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-                        Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
+                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
+                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
                     }
                 } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
-                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
-                    if (Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
-                        Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
+                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
+                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
                 break;
@@ -159,7 +159,7 @@ public class TeleOp_Full_22489 extends OpMode {
                     diffyClawIntake.setClawOpen(false);
                 }
                 if (intakeSequenceTime.time() > 0.4){
-                    Intake_DiffyClaw.DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
                 break;
