@@ -83,7 +83,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         }
     }
     INTAKE_SEQUENCE intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
-    private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true);
+    private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true), autoALignmentButton = new ToggleButton(true);
     @Override
     public void loop() {
         LLResult result = diffyClawIntake.limelight.getLatestResult();
@@ -98,7 +98,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.21 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    0.48 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         } else { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
                     flip * 0.20 * Math.tan(1.12 * -gamepad1.left_stick_y),
@@ -124,7 +124,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
-                if (result != null && diffyClawIntake.limelight.isRunning()) {
+                if (result != null && diffyClawIntake.limelight.isRunning() && gamepad1.triangle) {
                     double tx = result.getTx(); // How far left or right the target is (degrees)
                     double ty = result.getTy(); // How far up or down the target is (degrees)
                     double ta = result.getTa(); // How big the target looks (0%-100% of the image)

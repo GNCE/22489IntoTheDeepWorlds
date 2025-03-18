@@ -137,6 +137,10 @@ public class Intake_DiffyClaw {
         setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
 
+    public void changePipeline(int pipelineNum) {
+        pipelineNumber = pipelineNum;
+    }
+
 
     IntakeState intakeState = IntakeState.TRANSFER;
     public void intakeLoop(){
