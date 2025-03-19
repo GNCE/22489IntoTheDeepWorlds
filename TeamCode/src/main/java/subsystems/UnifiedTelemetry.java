@@ -26,6 +26,13 @@ public class UnifiedTelemetry {
 
     }
 
+    public UnifiedTelemetry addLine(String line){
+        if (internal != null) internal.addLine(line);
+        if (dashEnabled) currentDashPack.addLine(line);
+        return this;
+
+    }
+
     public UnifiedTelemetry addData(String caption, String format, Object... args) {
         if (internal != null) internal.addData(caption, format, args);
         if (dashEnabled)
