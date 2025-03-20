@@ -3,6 +3,9 @@ package subsystems;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import commands.CommandCore;
+import commands.InstantAction;
+
 @Config
 public class IntakeDifferentialSubsys extends SubsysCore {
     private static Servo IntakeLDiffy, IntakeRDiffy;

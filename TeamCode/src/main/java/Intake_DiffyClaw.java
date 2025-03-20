@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import commands.CommandCore;
+import commands.InstantAction;
+
 @Config
 public class Intake_DiffyClaw {
     private Servo IntakeClamp;
@@ -18,8 +21,8 @@ public class Intake_DiffyClaw {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.399;
-    public static double DEFAULT_RDIFFY_POS = 0.369;
+    public static double DEFAULT_LDIFFY_POS = 0.527;
+    public static double DEFAULT_RDIFFY_POS = 0.503;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -136,7 +139,6 @@ public class Intake_DiffyClaw {
         else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
         setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
     }
-
     public void changePipeline(int pipelineNum) {
         pipelineNumber = pipelineNum;
     }
