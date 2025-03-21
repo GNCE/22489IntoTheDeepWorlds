@@ -10,6 +10,7 @@ public abstract class SubsysCore {
         SubsysCore.hardwareMap = hardwareMap;
     }
 
-    abstract void init();
-    abstract void loop();
+    public abstract void init();
+
+    public abstract void loop();
 }

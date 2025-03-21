@@ -34,7 +34,7 @@ public class TeleOp_Full_22489 extends OpMode {
         intakeSequenceTime = new ElapsedTime();
         outtakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        diffyClawIntake = new Intake_DiffyClaw(hardwareMap);
+        diffyClawIntake = new Intake_DiffyClaw();
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLift(hardwareMap,this);
         intakeSequenceTime.startTime();
@@ -169,7 +169,7 @@ public class TeleOp_Full_22489 extends OpMode {
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
                 break;
         }
-        diffyClawIntake.intakeLoop();
+        diffyClawIntake.loop();
 
         // ***** -------------- OUTTAKE SEQUENCE --------------- ***** \\
         if(bucketSequenceNextButton.input(gamepad1.a)){

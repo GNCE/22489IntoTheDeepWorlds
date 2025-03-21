@@ -4,8 +4,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -43,7 +41,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         elapsedTime = new ElapsedTime();
         intakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        diffyClawIntake = new Intake_DiffyClaw(hardwareMap);
+        diffyClawIntake = new Intake_DiffyClaw();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
@@ -71,8 +69,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     @Override
     public void start() {
         follower.startTeleopDrive();
-        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
-
+        diffyClawIntake.init();
     }
     public enum INTAKE_SEQUENCE{
         TRANSFER_WAIT, READY, GRAB;
@@ -159,7 +156,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
             ll.captureSnapshot(key+Math.round(elapsedTime.time()));
         }
 
-        diffyClawIntake.intakeLoop();
+        diffyClawIntake.loop();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
@@ -177,9 +174,6 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         tel.addData("Y", follower.getPose().getY());
         tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         tel.addData("Elapsed Time", elapsedTime.toString());
-        tel.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
-        tel.addData("Horizontal Extension Servo Angle", diffyClawIntake.leintake.getPosition());
-        tel.addData("Horizontal Extension Target Reached?", diffyClawIntake.isExtensionBusy());
         tel.update();
     }
 }

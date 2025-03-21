@@ -1,13 +1,13 @@
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import subsystems.SubsysCore;
+import subsystems.UnifiedTelemetry;
+
 @Config
-public class Intake_DiffyClaw {
+public class Intake_DiffyClaw extends SubsysCore {
     private Servo IntakeClamp;
     private Servo IntakeRDiffy;
     private Servo IntakeLDiffy;
@@ -49,6 +49,7 @@ public class Intake_DiffyClaw {
 
     public static double INTAKE_DOWN_EXTENSION_LIMIT = 0;
     public static double TRANSFER_EXTENSION_POS = 0;
+    private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
 
 
@@ -60,7 +61,7 @@ public class Intake_DiffyClaw {
         INTAKE_REST,
 
     }
-    public Intake_DiffyClaw(HardwareMap hardwareMap) {
+    public Intake_DiffyClaw() {
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
         IntakeClamp.setDirection(Servo.Direction.REVERSE);
         RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");
@@ -137,7 +138,15 @@ public class Intake_DiffyClaw {
     }
 
     IntakeState intakeState = IntakeState.TRANSFER;
-    public void intakeLoop(){
+
+    @Override
+    public void init(){
+        extPos=0;
+        setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+    }
+
+    @Override
+    public void loop(){
         extendTo(extPos);
         switch(intakeState){
             case TRANSFER:
@@ -173,8 +182,11 @@ public class Intake_DiffyClaw {
         } else if ((IntakeClamp.getPosition()!=CLAW_OPENED) && clawOpen){
             IntakeClamp.setPosition(CLAW_OPENED);
         }
-    }
 
+        tel.addData("Horizontal Extension Target Position", extPos);
+        tel.addData("Horizontal Extension Servo Angle", leintake.getPosition());
+        tel.addData("Horizontal Extension Extension Busy?", isExtensionBusy());
+    }
 
     public void setIntakeState(IntakeState intakeState){
         this.intakeState = intakeState;
