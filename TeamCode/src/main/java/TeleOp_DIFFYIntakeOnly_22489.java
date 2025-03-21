@@ -41,10 +41,11 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         elapsedTime = new ElapsedTime();
         intakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        diffyClawIntake = new Intake_DiffyClaw();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
+
+        diffyClawIntake = new Intake_DiffyClaw();
 
         intakeSequenceTime.startTime();
         elapsedTime.startTime();
