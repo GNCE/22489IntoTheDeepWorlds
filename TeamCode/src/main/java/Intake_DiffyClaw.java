@@ -6,9 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import commands.CommandCore;
-import commands.InstantAction;
-
 @Config
 public class Intake_DiffyClaw {
     private Servo IntakeClamp;
@@ -17,7 +14,6 @@ public class Intake_DiffyClaw {
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
     public Servo leintake, reintake;
-    Limelight3A limelight;
 
     public static int pipelineNumber = 4;
 
@@ -78,9 +74,6 @@ public class Intake_DiffyClaw {
         reintake = hardwareMap.get(Servo.class,"reintake");
         leintake = hardwareMap.get(Servo.class, "leintake");
         reintake.setDirection(Servo.Direction.REVERSE);
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(100);
-        limelight.start();
 
         extensionTime = new ElapsedTime();
         extensionTime.startTime();
@@ -143,10 +136,8 @@ public class Intake_DiffyClaw {
         pipelineNumber = pipelineNum;
     }
 
-
     IntakeState intakeState = IntakeState.TRANSFER;
     public void intakeLoop(){
-        limelight.pipelineSwitch(pipelineNumber);
         extendTo(extPos);
         switch(intakeState){
             case TRANSFER:

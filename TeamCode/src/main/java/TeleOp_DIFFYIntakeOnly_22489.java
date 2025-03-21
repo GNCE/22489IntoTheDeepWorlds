@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.IntakeLimelightSubsys;
 import subsystems.UnifiedTelemetry;
 
 
@@ -23,6 +24,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     private Follower follower;
 
     private Intake_DiffyClaw diffyClawIntake;
+    private IntakeLimelightSubsys ll;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
@@ -86,7 +88,6 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true), autoALignmentButton = new ToggleButton(true);
     @Override
     public void loop() {
-        LLResult result = diffyClawIntake.limelight.getLatestResult();
         if(intakeSequenceNextButton.input(gamepad1.left_bumper)){
             intakeSequence = intakeSequence.next();
             intakeSequenceTime.reset();
@@ -124,23 +125,17 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
-                if (result != null && diffyClawIntake.limelight.isRunning() && gamepad1.triangle) {
-                    double tx = result.getTx(); // How far left or right the target is (degrees)
-                    double ty = result.getTy(); // How far up or down the target is (degrees)
-                    double ta = result.getTa(); // How big the target looks (0%-100% of the image)
-
-                    if(ta > 4){ // Ignore small spots
-                        follower.setTeleOpMovementVectors((targetX - tx) * mx, (targetY -  ty) * my, 0);
-                        double angle = -result.getPythonOutput()[0]; // Output 0 is sample angle
-                        if(Math.abs(angle) > 80){
-                            if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
-                            else angle = -80;
-                        }
-                        if(angle < -90) angle = -90;
-                        else if(angle > 90) angle = 90;
-
-                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle;
+                if (ll.isRunning() && ll.isResultValid() && gamepad1.triangle) {
+                    follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
+                    double angle = -ll.getAngle(); // Output 0 is sample angle
+                    if(Math.abs(angle) > 80){
+                        if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
+                        else angle = -80;
                     }
+                    if(angle < -90) angle = -90;
+                    else if(angle > 90) angle = 90;
+
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle;
                 }
                 break;
             case GRAB:
@@ -161,7 +156,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 break;
         }
         if(takeSnapshotButton.input(gamepad1.a)){
-            diffyClawIntake.limelight.captureSnapshot(key+Math.round(elapsedTime.time()));
+            ll.captureSnapshot(key+Math.round(elapsedTime.time()));
         }
 
         diffyClawIntake.intakeLoop();
@@ -173,25 +168,6 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
 
         follower.update();
         Storage.CurrentPose = follower.getPose();
-
-        if (result != null) {
-            telemetry.addData("Data Validity", result.isValid());
-            telemetry.addData("Data Staleness", result.getStaleness());
-
-            double tx = result.getTx(); // How far left or right the target is (degrees)
-            double ty = result.getTy(); // How far up or down the target is (degrees)
-            double ta = result.getTa(); // How big the target looks (0%-100% of the image)
-            telemetry.addData("Target X", tx);
-            telemetry.addData("Target Y", ty);
-            telemetry.addData("Target Area", ta);
-
-            double[] pythonOutputs = result.getPythonOutput();
-            if(pythonOutputs != null && pythonOutputs.length > 0){
-                telemetry.addData("Python Output", pythonOutputs[0]);
-            }
-        } else {
-            tel.addData("Limelight", "Null");
-        }
 
         tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
         tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
