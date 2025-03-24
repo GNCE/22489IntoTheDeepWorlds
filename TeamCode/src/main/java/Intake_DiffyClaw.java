@@ -1,7 +1,13 @@
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -14,6 +20,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
     public Servo leintake, reintake;
+    public DcMotorEx IntakeExtend;
 
     public static int pipelineNumber = 4;
 
@@ -33,13 +40,18 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_PICKUP_READY = 0.5;
     public static double ARM_PICKUP_DOWN = 0.57;
 
+
+    //EXTENSION CONTROLS
+    private PIDController controller;
+    public static double p = 0.013, i = 0, d = 0.00023;
+    public int target = 0;
+
     /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
     final double LINK1 = Math.sqrt(97408); // Length of first linkage (Linkage that connects to servo) (mm) (correct)
     final double LINK2 = 320; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
     final double XOFFSET = 97; // Offset X axis (CURRENT VALUE IS CORRECT)
     final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    public static double FULL_EXTENSION = 400; // Length of the slides when fully extended (mm)
     public static double EXTENSION_ZERO_OFFSET = -0.02; // Servo Zero Offset
     final int SERVO_RANGE = 300; // Servo Range in degrees
 
@@ -72,12 +84,19 @@ public class Intake_DiffyClaw extends SubsysCore {
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
         IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
-        reintake = hardwareMap.get(Servo.class,"reintake");
-        leintake = hardwareMap.get(Servo.class, "leintake");
-        reintake.setDirection(Servo.Direction.REVERSE);
+//        reintake = hardwareMap.get(Servo.class,"reintake");
+//        leintake = hardwareMap.get(Servo.class, "leintake");
+//        reintake.setDirection(Servo.Direction.REVERSE);
+
+        IntakeExtend = hardwareMap.get(DcMotorEx.class, "horizExtend");
+        IntakeExtend.setDirection(DcMotor.Direction.FORWARD);
+        IntakeExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         extensionTime = new ElapsedTime();
         extensionTime.startTime();
+
+        controller = new PIDController(p, i, d);
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
@@ -104,35 +123,35 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
     }
     // Intake Extension
-    private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
-        // All units are mm and degrees.
-        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2.0*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
-        double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
-        return (180.0 - beta - gamma)/servoRange;
-    }
-    private void extendTo(double length){
-        double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
-        if(leintake.getPosition() != targetPos){
-            extensionWaitTime = Math.abs((targetPos - leintake.getPosition() )* 14);
-            extensionTime.reset();
-
-            leintake.setPosition(targetPos);
-            reintake.setPosition(targetPos);
-        }
-    }
-    public boolean isExtensionBusy(){
-        return extensionTime.time() <= extensionWaitTime;
-    }
-    public void setExtensionTarget(double target){
-        if(target > FULL_EXTENSION) target = FULL_EXTENSION;
-        else if(target < 0) target = 0;
-        extPos = target;
-    }
-    public void TeleopExtend(double valueFromZeroToOne){
-        if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
-        else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
-        setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
-    }
+//    private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
+//        // All units are mm and degrees.
+//        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2.0*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
+//        double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
+//        return (180.0 - beta - gamma)/servoRange;
+//    }
+//    private void extendTo(double length){
+//        double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
+//        if(leintake.getPosition() != targetPos){
+//
+//
+//            leintake.setPosition(targetPos);
+//            reintake.setPosition(targetPos);
+//        }
+//
+//    }
+//    public boolean isExtensionBusy(){
+//        return extensionTime.time() <= extensionWaitTime;
+//    }
+//    public void setExtensionTarget(double target){
+//        if(target > FULL_EXTENSION) target = FULL_EXTENSION;
+//        else if(target < 0) target = 0;
+//        extPos = target;
+//    }
+//    public void TeleopExtend(double valueFromZeroToOne){
+//        if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
+//        else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
+//        setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
+//    }
     public void changePipeline(int pipelineNum) {
         pipelineNumber = pipelineNum;
     }
@@ -147,7 +166,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Override
     public void loop(){
-        extendTo(extPos);
+        //extendTo(extPos);
         switch(intakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
@@ -185,7 +204,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
         tel.addData("Horizontal Extension Target Position", extPos);
         tel.addData("Horizontal Extension Servo Angle", leintake.getPosition());
-        tel.addData("Horizontal Extension Extension Busy?", isExtensionBusy());
+//        tel.addData("Horizontal Extension Extension Busy?", isExtensionBusy());
     }
 
     public void setIntakeState(IntakeState intakeState){
@@ -194,5 +213,62 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public void setClawOpen(boolean state){
         clawOpen = state;
+    }
+
+
+
+    //EXTENSION:
+
+
+    public int getCurrentPosition(){
+        return IntakeExtend.getCurrentPosition();
+    }
+    public int getTargetPosition(){
+        return target;
+    }
+    public void HoldLift(){ //TODO: Call this in the main loop
+        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 2 /*TODO: find this value*/){
+            IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        double power;
+        if (Math.abs(opMode.gamepad1.left_trigger) > 0.1){
+            // Manual Takeover. Disable PID or limits
+            power = -opMode.gamepad2.left_trigger;
+            target = getCurrentPosition();
+        } else if(Math.abs(opMode.gamepad1.right_trigger) > 0.1) {
+            power = -opMode.gamepad2.right_trigger;
+            target = getCurrentPosition();
+        } else {
+            // PIDF Controller
+            controller.setPID(p, i, d);
+            double pid = controller.calculate(getCurrentPosition(), target);
+            power = pid;
+        }
+
+        IntakeExtend.setPower(power);
+    }
+
+    public enum IntakePositions {
+        FULL_EXTENSION, RETRACTED
+    }
+
+    public static int FULL_EXTENSION_POS = 500; //TODO: Tune this position
+    public static int RETRACTED_POS = 0;
+
+
+    public void LiftTo(Intake_DiffyClaw.IntakePositions input){
+        switch(input){
+            case FULL_EXTENSION:
+                target = FULL_EXTENSION_POS;
+                break;
+            case RETRACTED:
+                target = RETRACTED_POS;
+                break;
+            default:
+                break;
+        }
     }
 }
