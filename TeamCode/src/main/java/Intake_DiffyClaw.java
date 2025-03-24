@@ -259,7 +259,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static int RETRACTED_POS = 0;
 
 
-    public void LiftTo(Intake_DiffyClaw.IntakePositions input){
+    public void ExtendTo(Intake_DiffyClaw.IntakePositions input){
         switch(input){
             case FULL_EXTENSION:
                 target = FULL_EXTENSION_POS;
