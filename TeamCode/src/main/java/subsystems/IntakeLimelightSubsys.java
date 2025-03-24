@@ -35,13 +35,13 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public int getPipelineNumber(){ return pipelineNumber; }
 
     @Override
-    void init(){
+    public void init(){
         ll = hardwareMap.get(Limelight3A.class, "limelight");
         ll.setPollRateHz(100);
     }
 
     @Override
-    void loop(){
+    public void loop(){
         if(isRunning()){
             ll.pipelineSwitch(pipelineNumber);
             llResult = ll.getLatestResult();

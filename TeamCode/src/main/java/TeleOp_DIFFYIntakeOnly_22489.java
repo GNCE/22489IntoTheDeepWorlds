@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
+import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
@@ -22,7 +23,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     private Follower follower;
 
     private Intake_DiffyClaw diffyClawIntake;
-    private IntakeLimelightSubsys ll;
+    private IntakeLimelightSubsys ll = new IntakeLimelightSubsys();
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
@@ -44,6 +45,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
+        SubsysCore.setGlobalParameters(hardwareMap, this);
 
         diffyClawIntake = new Intake_DiffyClaw();
 
@@ -103,7 +105,6 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                     flip * 0.20 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.20 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.1 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-
         }
         switch (intakeSequence){
             case READY:

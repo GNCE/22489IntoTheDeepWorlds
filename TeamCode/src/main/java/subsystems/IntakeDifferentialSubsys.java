@@ -19,7 +19,7 @@ public class IntakeDifferentialSubsys extends SubsysCore {
     private static double orientationPivot = 0;
 
     @Override
-    void init() {
+    public void init() {
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
@@ -27,7 +27,7 @@ public class IntakeDifferentialSubsys extends SubsysCore {
     }
 
     @Override
-    void loop(){
+    public void loop(){
         double ServoRange = 360*5;
         LdiffyPos = DEFAULT_LDIFFY_POS + verticalPivot /ServoRange + orientationPivot *((double) 18/52)/ServoRange;
         RdiffyPos = DEFAULT_RDIFFY_POS + verticalPivot /ServoRange - orientationPivot *((double) 18/52)/ServoRange;
