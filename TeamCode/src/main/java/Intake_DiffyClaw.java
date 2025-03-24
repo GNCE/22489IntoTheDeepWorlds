@@ -226,7 +226,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public int getTargetPosition(){
         return target;
     }
-    public void HoldLift(){ //TODO: Call this in the main loop
+    public void HoldExtension(){ //TODO: Call this in the main loop
         if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 2 /*TODO: find this value*/){
             IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
