@@ -4,7 +4,9 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -21,6 +23,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo LeftArmPivot;
     public Servo leintake, reintake;
     public DcMotorEx IntakeExtend;
+    public SwitchableLight light; //TODO: not sure if this is the right class for the headlight
 
     public static int pipelineNumber = 4;
 
@@ -82,6 +85,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
+        light = hardwareMap.get(SwitchableLight.class, "light");
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
         IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
 //        reintake = hardwareMap.get(Servo.class,"reintake");
@@ -225,6 +229,9 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     public int getTargetPosition(){
         return target;
+    }
+    public boolean isExtensionBusy() {
+        return IntakeExtend.isBusy();
     }
     public void HoldExtension(){ //TODO: Call this in the main loop
         if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 2 /*TODO: find this value*/){

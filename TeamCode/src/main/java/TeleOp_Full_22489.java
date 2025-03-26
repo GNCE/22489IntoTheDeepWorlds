@@ -36,7 +36,7 @@ public class TeleOp_Full_22489 extends OpMode {
         resetEncoderDelay = new ElapsedTime();
         diffyClawIntake = new Intake_DiffyClaw();
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLift(hardwareMap,this);
+        outtakeLift = new OuttakeLift(hardwareMap,this); //TODO: OuttakeLift or OuttakeLiftSubsys?
         intakeSequenceTime.startTime();
         outtakeSequenceTime.startTime();
         elapsedTime.startTime();
@@ -136,7 +136,7 @@ public class TeleOp_Full_22489 extends OpMode {
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
@@ -154,7 +154,7 @@ public class TeleOp_Full_22489 extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
                 }
@@ -164,7 +164,7 @@ public class TeleOp_Full_22489 extends OpMode {
                 }
                 break;
             case TRANSFER_WAIT:
-                diffyClawIntake.setExtensionTarget(Intake_DiffyClaw.TRANSFER_EXTENSION_POS);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.RETRACTED);
                 if (!diffyClawIntake.isExtensionBusy() && !isTransfering && !isScoringSpecs){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
                 break;
