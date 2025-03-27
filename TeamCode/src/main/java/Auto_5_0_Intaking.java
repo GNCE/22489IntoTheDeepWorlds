@@ -14,8 +14,9 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 
-@Autonomous (name = "4+0 Pushing Specimen Auto")
-public class Auto_4_0_Pushing extends OpMode {
+@Disabled
+@Autonomous (name = "Specimen Auto")
+public class Auto_5_0_Intaking extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private OuttakeLift outtakeLift;
@@ -28,16 +29,19 @@ public class Auto_4_0_Pushing extends OpMode {
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(180));
 
-    private final double startPushingSampleX = 58;
-    private final Pose firstSamplePos = new Pose(startPushingSampleX, 25, Math.toRadians(180));
-    private final Pose firstSampleControl1 = new Pose(0, 60, Math.toRadians(180));
-    private final Pose firstSampleControl2 = new Pose(29, 8, Math.toRadians(180));
-    private final Pose firstSampleControl3 = new Pose(66, 56, Math.toRadians(180));
-    private final Pose firstSampleEnd = new Pose(18, 25, Math.toRadians(180));
-    private final Pose secondSamplePos = new Pose(startPushingSampleX, 14, Math.toRadians(180));
-    private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
-    private final Pose secondSampleEnd = new Pose(18, 14, Math.toRadians(180));
+    //intake poses
+    private final Pose preloadToFirstSampleControl = new Pose(28, 16, Math.toRadians(0));
+    private final Pose intakeFirstSamplePose = new Pose(24, 24, Math.toRadians(0));
+    private final Pose intakeSecondSamplePose = new Pose(24, 12, Math.toRadians(0));
+    private final Pose intakeThirdSamplePose = new Pose(28, 16, Math.toRadians(-40));
+    private final Pose depositThirdSamplePose = new Pose(26, 32, Math.toRadians(-145));
+    int alignx=0, aligny=0;
+    private Pose AutoAlignSamplePose = new Pose(alignx, aligny, Math.toRadians(0));
 
+
+
+
+    //scoring poses
     private final Pose outtakePickupPose = new Pose(8.65, 30, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
     private final Pose outtakePickupControl1 = new Pose(15, 68, Math.toRadians(180));
@@ -57,35 +61,33 @@ public class Auto_4_0_Pushing extends OpMode {
     private final double zeroPowerAccelerationMultiplierForPickup = 2.75 , zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 4.3;
 
     private PathChain scorePreloadPath, parkFromFourthPath;
-    private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
+    private PathChain goToFirstPush, intakeFirstSample, intakeSecondSample, intakeThirdSample,depositThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
 
-    private PathChain[] pushWaitPaths, pushDonePaths, pickupPaths, scorePaths;
+    private PathChain[] intakePaths, pickupPaths, scorePaths;
     public void buildPaths(){
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(startPose), new Point(preloadScoreControl), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
                 .build();
-        goToFirstPush = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(preloadScorePose),new Point(firstSampleControl1), new Point(firstSampleControl2), new Point(firstSampleControl3), new Point(firstSamplePos)))
-                .setLinearHeadingInterpolation(preloadScorePose.getHeading(), firstSamplePos.getHeading())
+        intakeFirstSample = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(preloadScorePose),new Point(preloadToFirstSampleControl), new Point(intakeFirstSamplePose)))
+                .setLinearHeadingInterpolation(preloadScorePose.getHeading(), intakeFirstSamplePose.getHeading())
                 .build();
-        pushFirstSample = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(firstSamplePos), new Point(firstSampleEnd)))
-                .setLinearHeadingInterpolation(firstSamplePos.getHeading(), firstSampleEnd.getHeading())
-                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
+        intakeSecondSample = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(intakeFirstSamplePose), new Point(intakeSecondSamplePose)))
+                .setLinearHeadingInterpolation(intakeFirstSamplePose.getHeading(), intakeSecondSamplePose.getHeading())
                 .build();
-        goToSecondPush = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(firstSampleEnd),new Point(secondSampleControl), new Point(secondSamplePos)))
-                .setLinearHeadingInterpolation(firstSampleEnd.getHeading(), secondSamplePos.getHeading())
+        intakeThirdSample = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(intakeSecondSamplePose), new Point(intakeThirdSamplePose)))
+                .setLinearHeadingInterpolation(intakeSecondSamplePose.getHeading(), intakeThirdSamplePose.getHeading())
                 .build();
-        pushSecondSample = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(secondSamplePos), new Point(secondSampleEnd)))
-                .setLinearHeadingInterpolation(secondSamplePos.getHeading(), secondSampleEnd.getHeading())
-                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
+        depositThirdSample = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(intakeThirdSamplePose), new Point(depositThirdSamplePose)))
+                .setLinearHeadingInterpolation(intakeThirdSamplePose.getHeading(),depositThirdSamplePose.getHeading())
                 .build();
         firstPickupPath = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(secondSampleEnd), new Point(outtakePickupControlFirst), new Point(outtakePickupPose)))
-                .setLinearHeadingInterpolation(secondSampleEnd.getHeading(), outtakePickupPose.getHeading())
+                .addPath(new BezierLine(new Point(depositThirdSamplePose), new Point(outtakePickupPose)))
+                .setLinearHeadingInterpolation(depositThirdSamplePose.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickup)
                 .build();
         firstScorePath = follower.pathBuilder()
@@ -128,8 +130,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 .setLinearHeadingInterpolation(fourthScorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pushWaitPaths = new PathChain[]{goToFirstPush, goToSecondPush};
-        pushDonePaths = new PathChain[]{pushFirstSample, pushSecondSample};
+        intakePaths = new PathChain[]{intakeFirstSample, intakeSecondSample,intakeThirdSample,depositThirdSample};
         pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath};
         scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath};
     }
@@ -137,10 +138,10 @@ public class Auto_4_0_Pushing extends OpMode {
     enum AutoState {
         DRIVE_TO_PRELOAD_SCORE,
         SCORE_PRELOAD,
-        DRIVE_TO_PUSHING,
-        BEFORE_PUSHING,
-        READY_FOR_PUSHING,
-        PUSHING,
+        DRIVE_TO_INTAKE,
+        INTAKE_READY,
+        INTAKING,
+        DEPOSITING,
         READY_FOR_PICKUP,
         PICKUP,
         READY_TO_SCORE,
@@ -169,34 +170,47 @@ public class Auto_4_0_Pushing extends OpMode {
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
                     outtake.setClawOpen(true);
-                    setPathState(AutoState.DRIVE_TO_PUSHING);
+                    setPathState(AutoState.DRIVE_TO_INTAKE);
                 }
                 break;
-            case DRIVE_TO_PUSHING:
-                if(pathTimer.getElapsedTimeSeconds() > 0.2){
-                    follower.followPath(pushWaitPaths[counter], true);
+            case DRIVE_TO_INTAKE:
+                if(pathTimer.getElapsedTimeSeconds() > 0.1){
+                    follower.followPath(intakePaths[counter], true);
                     counter = 0;
-                    setPathState(AutoState.BEFORE_PUSHING);
+                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                    outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
+                    setPathState(AutoState.INTAKE_READY);
                 }
                 break;
-            case BEFORE_PUSHING:
-                if(pathTimer.getElapsedTimeSeconds() > 0.4){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                    setPathState(AutoState.READY_FOR_PUSHING);
-                }
-                break;
-            case READY_FOR_PUSHING:
+            case INTAKE_READY:
                 if(!follower.isBusy()){
-                    follower.followPath(pushDonePaths[counter], true);
-                    setPathState(AutoState.PUSHING);
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakePositions.AUTO_INTAKE_POSE);
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    intakeDiffyClaw.setClawOpen(true);
+                    intakeDiffyClaw.HoldExtension();
+                    setPathState(AutoState.INTAKING);
                 }
                 break;
-            case PUSHING:
+            case INTAKING:
+                if (pathTimer.getElapsedTimeSeconds()>0.4){
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                }
+                if (pathTimer.getElapsedTimeSeconds()>0.6){
+                    intakeDiffyClaw.setClawOpen(false);
+                }
+                if (pathTimer.getElapsedTimeSeconds()>0.8){
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                    setPathState(AutoState.DEPOSITING);
+                }
+
+                break;
+            case DEPOSITING:
                 if(!follower.isBusy()){
+                    intakeDiffyClaw.setClawOpen(true);
                     counter++;
-                    if(counter < 2){
-                        follower.followPath(pushWaitPaths[counter]);
-                        setPathState(AutoState.READY_FOR_PUSHING);
+                    if(counter < 3){
+                        follower.followPath(intakePaths[counter]);
+                        setPathState(AutoState.INTAKE_READY);
                     } else {
                         counter = 0;
                         setPathState(AutoState.READY_FOR_PICKUP);
@@ -230,9 +244,9 @@ public class Auto_4_0_Pushing extends OpMode {
                 }
                 break;
             case SCORE:
-                if(pathTimer.getElapsedTimeSeconds() > 0.1){
+                if(pathTimer.getElapsedTimeSeconds() > 0.05){
                     outtake.setClawOpen(true);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                         counter++;
                         if (counter < 3) {
                             follower.followPath(pickupPaths[counter], true);

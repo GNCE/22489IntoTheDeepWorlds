@@ -42,6 +42,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_TRANSFER_WAIT_POS = 0.3;
     public static double ARM_PICKUP_READY = 0.5;
     public static double ARM_PICKUP_DOWN = 0.57;
+    public static double ARM_DEPOSIT_BACK = 0.2;
 
 
     //EXTENSION CONTROLS
@@ -74,6 +75,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         INTAKE_ARM_READY,
         INTAKE_ARM_PICKUP,
         INTAKE_REST,
+        DEPOSIT
 
     }
     public Intake_DiffyClaw() {
@@ -192,6 +194,10 @@ public class Intake_DiffyClaw extends SubsysCore {
                 ArmPosition = ARM_REST;
                 setPivotPosition(INTAKE_DIFFY_POSITIONS.REST_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
+            case DEPOSIT:
+                ArmPosition = ARM_DEPOSIT_BACK;
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.TRANSFER_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
         }
 
         updatePivotPosition();
@@ -259,13 +265,13 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     public enum IntakePositions {
-        FULL_EXTENSION, RETRACTED
+        FULL_EXTENSION, RETRACTED, AUTO_INTAKE_POSE
     }
 
     public static int FULL_EXTENSION_POS = 500; //TODO: Tune this position
     public static int RETRACTED_POS = 0;
 
-
+    public static int AUTO_EXT_POSE = 100;
     public void ExtendTo(Intake_DiffyClaw.IntakePositions input){
         switch(input){
             case FULL_EXTENSION:
@@ -274,6 +280,8 @@ public class Intake_DiffyClaw extends SubsysCore {
             case RETRACTED:
                 target = RETRACTED_POS;
                 break;
+            case AUTO_INTAKE_POSE:
+                target = AUTO_EXT_POSE;
             default:
                 break;
         }
