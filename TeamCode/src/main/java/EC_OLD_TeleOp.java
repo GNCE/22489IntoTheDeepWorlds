@@ -21,7 +21,7 @@ public class EC_OLD_TeleOp extends OpMode {
     private Outtake outtake;
     private Old_Intake_DoNotUse intake;
     private OuttakeLift outtakeLift;
-    private Misc misc;
+    private Old_Misc_DoNotUse misc;
     private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
@@ -39,7 +39,7 @@ public class EC_OLD_TeleOp extends OpMode {
         resetEncoderDelay = new ElapsedTime();
         intake = new Old_Intake_DoNotUse(hardwareMap,this);
         outtakeLift = new OuttakeLift(hardwareMap, this);
-        misc = new Misc(hardwareMap);
+        misc = new Old_Misc_DoNotUse(hardwareMap);
         misc.initiate();
 
         sequenceTime.startTime();

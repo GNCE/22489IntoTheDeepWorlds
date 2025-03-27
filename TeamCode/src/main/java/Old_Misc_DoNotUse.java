@@ -3,15 +3,15 @@
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
+
 @Deprecated
 @Config
-public class Misc{
+public class Old_Misc_DoNotUse {
     private Servo sweeper;
 
     public static double OPEN_POS = 0.4, CLOSE_POS = 0.06;
 
-    public Misc(HardwareMap hardwareMap) {
+    public Old_Misc_DoNotUse(HardwareMap hardwareMap) {
         sweeper = hardwareMap.get(Servo.class, "sweeper");
         sweeper.setDirection(Servo.Direction.FORWARD);
     }
