@@ -7,18 +7,18 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.OuttakeLiftSubsys;
 
 
 @Autonomous (name = "4+0 Pushing Specimen Auto")
 public class Auto_4_0_Pushing extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
-    private OuttakeLift outtakeLift;
+    private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 38.5;
@@ -281,7 +281,7 @@ public class Auto_4_0_Pushing extends OpMode {
         follower.update();
         autonomousPathUpdate();
         outtake.outtakeLoop();
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
 
 
         Storage.CurrentPose = follower.getPose();

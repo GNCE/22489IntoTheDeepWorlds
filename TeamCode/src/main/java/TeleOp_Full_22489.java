@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.OuttakeLiftSubsys;
+import subsystems.SubsysCore;
 
 
 @TeleOp(name = "Full Main - TeleOp", group = "Real OpModes")
@@ -17,7 +19,7 @@ import pedroPathing.constants.LConstants;
 public class TeleOp_Full_22489 extends OpMode {
     private Follower follower;
     private Outtake outtake;
-    private OLD_OuttakeLift outtakeLift;
+    private OuttakeLiftSubsys outtakeLift;
     private Intake_DiffyClaw diffyClawIntake;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
     private final Pose startPose = Storage.CurrentPose;
@@ -30,17 +32,21 @@ public class TeleOp_Full_22489 extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+
+        SubsysCore.setGlobalParameters(hardwareMap, this);
+        diffyClawIntake = new Intake_DiffyClaw();
+        outtake = new Outtake(hardwareMap);
+        outtakeLift = new OuttakeLiftSubsys();
+
         elapsedTime = new ElapsedTime();
         intakeSequenceTime = new ElapsedTime();
         outtakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
-        diffyClawIntake = new Intake_DiffyClaw();
-        outtake = new Outtake(hardwareMap);
-        outtakeLift = new OLD_OuttakeLift(hardwareMap,this); //TODO: OuttakeLift or OuttakeLiftSubsys?
         intakeSequenceTime.startTime();
         outtakeSequenceTime.startTime();
         elapsedTime.startTime();
         resetEncoderDelay.startTime();
+
         initfsm = 1;
     }
 
@@ -63,7 +69,6 @@ public class TeleOp_Full_22489 extends OpMode {
         follower.startTeleopDrive();
         outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
-
     }
 
     // ***** ------------------ INTAKE SEQUENCE ------------------------- ***** \\
@@ -212,7 +217,7 @@ public class TeleOp_Full_22489 extends OpMode {
             case BUCKET_SEQUENCE:
                 switch (bucketSequence){
                     case TRANSFER:
-                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.TRANSFER);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                         outtake.setClawOpen(true);
                         break;
@@ -226,7 +231,7 @@ public class TeleOp_Full_22489 extends OpMode {
                             diffyClawIntake.setClawOpen(true);
                         }
                         if(outtakeSequenceTime.time() > 1){
-                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
                         }
@@ -237,7 +242,7 @@ public class TeleOp_Full_22489 extends OpMode {
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
                         if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30){
-                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
 
@@ -251,27 +256,27 @@ public class TeleOp_Full_22489 extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case FRONT_GRAB:
-                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                     break;
                     case CLOSE_CLAW:
                         outtake.setClawOpen(false);
                         break;
                     case BACK_SCORE:
-                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         break;
                 }
                 break;
             case OVERRIDE_TO_SPEC:
-                outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                     outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
                 }
                 break;
             case OVERRIDE_TO_INTAKE:
-                outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
@@ -279,7 +284,7 @@ public class TeleOp_Full_22489 extends OpMode {
                 break;
         }
 
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
         outtake.outtakeLoop();
 
 

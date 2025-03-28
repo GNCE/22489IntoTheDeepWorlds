@@ -14,9 +14,11 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.internal.system.Misc;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.OuttakeLiftSubsys;
 
 @Disabled
 @Autonomous (name = "0+4 auton pls worky")
@@ -24,7 +26,7 @@ public class Auto_0_4 extends OpMode{
     private Follower follower;
 
     private Old_Intake_DoNotUse intake;
-    private OuttakeLift outtakeLift;
+    private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Misc misc;
     private int transferRealFSM = -1;
@@ -216,7 +218,7 @@ public class Auto_0_4 extends OpMode{
     @Override
     public void start(){
         intake.initiate();
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
        // misc.initiate();
     }
 
@@ -256,7 +258,7 @@ public class Auto_0_4 extends OpMode{
             case BUCKET_SEQUENCE:
                 switch (bucketSequence) {
                     case TRANSFER:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                         outtake.setClawOpen(true);
                         break;
@@ -275,7 +277,7 @@ public class Auto_0_4 extends OpMode{
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
                         if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30) {
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
 
@@ -288,7 +290,7 @@ public class Auto_0_4 extends OpMode{
         autonomousPathUpdate();
         intake.intakeLoop();
         outtake.outtakeLoop();
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
         misc.loop();
 
         Storage.CurrentPose = follower.getPose();
