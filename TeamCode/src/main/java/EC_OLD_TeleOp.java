@@ -20,7 +20,7 @@ public class EC_OLD_TeleOp extends OpMode {
     private Follower follower;
     private Outtake outtake;
     private Old_Intake_DoNotUse intake;
-    private OuttakeLift outtakeLift;
+    private OLD_OuttakeLift outtakeLift;
     private Old_Misc_DoNotUse misc;
     private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
@@ -38,7 +38,7 @@ public class EC_OLD_TeleOp extends OpMode {
         sequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
         intake = new Old_Intake_DoNotUse(hardwareMap,this);
-        outtakeLift = new OuttakeLift(hardwareMap, this);
+        outtakeLift = new OLD_OuttakeLift(hardwareMap, this);
         misc = new Old_Misc_DoNotUse(hardwareMap);
         misc.initiate();
 
@@ -171,7 +171,7 @@ public class EC_OLD_TeleOp extends OpMode {
             case BUCKET_SEQUENCE:
                 switch (bucketSequence){
                     case TRANSFER:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.TRANSFER);
                         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                         outtake.setClawOpen(true);
                         break;
@@ -181,7 +181,7 @@ public class EC_OLD_TeleOp extends OpMode {
                             intake.startReverseIntake();
                         }
                         if(sequenceTime.time() > 0.4){
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
                         }
@@ -192,7 +192,7 @@ public class EC_OLD_TeleOp extends OpMode {
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
                     if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30){
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
 
@@ -206,14 +206,14 @@ public class EC_OLD_TeleOp extends OpMode {
                         break;
                     case FRONT_GRAB:
                             {
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);}
                         break;
                     case CLOSE_CLAW:
                         outtake.setClawOpen(false);
                         break;
                     case BACK_SCORE:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         break;
                 }

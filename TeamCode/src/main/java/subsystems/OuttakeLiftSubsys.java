@@ -1,14 +1,15 @@
 package subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
+@Config
 public class OuttakeLiftSubsys extends SubsysCore{
     DcMotorEx llift, rlift, clift;
-    TouchSensor touchSensor;
+    //TouchSensor touchSensor;
     private PIDController controller;
     public static double p = 0.013, i = 0, d = 0.00023, f = 0.05;
 
@@ -27,7 +28,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         rlift.setDirection(DcMotorSimple.Direction.FORWARD);
         clift.setDirection(DcMotorSimple.Direction.FORWARD);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
+        //touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
         controller = new PIDController(p, i, d);
     }
     public int getCurrentPosition(){
@@ -57,13 +58,60 @@ public class OuttakeLiftSubsys extends SubsysCore{
         rlift.setZeroPowerBehavior(zeroPowerBehavior);
         clift.setZeroPowerBehavior(zeroPowerBehavior);
     }
+    public enum OuttakeLiftPositions {
+        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE
+    }
+    @Config
+    public static class OuttakeLiftPositionsCONFIG {
+        public static int TRANSFER_POS = 960;
+        public static int BUCKET_POS = 500;
+        public static int FRONT_SCORE_WAIT_POS = 0;
+        public static int FRONT_SCORE_DONE_POS = 0;
+        public static int FRONT_PICKUP_POS = 0;
+        public static int BACK_SCORE_POS = 960;
+        public static int BACK_PICKUP_POS = 0;
+    }
+    public void LiftTo(OuttakeLiftPositions input){
+        switch(input){
+            case TRANSFER:
+                target = OuttakeLiftPositionsCONFIG.TRANSFER_POS;
+                break;
+            case LIFT_BUCKET:
+                target = OuttakeLiftPositionsCONFIG.BUCKET_POS;
+                break;
+            case FRONT_SCORE_WAIT:
+                target = OuttakeLiftPositionsCONFIG.FRONT_SCORE_WAIT_POS;
+                break;
+            case FRONT_SCORE_DONE:
+                target = OuttakeLiftPositionsCONFIG.FRONT_SCORE_DONE_POS;
+                break;
+            case FRONT_PICKUP:
+                target = OuttakeLiftPositionsCONFIG.FRONT_PICKUP_POS;
+                break;
+            case BACK_SCORE:
+                target = OuttakeLiftPositionsCONFIG.BACK_SCORE_POS;
+                break;
+            case BACK_PICKUP:
+                target = OuttakeLiftPositionsCONFIG.BACK_PICKUP_POS;
+                break;
+            case RESET_ENCODER:
+                target = -120;
+            case AVOID_INTAKE:
+                target = 500;
+            default:
+                break;
+        }
+    }
+    public boolean isBusy(){
+        return Math.abs(target - getCurrentPosition()) <= 4;
+    }
 
     public void HoldLift(){
-        if(touchSensor.isPressed()){
-            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(target < 50) target = 30;
-        }
+        //if(touchSensor.isPressed()){
+        //    setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //    setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        //    if(target < 50) target = 30;
+        //}
 
         double power;
         if (Math.abs(opMode.gamepad2.left_stick_y)>0.1){

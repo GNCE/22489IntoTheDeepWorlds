@@ -50,15 +50,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double p = 0.013, i = 0, d = 0.00023;
     public int target = 0;
 
-    /** LINKAGE EXTENSION VARIABLES */
     public static double extPos = 0;
-    final double LINK1 = Math.sqrt(97408); // Length of first linkage (Linkage that connects to servo) (mm) (correct)
-    final double LINK2 = 320; // Length of second linkage (Linkage that connects to the slide) (mm) (correct)
-    final double XOFFSET = 97; // Offset X axis (CURRENT VALUE IS CORRECT)
-    final double YOFFSET = 8.25; // Offset Y axis (CURRENT VALUE IS CORRECT)
-    public static double EXTENSION_ZERO_OFFSET = -0.02; // Servo Zero Offset
-    final int SERVO_RANGE = 300; // Servo Range in degrees
-
     //other extendo variables
     double extensionWaitTime = 0;
     public static double distance;

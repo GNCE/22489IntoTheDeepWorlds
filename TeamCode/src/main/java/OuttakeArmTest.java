@@ -15,8 +15,8 @@ public class OuttakeArmTest extends OpMode {
     public void init(){
         rpivhigh = hardwareMap.get(Servo.class, "outtakeRightArm");
         lpivhigh = hardwareMap.get(Servo.class, "outtakeLeftArm");
-        rpivhigh.setDirection(Servo.Direction.FORWARD);
-        lpivhigh.setDirection(Servo.Direction.REVERSE);
+        rpivhigh.setDirection(Servo.Direction.REVERSE);
+        lpivhigh.setDirection(Servo.Direction.FORWARD);
     }
 
     @Override

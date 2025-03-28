@@ -17,7 +17,7 @@ import pedroPathing.constants.LConstants;
 public class TeleOp_Full_22489 extends OpMode {
     private Follower follower;
     private Outtake outtake;
-    private OuttakeLift outtakeLift;
+    private OLD_OuttakeLift outtakeLift;
     private Intake_DiffyClaw diffyClawIntake;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
     private final Pose startPose = Storage.CurrentPose;
@@ -36,7 +36,7 @@ public class TeleOp_Full_22489 extends OpMode {
         resetEncoderDelay = new ElapsedTime();
         diffyClawIntake = new Intake_DiffyClaw();
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLift(hardwareMap,this); //TODO: OuttakeLift or OuttakeLiftSubsys?
+        outtakeLift = new OLD_OuttakeLift(hardwareMap,this); //TODO: OuttakeLift or OuttakeLiftSubsys?
         intakeSequenceTime.startTime();
         outtakeSequenceTime.startTime();
         elapsedTime.startTime();
@@ -212,7 +212,7 @@ public class TeleOp_Full_22489 extends OpMode {
             case BUCKET_SEQUENCE:
                 switch (bucketSequence){
                     case TRANSFER:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.TRANSFER);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.TRANSFER);
                         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                         outtake.setClawOpen(true);
                         break;
@@ -226,7 +226,7 @@ public class TeleOp_Full_22489 extends OpMode {
                             diffyClawIntake.setClawOpen(true);
                         }
                         if(outtakeSequenceTime.time() > 1){
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
                         }
@@ -237,7 +237,7 @@ public class TeleOp_Full_22489 extends OpMode {
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
                         if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30){
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
 
@@ -251,27 +251,27 @@ public class TeleOp_Full_22489 extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case FRONT_GRAB:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                     break;
                     case CLOSE_CLAW:
                         outtake.setClawOpen(false);
                         break;
                     case BACK_SCORE:
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         break;
                 }
                 break;
             case OVERRIDE_TO_SPEC:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
+                outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                     outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
                 }
                 break;
             case OVERRIDE_TO_INTAKE:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
+                outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.AVOID_INTAKE);
                 if (!outtakeLift.isBusy()){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;

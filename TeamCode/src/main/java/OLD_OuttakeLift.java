@@ -1,15 +1,13 @@
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-
+@Deprecated
 @Config
-public class OuttakeLift {
+public class OLD_OuttakeLift {
     public DcMotorEx llift1, llift2, rlift1, rlift2;
     public TouchSensor touchSensor;
     private PIDController controller;
@@ -20,7 +18,7 @@ public class OuttakeLift {
     public int target = 0;
 
     OpMode lopMode;
-    public OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
+    public OLD_OuttakeLift(HardwareMap hardwareMap, OpMode opMode) {
         llift1 = hardwareMap.get(DcMotorEx.class, "llift1");
         rlift1 = hardwareMap.get(DcMotorEx.class, "rlift1");
 

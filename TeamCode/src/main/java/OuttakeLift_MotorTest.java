@@ -2,7 +2,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
+@Deprecated
 @TeleOp (name = "motor test")
 public class OuttakeLift_MotorTest extends OpMode {
     private DcMotor rlift1;

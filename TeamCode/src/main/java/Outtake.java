@@ -16,15 +16,17 @@ public class Outtake {
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
-    public static double ArmPosition = 0;
+    public static double ArmPosition = 0.2;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.535;
     public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
-    public static double ARM_SAMPSCORE_POS = 0.75;
+
+    public static String Note = "0.2 is arm minumum and 1 is arm maximum";
+    public static double ARM_SAMPSCORE_POS = 0.8;
     public static double ARM_TRANSFER_POS = 0.6; // not correct
-    public static double ARM_FRONTSPEC_POS = 0.38;
-    public static double ARM_BACKSPEC_POS = 0.85;
+    public static double ARM_FRONTSPEC_POS = 0.5;
+    public static double ARM_BACKSPEC_POS = 0.9;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
@@ -40,8 +42,8 @@ public class Outtake {
         clamp.setDirection(Servo.Direction.REVERSE);
         rpivhigh = hardwareMap.get(Servo.class, "outtakeRightArm");
         lpivhigh = hardwareMap.get(Servo.class, "outtakeLeftArm");
-        rpivhigh.setDirection(Servo.Direction.FORWARD);
-        lpivhigh.setDirection(Servo.Direction.REVERSE);
+        rpivhigh.setDirection(Servo.Direction.REVERSE);
+        lpivhigh.setDirection(Servo.Direction.FORWARD);
         Rdiffy = hardwareMap.get(Servo.class,"outtakeRDiffy");
         Ldiffy = hardwareMap.get(Servo.class,"outtakeLDiffy");
         Rdiffy.setDirection(Servo.Direction.FORWARD);

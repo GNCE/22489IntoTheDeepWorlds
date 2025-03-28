@@ -20,8 +20,8 @@ public class OuttakeClawTest extends OpMode {
 
     @Override
     public void init(){
-        Rdiffy = hardwareMap.get(Servo.class,"Rdiffy");
-        Ldiffy = hardwareMap.get(Servo.class,"Ldiffy");
+        Rdiffy = hardwareMap.get(Servo.class,"outtakeRDiffy");
+        Ldiffy = hardwareMap.get(Servo.class,"outtakeLDiffy");
         Rdiffy.setDirection(Servo.Direction.REVERSE);
         Ldiffy.setDirection(Servo.Direction.FORWARD);
     }
