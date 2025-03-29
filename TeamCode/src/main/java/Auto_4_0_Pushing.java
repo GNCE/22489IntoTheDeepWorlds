@@ -282,7 +282,7 @@ public class Auto_4_0_Pushing extends OpMode {
         follower.update();
         autonomousPathUpdate();
         outtake.outtakeLoop();
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
         outtakeLift.loop();
 
 
