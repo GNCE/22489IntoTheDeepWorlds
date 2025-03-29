@@ -65,6 +65,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
         }
 
         tel.addLine("Limelight Data");
+        tel.addData("Connected?", ll.isConnected());
         tel.addData("Running", isRunning());
         if(isRunning()){
             tel.addData("Pipeline:", getPipelineNumber());

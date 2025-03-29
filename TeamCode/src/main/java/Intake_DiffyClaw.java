@@ -218,7 +218,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         return IntakeExtend.isBusy();
     }
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 30 /*TODO: find this value*/){
+        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 8 /*TODO: find this value*/){
             IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
