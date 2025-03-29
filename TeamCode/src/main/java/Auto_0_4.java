@@ -207,9 +207,8 @@ public class Auto_0_4 extends OpMode{
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         intake = new Old_Intake_DoNotUse(hardwareMap, this);
-        misc = new Misc(hardwareMap);
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLift(hardwareMap,this);
+        outtakeLift = new OuttakeLiftSubsys();
         elapsedTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
         sequenceTime = new ElapsedTime();
@@ -266,7 +265,7 @@ public class Auto_0_4 extends OpMode{
                         intake.startReverseIntake();
                         outtake.setClawOpen(false);
                         if (sequenceTime.time() > 0.4) {
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
                         }
@@ -276,7 +275,7 @@ public class Auto_0_4 extends OpMode{
                         if (resetEncoderDelay.time() > 0.4) {
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
-                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30) {
+                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.getCurrentPosition() != 30) {
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
@@ -291,7 +290,6 @@ public class Auto_0_4 extends OpMode{
         intake.intakeLoop();
         outtake.outtakeLoop();
         outtakeLift.holdLift();
-        misc.loop();
 
         Storage.CurrentPose = follower.getPose();
 

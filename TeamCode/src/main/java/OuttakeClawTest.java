@@ -10,8 +10,8 @@ public class OuttakeClawTest extends OpMode {
     private Servo Rdiffy;
     private Servo Ldiffy;
 
-    public static double DEFAULT_LDIFFY_POS = 0.527;
-    public static double DEFAULT_RDIFFY_POS = 0.503;
+    public static double DEFAULT_LDIFFY_POS = 0.496;
+    public static double DEFAULT_RDIFFY_POS = 0.504;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -28,8 +28,8 @@ public class OuttakeClawTest extends OpMode {
 
     @Override
     public void loop(){
-        LdiffyPos = DEFAULT_LDIFFY_POS + targetUpDown/(300) + targetSpin*((double) 18/52) /(300);
-        RdiffyPos = DEFAULT_RDIFFY_POS + targetUpDown/(300) - targetSpin*((double) 18/52) /(300);
+        LdiffyPos = DEFAULT_LDIFFY_POS + targetUpDown/(360*5) + targetSpin*((double) 18/52) /(360*5);
+        RdiffyPos = DEFAULT_RDIFFY_POS + targetUpDown/(360*5) - targetSpin*((double) 18/52) /(360*5);
 
         Ldiffy.setPosition(LdiffyPos);
         Rdiffy.setPosition(RdiffyPos);

@@ -11,7 +11,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     DcMotorEx llift, rlift, clift;
     //TouchSensor touchSensor;
     private PIDController controller;
-    public static double p = 0.013, i = 0, d = 0.00023, f = 0.05;
+    public static double p = 0.03, i = 0, d = 0.00025, f = 0.05;
 
     private static int target = 0;
     private static UnifiedTelemetry tel = new UnifiedTelemetry();
@@ -24,10 +24,12 @@ public class OuttakeLiftSubsys extends SubsysCore{
         llift = hardwareMap.get(DcMotorEx.class, "llift");
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         clift = hardwareMap.get(DcMotorEx.class, "clift");
-        llift.setDirection(DcMotorSimple.Direction.REVERSE);
-        rlift.setDirection(DcMotorSimple.Direction.FORWARD);
-        clift.setDirection(DcMotorSimple.Direction.FORWARD);
+        llift.setDirection(DcMotorSimple.Direction.FORWARD);
+        rlift.setDirection(DcMotorSimple.Direction.REVERSE);
+        clift.setDirection(DcMotorSimple.Direction.REVERSE);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //touchSensor = hardwareMap.get(TouchSensor.class, "sensor_touch");
         controller = new PIDController(p, i, d);
     }

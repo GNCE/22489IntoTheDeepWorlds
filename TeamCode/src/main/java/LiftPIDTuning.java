@@ -3,6 +3,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import subsystems.OuttakeLiftSubsys;
+import subsystems.SubsysCore;
 
 
 @TeleOp (name = " PID Tuning", group = "Tuning")
@@ -10,9 +11,9 @@ public class LiftPIDTuning extends OpMode {
     OuttakeLiftSubsys outtakeLift;
     @Override
     public void init(){
+        SubsysCore.setGlobalParameters(hardwareMap, this);
         outtakeLift = new OuttakeLiftSubsys();
-        outtakeLift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        outtakeLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtakeLift.init();
     }
     @Override
     public void loop(){

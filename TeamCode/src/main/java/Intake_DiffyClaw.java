@@ -4,9 +4,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Light;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -21,9 +19,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo IntakeLDiffy;
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
-    public Servo leintake, reintake;
     public DcMotorEx IntakeExtend;
-    public SwitchableLight light; //TODO: not sure if this is the right class for the headlight
+    public Servo light; //TODO: not sure if this is the right class for the headlight
 
     public static int pipelineNumber = 4;
 
@@ -47,16 +44,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     //EXTENSION CONTROLS
     private PIDController controller;
-    public static double p = 0.013, i = 0, d = 0.00023;
+    public static double p = 0.123, i = 0, d = 0.00027;
     public int target = 0;
-
-    public static double extPos = 0;
-    //other extendo variables
-    double extensionWaitTime = 0;
-    public static double distance;
-
-    public static double INTAKE_DOWN_EXTENSION_LIMIT = 0;
-    public static double TRANSFER_EXTENSION_POS = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
 
@@ -79,16 +68,14 @@ public class Intake_DiffyClaw extends SubsysCore {
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
-        light = hardwareMap.get(SwitchableLight.class, "light");
+        light = hardwareMap.get(Servo.class, "light");
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
         IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
-//        reintake = hardwareMap.get(Servo.class,"reintake");
-//        leintake = hardwareMap.get(Servo.class, "leintake");
-//        reintake.setDirection(Servo.Direction.REVERSE);
 
         IntakeExtend = hardwareMap.get(DcMotorEx.class, "horizExtend");
-        IntakeExtend.setDirection(DcMotor.Direction.FORWARD);
+        IntakeExtend.setDirection(DcMotor.Direction.REVERSE);
         IntakeExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         extensionTime = new ElapsedTime();
@@ -158,7 +145,6 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Override
     public void init(){
-        extPos=0;
         setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
     }
 
@@ -204,9 +190,9 @@ public class Intake_DiffyClaw extends SubsysCore {
             IntakeClamp.setPosition(CLAW_OPENED);
         }
 
-        tel.addData("Horizontal Extension Target Position", extPos);
-        tel.addData("Horizontal Extension Servo Angle", leintake.getPosition());
-//        tel.addData("Horizontal Extension Extension Busy?", isExtensionBusy());
+        tel.addData("Horizontal Extension Target Position", target);
+        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
+        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
     }
 
     public void setIntakeState(IntakeState intakeState){
@@ -232,7 +218,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         return IntakeExtend.isBusy();
     }
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 2 /*TODO: find this value*/){
+        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 30 /*TODO: find this value*/){
             IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -240,10 +226,10 @@ public class Intake_DiffyClaw extends SubsysCore {
 
         double power;
         if (Math.abs(opMode.gamepad1.left_trigger) > 0.1){
-            power = opMode.gamepad2.left_trigger;
+            power = opMode.gamepad1.left_trigger;
             target = getCurrentPosition();
         } else if(Math.abs(opMode.gamepad1.right_trigger) > 0.1) {
-            power = -opMode.gamepad2.right_trigger;
+            power = -opMode.gamepad1.right_trigger;
             target = getCurrentPosition();
         } else {
             // PIDF Controller
@@ -255,24 +241,27 @@ public class Intake_DiffyClaw extends SubsysCore {
         IntakeExtend.setPower(power);
     }
 
-    public enum IntakePositions {
+    public enum IntakeExtensionStates {
         FULL_EXTENSION, RETRACTED, AUTO_INTAKE_POSE
     }
 
-    public static int FULL_EXTENSION_POS = 500; //TODO: Tune this position
-    public static int RETRACTED_POS = 0;
+    @Config
+    public static class IntakeExtensionPositions{
+        public static int FULL_EXTENSION_POS = 350;
+        public static int RETRACTED_POS = 0;
 
-    public static int AUTO_EXT_POSE = 100;
-    public void ExtendTo(Intake_DiffyClaw.IntakePositions input){
+        public static int AUTO_EXT_POSE = 100;
+    }
+    public void ExtendTo(IntakeExtensionStates input){
         switch(input){
             case FULL_EXTENSION:
-                target = FULL_EXTENSION_POS;
+                target = IntakeExtensionPositions.FULL_EXTENSION_POS;
                 break;
             case RETRACTED:
-                target = RETRACTED_POS;
+                target = IntakeExtensionPositions.RETRACTED_POS;
                 break;
             case AUTO_INTAKE_POSE:
-                target = AUTO_EXT_POSE;
+                target = IntakeExtensionPositions.AUTO_EXT_POSE;
             default:
                 break;
         }

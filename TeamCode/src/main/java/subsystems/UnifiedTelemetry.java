@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class UnifiedTelemetry {
     private static Telemetry internal;
     private static TelemetryPacket currentDashPack;
-    private boolean dashEnabled;
+    private boolean dashEnabled = true;
 
     private boolean sendTel = true;
 

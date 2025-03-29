@@ -109,7 +109,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
@@ -139,7 +139,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
                 }
@@ -149,7 +149,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 }
                 break;
             case TRANSFER_WAIT:
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.RETRACTED);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 if (!diffyClawIntake.isExtensionBusy()){
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
                 break;

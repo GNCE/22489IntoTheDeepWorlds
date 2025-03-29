@@ -40,8 +40,8 @@ public class IntakeClawTest extends OpMode {
 
     @Override
     public void loop(){
-        LdiffyPos = DEFAULT_LDIFFY_POS + targetUpDown/(300) + targetSpin*((double) 18/52) /(300);
-        RdiffyPos = DEFAULT_RDIFFY_POS + targetUpDown/(300) - targetSpin*((double) 18/52) /(300);
+        LdiffyPos = DEFAULT_LDIFFY_POS + targetUpDown/(360*5) + targetSpin*((double) 18/52) /(360*5);
+        RdiffyPos = DEFAULT_RDIFFY_POS + targetUpDown/(360*5) - targetSpin*((double) 18/52) /(360*5);
 
         Ldiffy.setPosition(LdiffyPos);
         Rdiffy.setPosition(RdiffyPos);

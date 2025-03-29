@@ -141,7 +141,7 @@ public class TeleOp_Full_22489 extends OpMode {
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
@@ -159,7 +159,7 @@ public class TeleOp_Full_22489 extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.FULL_EXTENSION);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
                 }
@@ -169,7 +169,7 @@ public class TeleOp_Full_22489 extends OpMode {
                 }
                 break;
             case TRANSFER_WAIT:
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakePositions.RETRACTED);
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 if (!diffyClawIntake.isExtensionBusy() && !isTransfering && !isScoringSpecs){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
                 break;
@@ -241,7 +241,7 @@ public class TeleOp_Full_22489 extends OpMode {
                         if (resetEncoderDelay.time() > 0.4){
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
-                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.target != 30){
+                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.getCurrentPosition() != 30){
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         }
                         break;
@@ -319,7 +319,6 @@ public class TeleOp_Full_22489 extends OpMode {
         telemetry.addData("Elapsed Time", elapsedTime.toString());
         telemetry.addLine();
         telemetry.addData("Horizontal Extension Target Position", Old_Intake_DoNotUse.extPos);
-        telemetry.addData("Horizontal Extension Servo Angle", diffyClawIntake.leintake.getPosition());
 
         telemetry.update();
     }

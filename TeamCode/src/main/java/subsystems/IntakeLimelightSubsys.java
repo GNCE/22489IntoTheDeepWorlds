@@ -2,9 +2,11 @@ package subsystems;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class IntakeLimelightSubsys extends SubsysCore {
     public static Limelight3A ll;
+    public static Servo light;
     public static UnifiedTelemetry tel = new UnifiedTelemetry();
     public static LLResult llResult;
     private static double tx, ty, ta, angle;
@@ -37,12 +39,15 @@ public class IntakeLimelightSubsys extends SubsysCore {
     @Override
     public void init(){
         ll = hardwareMap.get(Limelight3A.class, "limelight");
+        light = hardwareMap.get(Servo.class, "light");
         ll.setPollRateHz(100);
+        light.setPosition(0);
     }
 
     @Override
     public void loop(){
         if(isRunning()){
+            light.setPosition(1);
             ll.pipelineSwitch(pipelineNumber);
             llResult = ll.getLatestResult();
             tx = llResult.getTx();
@@ -53,6 +58,8 @@ public class IntakeLimelightSubsys extends SubsysCore {
             if(pythonOutput != null){
                 if(pythonOutput.length > 0) angle = pythonOutput[0];
             }
+        } else {
+            light.setPosition(0);
         }
 
         tel.addLine("Limelight Data");
