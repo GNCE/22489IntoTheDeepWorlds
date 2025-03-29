@@ -13,7 +13,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     private PIDController controller;
     public static double p = 0.03, i = 0, d = 0.00025, f = 0.05;
 
-    private static int target = 0;
+    public static int target = 0;
     private static UnifiedTelemetry tel = new UnifiedTelemetry();
     private static double internalPrevPower = 0;
     private static DcMotor.RunMode internalPrevRunMode = null;

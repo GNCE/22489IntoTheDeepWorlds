@@ -21,6 +21,7 @@ public class IntakeClawTest extends OpMode {
 
     public static double targetUpDown = 0;
     public static double targetSpin = 0;
+    private Servo IntakeClamp;
 
     @Override
     public void init(){
@@ -29,6 +30,9 @@ public class IntakeClawTest extends OpMode {
         Rdiffy.setDirection(Servo.Direction.REVERSE);
         Ldiffy.setDirection(Servo.Direction.FORWARD);
 
+        IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
+        IntakeClamp.setDirection(Servo.Direction.REVERSE);
+
         RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");
         LeftArmPivot = hardwareMap.get(Servo.class, "leftArmPivot");
         RightArmPivot.setDirection(Servo.Direction.FORWARD);
@@ -36,13 +40,14 @@ public class IntakeClawTest extends OpMode {
     }
 
     public static double ArmPosition = 0.05;
+    public static double ClawPosition = 0;
 
 
     @Override
     public void loop(){
         LdiffyPos = DEFAULT_LDIFFY_POS + targetUpDown/(360*5) + targetSpin*((double) 18/52) /(360*5);
         RdiffyPos = DEFAULT_RDIFFY_POS + targetUpDown/(360*5) - targetSpin*((double) 18/52) /(360*5);
-
+        IntakeClamp.setPosition(ClawPosition);
         Ldiffy.setPosition(LdiffyPos);
         Rdiffy.setPosition(RdiffyPos);
         LeftArmPivot.setPosition(ArmPosition);

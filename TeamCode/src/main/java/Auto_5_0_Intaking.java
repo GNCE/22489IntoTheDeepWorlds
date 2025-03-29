@@ -159,7 +159,7 @@
 //    private int counter = 0;
 //    public void autonomousPathUpdate(){
 //        switch (autoState){
-//            case DRIVE_TO_PRELOAD_SCORE:
+//           g case DRIVE_TO_PRELOAD_SCORE:
 //                outtake.setClawOpen(false);
 //                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
 //                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);

@@ -23,7 +23,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     private Follower follower;
 
     private Intake_DiffyClaw diffyClawIntake;
-    private IntakeLimelightSubsys ll = new IntakeLimelightSubsys();
+    private IntakeLimelightSubsys ll;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
@@ -48,6 +48,8 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         SubsysCore.setGlobalParameters(hardwareMap, this);
 
         diffyClawIntake = new Intake_DiffyClaw();
+        ll = new IntakeLimelightSubsys();
+        ll.init();
 
         intakeSequenceTime.startTime();
         elapsedTime.startTime();
@@ -88,6 +90,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
     private ToggleButton intakeSequenceNextButton = new ToggleButton(true), intakeSequencePreviousButton = new ToggleButton(true), ALignmentButtonNext = new ToggleButton(true),ALignmentButtonPrev = new ToggleButton(true), autoALignmentButton = new ToggleButton(true);
     @Override
     public void loop() {
+        ll.loop();
         if(intakeSequenceNextButton.input(gamepad1.left_bumper)){
             intakeSequence = intakeSequence.next();
             intakeSequenceTime.reset();
@@ -110,6 +113,8 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+                ll.turnOn();
+
                 if (!diffyClawIntake.isExtensionBusy()){
                     diffyClawIntake.setClawOpen(true);
                 }
@@ -139,6 +144,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                ll.turnOff();
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawOpen(false);
@@ -149,6 +155,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                 }
                 break;
             case TRANSFER_WAIT:
+                ll.turnOff();
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 if (!diffyClawIntake.isExtensionBusy()){
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}

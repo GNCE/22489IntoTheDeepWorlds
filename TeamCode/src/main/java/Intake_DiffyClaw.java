@@ -24,21 +24,21 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.527;
-    public static double DEFAULT_RDIFFY_POS = 0.503;
+    public static double DEFAULT_LDIFFY_POS = 0.5;
+    public static double DEFAULT_RDIFFY_POS = 0.5;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0.285;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.39;
-    public static double CLAW_OPENED = 0.18;
+    public static double CLAW_CLOSED = 0.56;
+    public static double CLAW_OPENED = .35;
     //tune these values vvvvv
     public static double ARM_REST = 0;
     public static double ARM_TRANSFER_POS = 0.3;
-    public static double ARM_TRANSFER_WAIT_POS = 0.3;
-    public static double ARM_PICKUP_READY = 0.5;
-    public static double ARM_PICKUP_DOWN = 0.57;
+    public static double ARM_TRANSFER_WAIT_POS = 0.42;
+    public static double ARM_PICKUP_READY = 0.52;
+    public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.2;
 
 
@@ -85,12 +85,12 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 60;
+        public static double TRANSFER_POS = 50;
         public static double INTAKE_POS = -115;
-        public static double INTAKE_FINAL_POS = -100;
-        public static double REST_POS = 20;
+        public static double INTAKE_FINAL_POS = -80;
+        public static double REST_POS = 0;
         public static double ORIENTATION_UP = 0;
-        public static double ORIENTATION_DOWN = 200;
+        public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
 
     }
