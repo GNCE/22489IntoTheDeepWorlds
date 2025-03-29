@@ -7,18 +7,18 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.OuttakeLiftSubsys;
 
 
 @Autonomous (name = "4+0 Pushing Specimen Auto")
 public class Auto_4_0_Pushing extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
-    private OuttakeLift outtakeLift;
+    private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 38.5;
@@ -160,7 +160,7 @@ public class Auto_4_0_Pushing extends OpMode {
             case DRIVE_TO_PRELOAD_SCORE:
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 1.7){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
@@ -201,13 +201,13 @@ public class Auto_4_0_Pushing extends OpMode {
                         counter = 0;
                         setPathState(AutoState.READY_FOR_PICKUP);
                         outtake.setClawOpen(true);
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                         follower.followPath(pickupPaths[counter], true);
                     }
                 }
                 break;
             case READY_FOR_PICKUP:
-                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                 outtake.setClawOpen(true);
                 if(!follower.isBusy()){
                     setPathState(AutoState.PICKUP);
@@ -217,7 +217,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 0.15){
                     outtake.setClawOpen(false);
                     if(pathTimer.getElapsedTimeSeconds() > 0.5){
-                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);
                         setPathState(AutoState.READY_TO_SCORE);
@@ -237,12 +237,12 @@ public class Auto_4_0_Pushing extends OpMode {
                         if (counter < 3) {
                             follower.followPath(pickupPaths[counter], true);
                             outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                             setPathState(AutoState.READY_FOR_PICKUP);
                         } else {
                             follower.followPath(parkFromFourthPath, true);
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                            outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.RESET_ENCODER);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                             setPathState(AutoState.PARK);
                         }
                     }
@@ -263,7 +263,8 @@ public class Auto_4_0_Pushing extends OpMode {
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLift(hardwareMap,this);
+        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift.init();
         buildPaths();
     }
 
@@ -282,6 +283,7 @@ public class Auto_4_0_Pushing extends OpMode {
         autonomousPathUpdate();
         outtake.outtakeLoop();
         outtakeLift.HoldLift();
+        outtakeLift.loop();
 
 
         Storage.CurrentPose = follower.getPose();
