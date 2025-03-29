@@ -166,6 +166,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
         }
 
         diffyClawIntake.loop();
+        diffyClawIntake.HoldExtension();
 
         controlFlipButton.input(gamepad1.dpad_up);
         flip = controlFlipButton.getVal() ? 1 : -1;
