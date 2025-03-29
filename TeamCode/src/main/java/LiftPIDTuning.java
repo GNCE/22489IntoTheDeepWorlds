@@ -16,7 +16,7 @@ public class LiftPIDTuning extends OpMode {
     }
     @Override
     public void loop(){
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
     }
 }

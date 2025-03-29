@@ -106,7 +106,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         return Math.abs(target - getCurrentPosition()) <= 4;
     }
 
-    public void HoldLift(){
+    public void holdLift(){
         //if(touchSensor.isPressed()){
         //    setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //    setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

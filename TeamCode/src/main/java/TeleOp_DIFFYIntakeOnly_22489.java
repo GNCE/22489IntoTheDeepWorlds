@@ -124,7 +124,7 @@ public class TeleOp_DIFFYIntakeOnly_22489 extends OpMode {
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
                     }
                 }
-                if (ll.isRunning() && ll.isResultValid() && gamepad1.triangle) {
+                if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
                     double angle = -ll.getAngle(); // Output 0 is sample angle
                     if(Math.abs(angle) > 80){

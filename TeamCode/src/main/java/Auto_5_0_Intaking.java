@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import subsystems.OuttakeLiftSubsys;
 
 
 @Disabled
@@ -19,7 +20,7 @@ import pedroPathing.constants.LConstants;
 public class Auto_5_0_Intaking extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
-    private OuttakeLift outtakeLift;
+    private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 38.5;
@@ -295,7 +296,7 @@ public class Auto_5_0_Intaking extends OpMode {
         follower.update();
         autonomousPathUpdate();
         outtake.outtakeLoop();
-        outtakeLift.HoldLift();
+        outtakeLift.holdLift();
 
 
         Storage.CurrentPose = follower.getPose();
