@@ -35,8 +35,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_OPENED = .35;
     //tune these values vvvvv
     public static double ARM_REST = 0;
-    public static double ARM_TRANSFER_POS = 0.3;
-    public static double ARM_TRANSFER_WAIT_POS = 0.42;
+    public static double ARM_TRANSFER_POS = 0.33;
+    public static double ARM_TRANSFER_WAIT_POS = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.2;
@@ -44,7 +44,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     //EXTENSION CONTROLS
     private PIDController controller;
-    public static double p = 0.123, i = 0, d = 0.00027;
+    public static double p = 0.05, i = 0, d = 0.00027;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
@@ -85,7 +85,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 50;
+        public static double TRANSFER_POS = 70;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = 0;

@@ -11,8 +11,8 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.496;
-    public static double DEFAULT_RDIFFY_POS = 0.504;
+    public static double DEFAULT_LDIFFY_POS = 0.505;
+    public static double DEFAULT_RDIFFY_POS = 0.495;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -24,7 +24,7 @@ public class Outtake {
 
     public static String Note = "0.2 is arm minumum and 1 is arm maximum";
     public static double ARM_SAMPSCORE_POS = 0.8;
-    public static double ARM_TRANSFER_POS = 0.6; // not correct
+    public static double ARM_TRANSFER_POS = 0.3; // not correct
     public static double ARM_FRONTSPEC_POS = 0.5;
     public static double ARM_BACKSPEC_POS = 0.9;
     public enum OuttakeState {
@@ -52,10 +52,10 @@ public class Outtake {
 
     @Config
     public static class DIFFY_POSITIONS {
-        public static double SAMPLE_SCORE = 60;
+        public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = 30;
-        public static double SPECIMEN_FRONT_PICKUP = 105;
-        public static double SPECIMEN_BACK_SCORE = 130;
+        public static double SPECIMEN_FRONT_PICKUP = 0;
+        public static double SPECIMEN_BACK_SCORE = -50;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 211;
     }

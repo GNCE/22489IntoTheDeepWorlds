@@ -159,12 +159,12 @@ public class newfull_Tele_Op_22489 extends OpMode {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.48 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    0.38 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         } else { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
-                    flip * 0.20 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                    flip * 0.20 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.1 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.2 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         }
         switch (intakeSequence){
             case READY:
@@ -223,32 +223,16 @@ public class newfull_Tele_Op_22489 extends OpMode {
         }
         //outtake stuff
         if(bucketSequenceNextButton.input(gamepad1.a)){
-            if (isScoringSpecs){
-                outtakeSequence = OUTTAKE_SEQUENCE.OVERRIDE_TO_INTAKE;
-                isScoringSpecs = false;
-            } else {
                 outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
-            }
             bucketSequence = bucketSequence.next();
             specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         } else if(bucketSequencePrevButton.input(gamepad1.b)){
-            if (isScoringSpecs){
-                outtakeSequence = OUTTAKE_SEQUENCE.OVERRIDE_TO_INTAKE;
-                isScoringSpecs = false;
-            } else {
                 outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
-            }
             bucketSequence = bucketSequence.prev();
             outtakeSequenceTime.reset();
         } else if(specimenSequenceNextButton.input(gamepad1.x)){
-            if (!isScoringSpecs) {
-                isScoringSpecs = true;
-                outtakeSequence = OUTTAKE_SEQUENCE.OVERRIDE_TO_SPEC;
-
-            } else {
                 outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
-            }
             specimenSequence = specimenSequence.next();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
@@ -311,20 +295,6 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         break;
-                }
-                break;
-            case OVERRIDE_TO_SPEC:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
-                if (!outtakeLift.isBusy()){
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
-                    outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
-                }
-                break;
-            case OVERRIDE_TO_INTAKE:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
-                if (!outtakeLift.isBusy()){
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                    outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
                 }
                 break;
         }
