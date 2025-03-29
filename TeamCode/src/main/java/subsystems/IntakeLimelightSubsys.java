@@ -11,9 +11,9 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public static LLResult llResult;
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
-    private static int pipelineNumber;
+    private static int pipelineNumber=4;
     public boolean isRunning(){ return ll.isRunning(); }
-    public boolean isDataFresh(){ return llResult.getStaleness() < 30; }
+    public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 30; }
 
     public void turnOn(){ if(!isRunning()) ll.start(); }
     public void turnOff(){ if(isRunning()) ll.stop(); }
@@ -50,13 +50,15 @@ public class IntakeLimelightSubsys extends SubsysCore {
             light.setPosition(1);
             ll.pipelineSwitch(pipelineNumber);
             llResult = ll.getLatestResult();
-            tx = llResult.getTx();
-            ty = llResult.getTy();
-            ta = llResult.getTa();
+            if(llResult != null){
+                tx = llResult.getTx();
+                ty = llResult.getTy();
+                ta = llResult.getTa();
 
-            pythonOutput = llResult.getPythonOutput();
-            if(pythonOutput != null){
-                if(pythonOutput.length > 0) angle = pythonOutput[0];
+                pythonOutput = llResult.getPythonOutput();
+                if(pythonOutput != null){
+                    if(pythonOutput.length > 0) angle = pythonOutput[0];
+                }
             }
         } else {
             light.setPosition(0);

@@ -20,6 +20,7 @@ public class FConstants {
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
 
+
         FollowerConstants.mass = 14.61;
 
         FollowerConstants.xMovement = 55.632457956850104;

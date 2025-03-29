@@ -225,11 +225,11 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
 
         double power;
-        if (Math.abs(opMode.gamepad1.left_trigger) > 0.1){
-            power = opMode.gamepad1.left_trigger;
+        if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
+            power = opMode.gamepad2.left_trigger;
             target = getCurrentPosition();
-        } else if(Math.abs(opMode.gamepad1.right_trigger) > 0.1) {
-            power = -opMode.gamepad1.right_trigger;
+        } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
+            power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
         } else {
             // PIDF Controller

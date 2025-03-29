@@ -11,7 +11,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     DcMotorEx llift, rlift, clift;
     //TouchSensor touchSensor;
     private PIDController controller;
-    public static double p = 0.03, i = 0, d = 0.00025, f = 0.05;
+    public static double p = 0.015, i = 0, d = 0.00023, f = 0.05;
 
     public static int target = 0;
     private static UnifiedTelemetry tel = new UnifiedTelemetry();
