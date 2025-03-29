@@ -32,10 +32,11 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ArmPosition = 0.285;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.56;
+    public static double CLAW_LOOSE = 0.48;
     public static double CLAW_OPENED = .35;
     //tune these values vvvvv
-    public static double ARM_REST = 0;
-    public static double ARM_TRANSFER_POS = 0.33;
+    public static double ARM_REST = 0.05;
+    public static double ARM_TRANSFER_POS = 0.41;
     public static double ARM_TRANSFER_WAIT_POS = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
@@ -85,10 +86,10 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 70;
+        public static double TRANSFER_POS = 90;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
-        public static double REST_POS = 0;
+        public static double REST_POS = -70;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
@@ -218,7 +219,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         return IntakeExtend.isBusy();
     }
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 8 /*TODO: find this value*/){
+        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 10 /*TODO: find this value*/){
             IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -247,7 +248,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class IntakeExtensionPositions{
-        public static int FULL_EXTENSION_POS = 350;
+        public static int FULL_EXTENSION_POS = 320;
         public static int RETRACTED_POS = 0;
 
         public static int AUTO_EXT_POSE = 100;

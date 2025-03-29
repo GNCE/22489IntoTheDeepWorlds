@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.OuttakeLiftSubsys;
+import subsystems.SubsysCore;
+import subsystems.UnifiedTelemetry;
 
 
 @Autonomous (name = "4+0 Pushing Specimen Auto")
@@ -161,7 +163,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
-                if(pathTimer.getElapsedTimeSeconds() > 1.7){
+                if(pathTimer.getElapsedTimeSeconds() > 2){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
@@ -257,11 +259,15 @@ public class Auto_4_0_Pushing extends OpMode {
     @Override
     public void init(){
         pathTimer = new Timer();
-        Constants.setConstants(FConstants.class, LConstants.class);
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
+        tel = new UnifiedTelemetry();
+        tel.init(this.telemetry);
+        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsysCore.setGlobalParameters(hardwareMap, this);
         intakeDiffyClaw = new Intake_DiffyClaw();
+        intakeDiffyClaw.init();
         outtake = new Outtake(hardwareMap);
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
@@ -269,13 +275,14 @@ public class Auto_4_0_Pushing extends OpMode {
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
+    private UnifiedTelemetry tel;
     @Override
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
 
-        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
-        telemetry.update();
+        tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+        tel.update();
     }
     @Override
     public void loop(){
@@ -284,6 +291,7 @@ public class Auto_4_0_Pushing extends OpMode {
         outtake.outtakeLoop();
         outtakeLift.holdLift();
         outtakeLift.loop();
+        intakeDiffyClaw.loop();
 
 
         Storage.CurrentPose = follower.getPose();
