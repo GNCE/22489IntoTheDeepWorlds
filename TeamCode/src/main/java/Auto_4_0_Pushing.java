@@ -56,7 +56,7 @@ public class Auto_4_0_Pushing extends OpMode {
     private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - 12, Math.toRadians(180));
     private final Pose parkPose = new Pose(20, 50, Math.toRadians(230));
 
-    private final double zeroPowerAccelerationMultiplierForPickup = 2.75 , zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 4.3;
+    private final double zeroPowerAccelerationMultiplierForPickup = 2.4 , zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 4.3;
 
     private PathChain scorePreloadPath, parkFromFourthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
@@ -163,7 +163,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
-                if(pathTimer.getElapsedTimeSeconds() > 2){
+                if(pathTimer.getElapsedTimeSeconds() > 2.4){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
