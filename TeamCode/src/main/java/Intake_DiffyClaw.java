@@ -207,6 +207,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
 
     //EXTENSION:
+    private static int prevTarget = 0;
+    private static boolean encoderReset = true;
 
 
     public int getCurrentPosition(){
@@ -219,12 +221,6 @@ public class Intake_DiffyClaw extends SubsysCore {
         return IntakeExtend.isBusy();
     }
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 10 /*TODO: find this value*/){
-            IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
-
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
             power = opMode.gamepad2.left_trigger;
@@ -232,6 +228,15 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
+        } else if (target == 0 && (prevTarget != target || !encoderReset)){
+            // If target is zero and either the target was just set to zero or the encoder is not reset yet
+            if(prevTarget != target) encoderReset = false;
+            power = -1;
+            if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 7){
+                IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                encoderReset = true;
+            }
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
@@ -240,6 +245,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
 
         IntakeExtend.setPower(power);
+        prevTarget = target;
     }
 
     public enum IntakeExtensionStates {

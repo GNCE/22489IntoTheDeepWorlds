@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 @Config
 public class OuttakeLiftSubsys extends SubsysCore{
     DcMotorEx llift, rlift, clift;
@@ -103,9 +105,11 @@ public class OuttakeLiftSubsys extends SubsysCore{
                 target = OuttakeLiftPositionsCONFIG.BACK_PICKUP_POS;
                 break;
             case RESET_ENCODER:
-                target = -120;
+                target = 0;
+                break;
             case AVOID_INTAKE:
                 target = 500;
+                break;
             default:
                 break;
         }
@@ -114,18 +118,23 @@ public class OuttakeLiftSubsys extends SubsysCore{
         return Math.abs(target - getCurrentPosition()) <= 4;
     }
 
-    public void holdLift(){
-        if(!touchSensor.getState()){
-            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            if(target < 50) target = 30;
-        }
+    private static int prevTarget = 0;
+    private boolean encoderReset = true;
 
+    public void holdLift(){
         double power;
-        if (Math.abs(opMode.gamepad2.left_stick_y)>0.1){
+        if (Math.abs(opMode.gamepad2.left_stick_y)>0.1) {
             // Manual Takeover. Disable PID or limits
             power = -opMode.gamepad2.left_stick_y;
             target = getCurrentPosition();
+        } else if(target == 0 && (target != prevTarget || !encoderReset)) {
+            if(target != prevTarget) encoderReset = false;
+            power = -1;
+            if(touchSensor.getState() || clift.getCurrent(CurrentUnit.AMPS) > 10){
+                setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                encoderReset = true;
+            }
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
@@ -145,7 +154,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         tel.addData("Left Lift Position", llift.getCurrentPosition());
         tel.addData("Right Lift Position", rlift.getCurrentPosition());
         tel.addData("Center Lift Position", clift.getCurrentPosition());
-        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
-
+        tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
+        tel.addData("Limit Switch Pressed?", touchSensor.getState());
     }
 }
