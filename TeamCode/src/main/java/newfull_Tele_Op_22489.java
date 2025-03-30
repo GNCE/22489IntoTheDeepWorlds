@@ -1,6 +1,7 @@
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
@@ -140,6 +141,10 @@ public class newfull_Tele_Op_22489 extends OpMode {
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true);
     private boolean isTransfering = false;
     private boolean isScoringSpecs = false;
+    private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
+    public static double hp = 0.01, hi = 0, hd = 0.001;
+    PIDController headingPIDController = new PIDController(hp, hi, hd);
+
     @Override
     public void loop() {
         diffyClawIntake.loop();
@@ -154,7 +159,28 @@ public class newfull_Tele_Op_22489 extends OpMode {
             intakeSequence = intakeSequence.prev();
             intakeSequenceTime.reset();
         }
-        if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT) {
+
+        if(specimenHeadingLockButton.input(gamepad1.dpad_right)){
+            targetHeading = follower.getPose().getHeading();
+        }
+        if(specimenHeadingLockButton.getVal()){
+            headingError = targetHeading - follower.getPose().getHeading();
+            headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);
+            if(headingError > 2*Math.PI - headingError){
+                headingError = headingError - 2*Math.PI;
+            }
+
+            if(Math.abs(headingError) < Math.toRadians(3)){
+                headingCorrection = 0;
+            } else {
+                headingPIDController.setPID(hp, hi, hd);
+                headingCorrection = headingPIDController.calculate(headingError);
+            }
+
+            follower.setTeleOpMovementVectors(
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -headingCorrection);
+        } else if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT) {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
