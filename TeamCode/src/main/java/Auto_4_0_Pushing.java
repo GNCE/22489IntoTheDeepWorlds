@@ -40,7 +40,7 @@ public class Auto_4_0_Pushing extends OpMode {
     private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
     private final Pose secondSampleEnd = new Pose(18, 14, Math.toRadians(180));
 
-    private final Pose outtakePickupPose = new Pose(9, 30, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(10, 30, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
     private final Pose outtakePickupControl1 = new Pose(15, 68, Math.toRadians(180));
     private final Pose outtakePickupControl2 = new Pose(37, 19, Math.toRadians(180));
@@ -56,7 +56,7 @@ public class Auto_4_0_Pushing extends OpMode {
     private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - 12, Math.toRadians(180));
     private final Pose parkPose = new Pose(12, 14, Math.toRadians(230));
 
-    private final double zeroPowerAccelerationMultiplierForPickup = 1.8, zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 3.5;
+    private final double zeroPowerAccelerationMultiplierForPickup = 1.6, zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 3.5;
 
     private PathChain scorePreloadPath, parkFromFourthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
@@ -282,6 +282,7 @@ public class Auto_4_0_Pushing extends OpMode {
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.outtakeLoop();
+        outtake.setClawOpen(false);
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }
