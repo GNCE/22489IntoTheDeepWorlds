@@ -48,6 +48,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
         intakeSequenceTime = new ElapsedTime();
         resetEncoderDelay = new ElapsedTime();
         outtakeSequenceTime = new ElapsedTime();
+        avoidIntakeFsmTimer = new ElapsedTime();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
@@ -66,6 +67,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
         elapsedTime.startTime();
         resetEncoderDelay.startTime();
         outtakeSequenceTime.startTime();
+        avoidIntakeFsmTimer.startTime();
         initfsm = 1;
     }
 
@@ -124,26 +126,47 @@ public class newfull_Tele_Op_22489 extends OpMode {
             return vals[(this.ordinal() - 1 + vals.length) % vals.length];
         }
     }
+    public enum ASCENT_SEQUENCE {
+        SLIDES_UP, SLIDES_DOWN;
+        private static final ASCENT_SEQUENCE[] vals = values();
+
+        public ASCENT_SEQUENCE next() {
+            return vals[(this.ordinal() + 1) % vals.length];
+        }
+
+        public ASCENT_SEQUENCE prev() {
+            return vals[(this.ordinal() - 1 + vals.length) % vals.length];
+        }
+    }
 
     enum OUTTAKE_SEQUENCE {
         BUCKET_SEQUENCE,
         SPECIMEN_SEQUENCE,
-        OVERRIDE_TO_SPEC,
-        OVERRIDE_TO_INTAKE
+        ASCENT,
     }
 
 
     BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.SCORE;
     SPECIMEN_SEQUENCE specimenSequence = SPECIMEN_SEQUENCE.OPEN_CLAW;
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
+    ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP;
 
-    private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true);
+    private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true);
     private boolean isTransfering = false;
-    private boolean isScoringSpecs = false;
     private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
     public static double hp = 0.01, hi = 0, hd = 0.001;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
+
+    enum AVOID_INTAKE_FSM {
+        LIFT_SLIDES,
+        MOVE_INTAKE,
+        LOWER_SLIDES,
+        NOTHING,
+    }
+
+    AVOID_INTAKE_FSM avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
+    ElapsedTime avoidIntakeFsmTimer;
 
     @Override
     public void loop() {
@@ -240,13 +263,8 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 ll.turnOff();
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 if (!diffyClawIntake.isExtensionBusy()){
-                    if (!isScoringSpecs){
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
-                    else{
-                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
-                    }
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
-
                 break;
         }
         if(takeSnapshotButton.input(gamepad1.a)){
@@ -254,28 +272,39 @@ public class newfull_Tele_Op_22489 extends OpMode {
         }
         //outtake stuff
         if(bucketSequenceNextButton.input(gamepad2.a)){
-                outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
+            outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
             bucketSequence = bucketSequence.next();
             specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         } else if(bucketSequencePrevButton.input(gamepad2.b)){
-                outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
+            outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
+            specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             bucketSequence = bucketSequence.prev();
             outtakeSequenceTime.reset();
         } else if(specimenSequenceNextButton.input(gamepad2.x)){
-                outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
+            outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
             specimenSequence = specimenSequence.next();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         } else if(specimenSequencePrevButton.input(gamepad2.y)){
             outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
             specimenSequence = specimenSequence.prev();
+            bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
+            outtakeSequenceTime.reset();
+        } else if(ascentSequenceNextButton.input(gamepad2.dpad_up)){
+            outtakeSequence = OUTTAKE_SEQUENCE.ASCENT;
+            ascentSequence = ascentSequence.next();
+            bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         }
 
         switch(outtakeSequence){
             case BUCKET_SEQUENCE:
-                isScoringSpecs = false;
                 switch (bucketSequence){
                     case TRANSFER:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
@@ -304,33 +333,59 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         }
                         break;
                     case RESET:
-                        if (outtakeLift.getCurrentPosition() != 30){
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
-                        }
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         break;
-
-
                 }
                 break;
             case SPECIMEN_SEQUENCE:
-                switch (specimenSequence){
-                    case OPEN_CLAW:
-                        outtake.setClawOpen(true);
-                        isScoringSpecs = true;
+                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                    avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
+                    avoidIntakeFsmTimer.reset();
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+                }
+
+                switch(avoidIntakeFsm){
+                    case LIFT_SLIDES:
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
+                        if(avoidIntakeFsmTimer.time() > 1){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+                            avoidIntakeFsmTimer.reset();
+                            avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
+                        }
                         break;
-                    case FRONT_GRAB:
-                        isScoringSpecs = true;
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                    case MOVE_INTAKE:
+                        if(avoidIntakeFsmTimer.time() > 1.5){
+                            avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
+                        }
                         break;
-                    case CLOSE_CLAW:
-                        isScoringSpecs = true;
-                        outtake.setClawOpen(false);
+                    case NOTHING:
+                        switch (specimenSequence){
+                            case OPEN_CLAW:
+                                outtake.setClawOpen(true);
+                                break;
+                            case FRONT_GRAB:
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                                break;
+                            case CLOSE_CLAW:
+                                outtake.setClawOpen(false);
+                                break;
+                            case BACK_SCORE:
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
+                                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+                                break;
+                        }
                         break;
-                    case BACK_SCORE:
-                        isScoringSpecs = true;
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
-                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+                }
+                break;
+            case ASCENT:
+                switch (ascentSequence){
+                    case SLIDES_UP:
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                        break;
+                    case SLIDES_DOWN:
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         break;
                 }
                 break;
