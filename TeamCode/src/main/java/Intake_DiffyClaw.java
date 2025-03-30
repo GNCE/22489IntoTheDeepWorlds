@@ -254,7 +254,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class IntakeExtensionPositions{
-        public static int FULL_EXTENSION_POS = 320;
+        public static int FULL_EXTENSION_POS = 350;
         public static int RETRACTED_POS = 0;
 
         public static int AUTO_EXT_POSE = 100;

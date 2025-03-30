@@ -249,6 +249,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
 
         switch(outtakeSequence){
             case BUCKET_SEQUENCE:
+                isScoringSpecs = false;
                 switch (bucketSequence){
                     case TRANSFER:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
@@ -301,7 +302,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         outtake.setClawOpen(false);
                         break;
                     case BACK_SCORE:
-                        isScoringSpecs = false;
+                        isScoringSpecs = true;
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         break;

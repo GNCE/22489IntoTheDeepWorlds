@@ -34,7 +34,8 @@ public class Outtake {
         SAMPLESCORE,
         SPECBACKSCORE,
         SPECBACKPICKUP,
-        RESET_ENCODER
+        RESET_ENCODER,
+        Auto_Wait
 
     }
     public Outtake(HardwareMap hardwareMap) {
@@ -95,6 +96,9 @@ public class Outtake {
             case RESET_ENCODER:
                 ArmPosition = 0.55;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case Auto_Wait:
+                ArmPosition = 0.5;
         }
 
         updatePivotPosition();
