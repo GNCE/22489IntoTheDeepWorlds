@@ -24,8 +24,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.5;
-    public static double DEFAULT_RDIFFY_POS = 0.5;
+    public static double DEFAULT_LDIFFY_POS = 0.440;
+    public static double DEFAULT_RDIFFY_POS = 0.540;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -108,36 +108,7 @@ public class Intake_DiffyClaw extends SubsysCore {
             IntakeRDiffy.setPosition(RdiffyPos);
         }
     }
-    // Intake Extension
-//    private double getServoAngleWithLength(double l1, double l2, double l3, double xo, double yo, int servoRange){
-//        // All units are mm and degrees.
-//        double beta = Math.toDegrees(Math.acos((Math.pow(l1, 2) - Math.pow(l2, 2) + Math.pow(xo + l3, 2) + Math.pow(yo, 2))/(2.0*l1*Math.sqrt(Math.pow(xo+l3, 2) + Math.pow(yo, 2)))));
-//        double gamma = Math.toDegrees(Math.atan((xo+l3)/yo));
-//        return (180.0 - beta - gamma)/servoRange;
-//    }
-//    private void extendTo(double length){
-//        double targetPos = EXTENSION_ZERO_OFFSET + getServoAngleWithLength(LINK1, LINK2, length, XOFFSET, YOFFSET, SERVO_RANGE);
-//        if(leintake.getPosition() != targetPos){
-//
-//
-//            leintake.setPosition(targetPos);
-//            reintake.setPosition(targetPos);
-//        }
-//
-//    }
-//    public boolean isExtensionBusy(){
-//        return extensionTime.time() <= extensionWaitTime;
-//    }
-//    public void setExtensionTarget(double target){
-//        if(target > FULL_EXTENSION) target = FULL_EXTENSION;
-//        else if(target < 0) target = 0;
-//        extPos = target;
-//    }
-//    public void TeleopExtend(double valueFromZeroToOne){
-//        if(valueFromZeroToOne < 0) valueFromZeroToOne = 0;
-//        else if(valueFromZeroToOne > 1) valueFromZeroToOne = 1;
-//        setExtensionTarget(valueFromZeroToOne * FULL_EXTENSION);
-//    }
+
     public void changePipeline(int pipelineNum) {
         pipelineNumber = pipelineNum;
     }
@@ -147,6 +118,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     @Override
     public void init(){
         setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+        encoderUpdated = 0;
     }
 
     @Override
@@ -194,6 +166,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         tel.addData("Horizontal Extension Target Position", target);
         tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
         tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
+        tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
+        tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
     }
 
     public void setIntakeState(IntakeState intakeState){
@@ -209,6 +183,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     //EXTENSION:
     private static int prevTarget = 0;
     private static boolean encoderReset = true;
+    private static int encoderUpdated = 0;
 
 
     public int getCurrentPosition(){
@@ -232,10 +207,11 @@ public class Intake_DiffyClaw extends SubsysCore {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if(prevTarget != target) encoderReset = false;
             power = -1;
-            if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 7){
+            if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 1.5 && getCurrentPosition() < 15){
                 IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 encoderReset = true;
+                encoderUpdated++;
             }
         } else {
             // PIDF Controller
@@ -254,7 +230,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class IntakeExtensionPositions{
-        public static int FULL_EXTENSION_POS = 350;
+        public static int FULL_EXTENSION_POS = 320;
         public static int RETRACTED_POS = 0;
 
         public static int AUTO_EXT_POSE = 100;

@@ -98,8 +98,9 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case Auto_Wait:
-                ArmPosition = 0.55;
+                ArmPosition = 0.58;
                 setPivotPosition(DIFFY_POSITIONS.TRANSFER,DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
         }
 
         updatePivotPosition();

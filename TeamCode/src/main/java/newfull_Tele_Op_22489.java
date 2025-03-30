@@ -146,7 +146,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
     }
 
 
-    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.SCORE;
+    BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
     SPECIMEN_SEQUENCE specimenSequence = SPECIMEN_SEQUENCE.OPEN_CLAW;
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
     ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP;
@@ -261,9 +261,11 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 break;
             case TRANSFER_WAIT:
                 ll.turnOff();
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                if (!diffyClawIntake.isExtensionBusy()){
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+                if(outtakeSequence != OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE){
+                    diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                    if (!diffyClawIntake.isExtensionBusy()){
+                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+                    }
                 }
                 break;
         }
@@ -338,11 +340,9 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 }
                 break;
             case SPECIMEN_SEQUENCE:
-                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
                     avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
                     avoidIntakeFsmTimer.reset();
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                 }
 
                 switch(avoidIntakeFsm){
