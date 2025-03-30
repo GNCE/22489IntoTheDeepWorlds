@@ -15,58 +15,66 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@Autonomous (name = "4+0 Pushing Specimen Auto")
-public class Auto_4_0_Pushing extends OpMode {
+@Autonomous (name = "NEW 5+0 Pushing Specimen Auto NEW")
+public class Auto_5_0_pushing_new extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
-    private final double scoreX = 36;
-    private final double scoreY = 78;
+    private final double scoreX = 39.3;
+    private final double scoreY = 80;
 
     private final Pose startPose = new Pose(7.1, 65.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(180));
 
-    private final double startPushingSampleX = 52.5;
-    private final Pose firstSamplePos = new Pose(startPushingSampleX, 25, Math.toRadians(180));
+    private final double startPushingSampleX = 51;
+    private final Pose firstSamplePos = new Pose(startPushingSampleX+4, 26, Math.toRadians(180));
     private final Pose firstSampleControl1 = new Pose(0, 60, Math.toRadians(180));
     private final Pose firstSampleControl2 = new Pose(29, 8, Math.toRadians(180));
-    private final Pose firstSampleControl3 = new Pose(66, 56, Math.toRadians(180));
-    private final Pose firstSampleEnd = new Pose(28, 30, Math.toRadians(180));
+    private final Pose firstSampleControl3 = new Pose(60, 56, Math.toRadians(180));
+    private final Pose firstSampleEnd = new Pose(25, 26, Math.toRadians(180));
     private final Pose secondSamplePos = new Pose(startPushingSampleX, 15, Math.toRadians(180));
     private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
-    private final Pose secondSampleEnd = new Pose(25, 18, Math.toRadians(180));
-    private final Pose outtakeFirstPickupPose = new Pose(10.5, 18, Math.toRadians(180));
-    private final Pose outtakePickupWaitPose = new Pose(16, 30, Math.toRadians(180));
-    private final Pose outtakePickupPose = new Pose(10.5, 30, Math.toRadians(180));
-    private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
-    private final Pose outtakePickupControl1 = new Pose(15, 68, Math.toRadians(180));
-    private final Pose outtakePickupControl2 = new Pose(37, 19, Math.toRadians(180));
+    private final Pose secondSampleEnd = new Pose(28, 18, Math.toRadians(180));
+    private final Pose thirdSamplePos = new Pose(startPushingSampleX, 9, Math.toRadians(180));
+    private final Pose thirdSampleControl = new Pose(74, 23, Math.toRadians(180));
+    private final Pose thirdSampleEnd = new Pose(25, 9, Math.toRadians(180));
 
-    private final double scoreControlX = 12;
-    private final Pose firstScorePose = new Pose(scoreX, scoreY-3, Math.toRadians(180));
-    private final Pose firstScoreControl = new Pose(scoreControlX, scoreY - 3, Math.toRadians(180));
-    private final Pose secondScorePose = new Pose(scoreX, scoreY-6, Math.toRadians(180));
-    private final Pose secondScoreControl = new Pose(scoreControlX, scoreY - 6, Math.toRadians(180));
-    private final Pose thirdScorePose = new Pose(scoreX, scoreY-9, Math.toRadians(180));
-    private final Pose thirdScoreControl = new Pose(scoreControlX, scoreY - 9, Math.toRadians(180));
-    private final Pose fourthScorePose = new Pose(scoreX, scoreY-12, Math.toRadians(180));
-    private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - 12, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(11.1, 9, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(16, 32, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
+    private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
+    private final Pose outtakePickupControl1 = new Pose(30, 60, Math.toRadians(180));
+    private final Pose outtakePickupControl2 = new Pose(25, 40, Math.toRadians(180));
+
+    private final double scoreControlX = 23;
+    private final double scoreYChange = 2;
+    private final Pose firstScorePose = new Pose(scoreX, scoreY-scoreYChange, Math.toRadians(180));
+    private final Pose firstScoreControl = new Pose(scoreControlX, scoreY-scoreYChange, Math.toRadians(180));
+    private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(180));
+    private final Pose secondScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*2, Math.toRadians(180));
+    private final Pose thirdScorePose = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(180));
+    private final Pose thirdScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*3, Math.toRadians(180));
+    private final Pose fourthScorePose = new Pose(scoreX, scoreY-scoreYChange*4, Math.toRadians(180));
+    private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*4, Math.toRadians(180));
+    private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(180));
+    private final Pose fifthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*5, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 5;
-    private final double pickupWaitTimeout = 10;
-    private final double zeroPowerAccelerationMultiplierForPickup = 1, zeroPowerAccelerationMultiplierForPush = 5, zeroPowerAccelerationMultiplerForScore = 3.5;
+    private final double pickupWaitTimeout = 5;
+    private final double zeroPowerAccelerationMultiplierForPickup = 1.5, zeroPowerAccelerationMultiplierForPush = 5.4, zeroPowerAccelerationMultiplerForScore = 3.5;
 
-    private PathChain scorePreloadPath, parkFromFourthPath;
-    private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath;
+    private PathChain scorePreloadPath, parkFromFifthPath;
+    private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
     private PathChain wallPickup;
-    private PathChain[] pushWaitPaths, pushDonePaths, pickupPaths, wallPickupPaths, scorePaths;
+    private PathChain[] pushWaitPaths, pushDonePaths, pickupPaths, scorePaths;
     public void buildPaths(){
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(startPose), new Point(preloadScoreControl), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.5)
                 .build();
         goToFirstPush = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(preloadScorePose),new Point(firstSampleControl1), new Point(firstSampleControl2), new Point(firstSampleControl3), new Point(firstSamplePos)))
@@ -90,9 +98,20 @@ public class Auto_4_0_Pushing extends OpMode {
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
                 .build();
+        goToThirdPush = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(secondSampleEnd),new Point(thirdSampleControl), new Point(thirdSamplePos)))
+                .setLinearHeadingInterpolation(secondSampleEnd.getHeading(), thirdSamplePos.getHeading())
+                .setPathEndTimeoutConstraint(pushPathEndTimeout)
+                .build();
+        pushThirdSample = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(thirdSamplePos), new Point(thirdSampleEnd)))
+                .setLinearHeadingInterpolation(thirdSamplePos.getHeading(), thirdSampleEnd.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
+                .setPathEndTimeoutConstraint(pushPathEndTimeout)
+                .build();
         firstPickupPath = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(secondSampleEnd), new Point(outtakeFirstPickupPose)))
-                .setLinearHeadingInterpolation(secondSampleEnd.getHeading(), outtakePickupWaitPose.getHeading())
+                .addPath(new BezierCurve(new Point(thirdSampleEnd), new Point(outtakeFirstPickupPose)))
+                .setLinearHeadingInterpolation(thirdSampleEnd.getHeading(), outtakePickupWaitPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickup)
                 .build();
         wallPickup = follower.pathBuilder()
@@ -138,15 +157,26 @@ public class Auto_4_0_Pushing extends OpMode {
                 .setLinearHeadingInterpolation(outtakePickupWaitPose.getHeading(), fourthScorePose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
-        parkFromFourthPath = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(fourthScorePose), new Point(parkPose)))
-                .setLinearHeadingInterpolation(fourthScorePose.getHeading(), parkPose.getHeading())
+        fourthPickupPath = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(fourthScorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupWaitPose)))
+                .setLinearHeadingInterpolation(fourthScorePose.getHeading(), outtakePickupWaitPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickup)
+                .setPathEndTimeoutConstraint(pickupWaitTimeout)
+                .build();
+        fourthScorePath = follower.pathBuilder()
+                .addPath(new BezierCurve(new Point(outtakePickupWaitPose), new Point(fifthScoreControl), new Point(fifthScorePose)))
+                .setLinearHeadingInterpolation(outtakePickupWaitPose.getHeading(), fifthScorePose.getHeading())
+                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
+                .build();
+        parkFromFifthPath = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(fifthScorePose), new Point(parkPose)))
+                .setLinearHeadingInterpolation(fifthScorePose.getHeading(), parkPose.getHeading())
                 .build();
 
-        pushWaitPaths = new PathChain[]{goToFirstPush, goToSecondPush};
-        pushDonePaths = new PathChain[]{pushFirstSample, pushSecondSample};
-        pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath};
-        scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath};
+        pushWaitPaths = new PathChain[]{goToFirstPush, goToSecondPush, goToThirdPush};
+        pushDonePaths = new PathChain[]{pushFirstSample, pushSecondSample, pushThirdSample};
+        pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath};
+        scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath, fifthScorePath};
     }
 
     enum AutoState {
@@ -178,7 +208,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 0){
-                    follower.followPath(scorePreloadPath,true);
+                    follower.followPath(scorePreloadPath,false);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
@@ -211,7 +241,7 @@ public class Auto_4_0_Pushing extends OpMode {
             case PUSHING:
                 if(!follower.isBusy()){
                     counter++;
-                    if(counter < 2){
+                    if(counter < 3){
                         follower.followPath(pushWaitPaths[counter]);
                         setPathState(AutoState.READY_FOR_PUSHING);
                     } else {
@@ -219,14 +249,14 @@ public class Auto_4_0_Pushing extends OpMode {
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], true);
+                        follower.followPath(pickupPaths[counter], false);
                     }
                 }
                 break;
             case WALL_PICKUP:
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                 if (!follower.isBusy()){
-                    follower.followPath(wallPickup);
+                    follower.followPath(wallPickup, true);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;
@@ -239,10 +269,10 @@ public class Auto_4_0_Pushing extends OpMode {
             case PICKUP:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setClawOpen(false);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.29){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.28){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                        follower.followPath(scorePaths[counter], true);
+                        follower.followPath(scorePaths[counter], false);
                         setPathState(AutoState.READY_TO_SCORE);
                     }
                 }
@@ -253,17 +283,17 @@ public class Auto_4_0_Pushing extends OpMode {
                 }
                 break;
             case SCORE:
-                if(pathTimer.getElapsedTimeSeconds() > 0.1){
+                if(pathTimer.getElapsedTimeSeconds() > 0.04){
                     outtake.setClawOpen(true);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.26) {
                         counter++;
-                        if (counter < 3) {
+                        if (counter < 4) {
                             follower.followPath(pickupPaths[counter], false);
                             outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                             setPathState(AutoState.WALL_PICKUP);
                         } else {
-                            follower.followPath(parkFromFourthPath, true);
+                            follower.followPath(parkFromFifthPath, false);
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                             setPathState(AutoState.PARK);

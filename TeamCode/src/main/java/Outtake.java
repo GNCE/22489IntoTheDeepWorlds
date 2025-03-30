@@ -53,6 +53,7 @@ public class Outtake {
 
     @Config
     public static class DIFFY_POSITIONS {
+        public static double AUTO_INIT = 100;
         public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = -90;
         public static double SPECIMEN_FRONT_PICKUP = 10;
@@ -98,17 +99,16 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case Auto_Wait:
-                ArmPosition = 0.58;
-                setPivotPosition(DIFFY_POSITIONS.TRANSFER,DIFFY_POSITIONS.ORIENTATION_DOWN);
+                ArmPosition = 0.5;
+                setPivotPosition(DIFFY_POSITIONS.AUTO_INIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
 
         updatePivotPosition();
 
-        if (ArmPosition != rpivhigh.getPosition()){
-            rpivhigh.setPosition(ArmPosition);
-            lpivhigh.setPosition(ArmPosition);
-        }
+        rpivhigh.setPosition(ArmPosition);
+        lpivhigh.setPosition(ArmPosition);
+
         if ((clamp.getPosition()!=CLAW_CLOSED) && !clawOpen){
             clamp.setPosition(CLAW_CLOSED);
         } else if ((clamp.getPosition()!=CLAW_OPENED) && clawOpen){
