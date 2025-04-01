@@ -23,10 +23,10 @@ public class Outtake {
     //tune these values vvvvv
 
     public static String Note = "0.2 is arm minumum and 1 is arm maximum";
-    public static double ARM_SAMPSCORE_POS = 0.8;
-    public static double ARM_TRANSFER_POS = 0.57;
-    public static double ARM_FRONTSPEC_POS = 0.47;
-    public static double ARM_BACKSPEC_POS = 0.94;
+    public static double ARM_SAMPSCORE_POS = 0.83;
+    public static double ARM_TRANSFER_POS = 0.6;
+    public static double ARM_FRONTSPEC_POS = 0.5;
+    public static double ARM_BACKSPEC_POS = 0.95;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,

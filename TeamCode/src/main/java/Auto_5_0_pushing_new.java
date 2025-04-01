@@ -42,7 +42,7 @@ public class Auto_5_0_pushing_new extends OpMode {
     private final Pose thirdSampleControl = new Pose(74, 23, Math.toRadians(180));
     private final Pose thirdSampleEnd = new Pose(25, 9, Math.toRadians(180));
 
-    private final Pose outtakeFirstPickupPose = new Pose(11.1, 9, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(11, 9, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(16, 32, Math.toRadians(180));
     private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
@@ -208,7 +208,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 0){
-                    follower.followPath(scorePreloadPath,false);
+                    follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
@@ -249,7 +249,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], false);
+                        follower.followPath(pickupPaths[counter], true);
                     }
                 }
                 break;
@@ -288,7 +288,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                     if (pathTimer.getElapsedTimeSeconds() > 0.26) {
                         counter++;
                         if (counter < 4) {
-                            follower.followPath(pickupPaths[counter], false);
+                            follower.followPath(pickupPaths[counter], true);
                             outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                             setPathState(AutoState.WALL_PICKUP);

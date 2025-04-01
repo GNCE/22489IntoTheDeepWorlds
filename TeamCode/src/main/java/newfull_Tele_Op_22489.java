@@ -151,7 +151,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
     ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP;
 
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
-    private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true);
+    private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
     private boolean isTransfering = false;
     private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
     public static double hp = 0.01, hi = 0, hd = 0.001;
@@ -166,6 +166,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
 
     AVOID_INTAKE_FSM avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
     ElapsedTime avoidIntakeFsmTimer;
+    public static double angleThreshold = 1;
 
     @Override
     public void loop() {
@@ -173,7 +174,6 @@ public class newfull_Tele_Op_22489 extends OpMode {
         diffyClawIntake.HoldExtension();
         ll.loop();
         outtakeLift.loop();
-        diffyClawIntake.changePipeline(4);
         if(intakeSequenceNextButton.input(gamepad2.left_bumper)||intakeSequenceNextButton2.input(gamepad1.left_bumper)){
             intakeSequence = intakeSequence.next();
             intakeSequenceTime.reset();
@@ -192,7 +192,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 headingError = headingError - 2*Math.PI;
             }
 
-            if(Math.abs(headingError) < Math.toRadians(3)){
+            if(Math.abs(headingError) < Math.toRadians(angleThreshold)){
                 headingCorrection = 0;
             } else {
                 headingPIDController.setPID(hp, hi, hd);
@@ -212,6 +212,15 @@ public class newfull_Tele_Op_22489 extends OpMode {
                     flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.2 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        }
+        if (intakePipelineSwitchButon.input(gamepad1.a)){
+            diffyClawIntake.changePipeline(4);
+        } else {
+            if (Storage.isRed) {
+                diffyClawIntake.changePipeline(6);
+            } else {
+                diffyClawIntake.changePipeline(5);
+            }
         }
         switch (intakeSequence){
             case READY:
