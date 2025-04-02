@@ -31,9 +31,9 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static double ArmPosition = 0.285;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.56;
-    public static double CLAW_LOOSE = 0.48;
-    public static double CLAW_OPENED = .35;
+    public static double CLAW_CLOSED = 0.41;
+    public static double CLAW_LOOSE = 0.44;
+    public static double CLAW_OPENED = 0.95;
     //tune these values vvvvv
     public static double ARM_REST = 0.05;
     public static double ARM_TRANSFER_POS = 0.41;

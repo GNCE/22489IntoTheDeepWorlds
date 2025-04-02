@@ -21,12 +21,10 @@ public class Outtake {
     public static double CLAW_CLOSED = 0.535;
     public static double CLAW_OPENED = 0.215;
     //tune these values vvvvv
-
-    public static String Note = "0.2 is arm minumum and 1 is arm maximum";
-    public static double ARM_SAMPSCORE_POS = 0.83;
-    public static double ARM_TRANSFER_POS = 0.6;
-    public static double ARM_FRONTSPEC_POS = 0.5;
-    public static double ARM_BACKSPEC_POS = 1;
+    public static double ARM_SAMPSCORE_POS = 0.73;
+    public static double ARM_TRANSFER_POS = 0.5;
+    public static double ARM_FRONTSPEC_POS = 0.4;
+    public static double ARM_BACKSPEC_POS = 0.9;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,

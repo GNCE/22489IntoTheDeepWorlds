@@ -154,7 +154,8 @@ public class newfull_Tele_Op_22489 extends OpMode {
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
     private boolean isTransfering = false;
     private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
-    public static double hp = 0.01, hi = 0, hd = 0.001;
+    public static double hp = 0.7, hi = 0, hd = 0.0001;
+    public static double angleThreshold = 0.3;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
 
     enum AVOID_INTAKE_FSM {
@@ -166,7 +167,6 @@ public class newfull_Tele_Op_22489 extends OpMode {
 
     AVOID_INTAKE_FSM avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
     ElapsedTime avoidIntakeFsmTimer;
-    public static double angleThreshold = 1;
 
     @Override
     public void loop() {
@@ -245,7 +245,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
                     double angle = ll.getAngle(); // Output 0 is sample angle
-                    if(Math.abs(angle) > 80){
+                    if(Math.abs(angle) > 85){
                         if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
                         else angle = -85;
                     }
