@@ -78,7 +78,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         public static int FRONT_SCORE_WAIT_POS = 0;
         public static int FRONT_SCORE_DONE_POS = 0;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 370;
+        public static int BACK_SCORE_POS = 540;
         public static int BACK_PICKUP_POS = 0;
     }
     public void LiftTo(OuttakeLiftPositions input){

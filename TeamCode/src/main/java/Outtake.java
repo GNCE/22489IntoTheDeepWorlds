@@ -26,7 +26,7 @@ public class Outtake {
     public static double ARM_SAMPSCORE_POS = 0.83;
     public static double ARM_TRANSFER_POS = 0.6;
     public static double ARM_FRONTSPEC_POS = 0.5;
-    public static double ARM_BACKSPEC_POS = 0.95;
+    public static double ARM_BACKSPEC_POS = 1;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
@@ -57,7 +57,7 @@ public class Outtake {
         public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = -90;
         public static double SPECIMEN_FRONT_PICKUP = 10;
-        public static double SPECIMEN_BACK_SCORE = -50;
+        public static double SPECIMEN_BACK_SCORE = -70;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 211;
     }

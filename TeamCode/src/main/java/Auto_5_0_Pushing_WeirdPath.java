@@ -15,8 +15,8 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@Autonomous (name = "Auto_5_0_pushing_new")
-public class Auto_5_0_pushing_new extends OpMode {
+@Autonomous (name = "Auto_5_0_Pushing_WeirdPath")
+public class Auto_5_0_Pushing_WeirdPath extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private OuttakeLiftSubsys outtakeLift;
@@ -121,7 +121,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                 .build();
         firstScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupWaitPose), new Point(firstScoreControl), new Point(firstScorePose)))
-                .setLinearHeadingInterpolation(outtakePickupWaitPose.getHeading(),firstScorePose.getHeading())
+                .setTangentHeadingInterpolation()
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
                 .build();
         secondPickupPath = follower.pathBuilder()

@@ -246,13 +246,13 @@ public class newfull_Tele_Op_22489 extends OpMode {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
                     double angle = ll.getAngle(); // Output 0 is sample angle
                     if(Math.abs(angle) > 80){
-                        if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
-                        else angle = -80;
+                        if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
+                        else angle = -85;
                     }
                     if(angle < -90) angle = -90;
                     else if(angle > 90) angle = 90;
 
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle;
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
                 }
                 break;
             case GRAB:

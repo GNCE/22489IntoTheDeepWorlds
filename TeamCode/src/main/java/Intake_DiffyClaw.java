@@ -203,21 +203,25 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
-        } else if (target == 0 && (prevTarget != target || !encoderReset)){
+        } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
-            if(prevTarget != target) encoderReset = false;
+            if (prevTarget != target) encoderReset = false;
             power = -1;
-            if(IntakeExtend.getCurrent(CurrentUnit.AMPS) > 1.5 && getCurrentPosition() < 15){
+            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 1.5 && getCurrentPosition() < 15) {
                 IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 encoderReset = true;
                 encoderUpdated++;
             }
+        } else if (target == IntakeExtensionPositions.RETRACTED_POS && getCurrentPosition() <= 23) {
+            // Do not drain PID controller
+            power = 0;
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
             double pid = controller.calculate(getCurrentPosition(), target);
-            power = pid;
+            if(Math.abs(getCurrentPosition() - target) > 5) power = pid;
+            else power = 0;
         }
 
         IntakeExtend.setPower(power);
