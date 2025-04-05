@@ -11,20 +11,23 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.505;
-    public static double DEFAULT_RDIFFY_POS = 0.495;
+    public static double DEFAULT_LDIFFY_POS = 0.494;
+    public static double DEFAULT_RDIFFY_POS = 0.506;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0.2;
+    public static double leftArmOffset = (double) 0.045;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.535;
-    public static double CLAW_OPENED = 0.215;
+    public static double CLAW_CLOSED = 0.38;
+    public static double CLAW_OPENED = 0.8;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
-    public static double ARM_TRANSFER_POS = 0.5;
-    public static double ARM_FRONTSPEC_POS = 0.4;
-    public static double ARM_BACKSPEC_POS = 0.9;
+    public static double ARM_TRANSFER_POS = 0.49;
+    public static double ARM_FRONTPICKUP_POS = 0.37;
+    public static double ARM_BACKSCORE_POS = 0.9;
+    public static double ARM_FRONTSCORE_POS = 0.37;
+    public static double ARM_BACKPICKUP_POS = 0.9;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
@@ -56,8 +59,10 @@ public class Outtake {
         public static double TRANSFER = -90;
         public static double SPECIMEN_FRONT_PICKUP = 10;
         public static double SPECIMEN_BACK_SCORE = -70;
+        public static double SPECIMEN_BACK_PICKUP = 10;
+        public static double SPECIMEN_FRONT_SCORE = 10;
         public static double ORIENTATION_UP = 0;
-        public static double ORIENTATION_DOWN = 211;
+        public static double ORIENTATION_DOWN = 200;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
@@ -85,16 +90,24 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SAMPLE_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case SPECFRONTPICKUP:
-                ArmPosition = ARM_FRONTSPEC_POS;
+                ArmPosition = ARM_FRONTPICKUP_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SPECBACKSCORE:
-                ArmPosition = ARM_BACKSPEC_POS;
+                ArmPosition = ARM_BACKSCORE_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case RESET_ENCODER:
                 ArmPosition = 0.55;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case SPECBACKPICKUP:
+                ArmPosition = ARM_BACKPICKUP_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case SPECFRONTSCORE:
+                ArmPosition = ARM_FRONTSCORE_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case Auto_Wait:
                 ArmPosition = 0.5;
@@ -105,7 +118,7 @@ public class Outtake {
         updatePivotPosition();
 
         rpivhigh.setPosition(ArmPosition);
-        lpivhigh.setPosition(ArmPosition);
+        lpivhigh.setPosition(ArmPosition + leftArmOffset);
 
         if ((clamp.getPosition()!=CLAW_CLOSED) && !clawOpen){
             clamp.setPosition(CLAW_CLOSED);

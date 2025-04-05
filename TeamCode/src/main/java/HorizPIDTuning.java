@@ -22,7 +22,7 @@ public class HorizPIDTuning extends OpMode {
     public void loop(){
         intakeDiffyClaw.HoldExtension();
         intakeDiffyClaw.loop();
-        intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_INTAKE_POSE);
+        intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
         tel.update();
     }
 }

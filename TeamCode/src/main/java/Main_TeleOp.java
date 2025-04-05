@@ -17,11 +17,11 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@TeleOp(name = "new teleop", group = "Real OpModes")
+@TeleOp(name = "Main TeleOp", group = "_TeleOp")
 @Config
-public class newfull_Tele_Op_22489 extends OpMode {
+public class Main_TeleOp extends OpMode {
     public static double mx =  -0.012, my =  -0.012;
-    public static double targetX = 14, targetY = 0;
+    public static double targetX = 16, targetY = 0;
     private Follower follower;
 
     private Intake_DiffyClaw diffyClawIntake;
@@ -113,15 +113,27 @@ public class newfull_Tele_Op_22489 extends OpMode {
         }
     }
 
-    public enum SPECIMEN_SEQUENCE {
+    public enum BACK_SPECIMEN_SEQUENCE {
         OPEN_CLAW, FRONT_GRAB, CLOSE_CLAW, BACK_SCORE;
-        private static final SPECIMEN_SEQUENCE[] vals = values();
+        private static final BACK_SPECIMEN_SEQUENCE[] vals = values();
 
-        public SPECIMEN_SEQUENCE next() {
+        public BACK_SPECIMEN_SEQUENCE next() {
             return vals[(this.ordinal() + 1) % vals.length];
         }
 
-        public SPECIMEN_SEQUENCE prev() {
+        public BACK_SPECIMEN_SEQUENCE prev() {
+            return vals[(this.ordinal() - 1 + vals.length) % vals.length];
+        }
+    }
+    public enum FRONT_SPECIMEN_SEQUENCE {
+        BACK_GRAB, CLOSE_CLAW, FRONT_SCORE, OPEN_CLAW;
+        private static final FRONT_SPECIMEN_SEQUENCE[] vals = values();
+
+        public FRONT_SPECIMEN_SEQUENCE next() {
+            return vals[(this.ordinal() + 1) % vals.length];
+        }
+
+        public FRONT_SPECIMEN_SEQUENCE prev() {
             return vals[(this.ordinal() - 1 + vals.length) % vals.length];
         }
     }
@@ -140,22 +152,25 @@ public class newfull_Tele_Op_22489 extends OpMode {
 
     enum OUTTAKE_SEQUENCE {
         BUCKET_SEQUENCE,
-        SPECIMEN_SEQUENCE,
+        BACK_SPEC_SEQUENCE,
+        FRONT_SPEC_SEQUENCE,
         ASCENT,
     }
 
 
     BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
-    SPECIMEN_SEQUENCE specimenSequence = SPECIMEN_SEQUENCE.OPEN_CLAW;
+    BACK_SPECIMEN_SEQUENCE backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
+    FRONT_SPECIMEN_SEQUENCE frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.OPEN_CLAW;
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
     ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP;
 
-    private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), specimenSequenceNextButton = new ToggleButton(true), specimenSequencePrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
+    private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), backSpecSeqNextButton = new ToggleButton(true), backSpecSeqPrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
-    private boolean isTransfering = false;
-    private ToggleButton specimenHeadingLockButton = new ToggleButton(false);
-    public static double hp = 0.7, hi = 0, hd = 0.0001;
-    public static double angleThreshold = 0.3;
+    private ToggleButton frontSpecSeqNextButton = new ToggleButton(true), frontSpecSeqPrevButton = new ToggleButton(true);
+    private ToggleButton headingLockButton = new ToggleButton(false);
+    private ToggleButton pipelineToggleButton = new ToggleButton(false);
+    public static double hp = 0.8, hi = 0, hd = 0.00013;
+    public static double angleThreshold = 0.05;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
 
     enum AVOID_INTAKE_FSM {
@@ -182,10 +197,10 @@ public class newfull_Tele_Op_22489 extends OpMode {
             intakeSequenceTime.reset();
         }
 
-        if(specimenHeadingLockButton.input(gamepad1.dpad_right)){
+        if(headingLockButton.input(gamepad1.dpad_right)){
             targetHeading = follower.getPose().getHeading();
         }
-        if(specimenHeadingLockButton.getVal()){
+        if(headingLockButton.getVal()){
             headingError = targetHeading - follower.getPose().getHeading();
             headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);
             if(headingError > 2*Math.PI - headingError){
@@ -227,10 +242,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 ll.turnOn();
-
-                if (!diffyClawIntake.isExtensionBusy()){
-                    diffyClawIntake.setClawOpen(true);
-                }
+                diffyClawIntake.setClawOpen(true);
                 if (ALignmentButtonNext.input(gamepad1.right_trigger == 1)){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
                     if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
@@ -269,47 +281,70 @@ public class newfull_Tele_Op_22489 extends OpMode {
                 break;
             case TRANSFER_WAIT:
                 ll.turnOff();
-                if(outtakeSequence != OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE){
+                if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE){
                     diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                    if (!diffyClawIntake.isExtensionBusy()){
+                    if (diffyClawIntake.extensionReachedTarget()){
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     }
                 }
                 break;
         }
-        if(takeSnapshotButton.input(gamepad1.a)){
+        if(takeSnapshotButton.input(gamepad1.circle)){
             ll.captureSnapshot(key+Math.round(elapsedTime.time()));
         }
+
+        pipelineToggleButton.input(gamepad1.square);
+        ll.setPipelineNumber(pipelineToggleButton.getVal() ? 4 : (Storage.isRed ?  6 : 5));
+
         //outtake stuff
         if(bucketSequenceNextButton.input(gamepad2.a)){
             outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
             bucketSequence = bucketSequence.next();
-            specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
+            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
+            frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
             ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         } else if(bucketSequencePrevButton.input(gamepad2.b)){
             outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
-            specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
+            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
+            frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
             ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             bucketSequence = bucketSequence.prev();
             outtakeSequenceTime.reset();
-        } else if(specimenSequenceNextButton.input(gamepad2.x)){
-            outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
-            specimenSequence = specimenSequence.next();
+        } else if(backSpecSeqNextButton.input(gamepad2.x)){
+            outtakeSequence = OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE;
+            backSpecimenSequence = backSpecimenSequence.next();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
             ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
-        } else if(specimenSequencePrevButton.input(gamepad2.y)){
-            outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
-            specimenSequence = specimenSequence.prev();
+        } else if(backSpecSeqPrevButton.input(gamepad2.y)){
+            outtakeSequence = OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE;
+            backSpecimenSequence = backSpecimenSequence.prev();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
             ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         } else if(ascentSequenceNextButton.input(gamepad2.dpad_up)){
             outtakeSequence = OUTTAKE_SEQUENCE.ASCENT;
             ascentSequence = ascentSequence.next();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
-            specimenSequence = SPECIMEN_SEQUENCE.vals[SPECIMEN_SEQUENCE.vals.length-1];
+            frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
+            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
+            outtakeSequenceTime.reset();
+        } else if(frontSpecSeqNextButton.input(gamepad2.dpad_right)){
+            outtakeSequence = OUTTAKE_SEQUENCE.FRONT_SPEC_SEQUENCE;
+            frontSpecimenSequence = frontSpecimenSequence.next();
+            bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
+            outtakeSequenceTime.reset();
+        } else if(frontSpecSeqPrevButton.input(gamepad2.dpad_down)){
+            outtakeSequence = OUTTAKE_SEQUENCE.FRONT_SPEC_SEQUENCE;
+            frontSpecimenSequence = frontSpecimenSequence.next();
+            bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
+            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
+            ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
             outtakeSequenceTime.reset();
         }
 
@@ -322,7 +357,6 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         outtake.setClawOpen(true);
                         break;
                     case GRAB_AND_LIFT:
-                        isTransfering = true;
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                         if (outtakeSequenceTime.time() > 0.23){
                             outtake.setClawOpen(false);
@@ -347,7 +381,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         break;
                 }
                 break;
-            case SPECIMEN_SEQUENCE:
+            case BACK_SPEC_SEQUENCE:
                 if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
                     avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
                     avoidIntakeFsmTimer.reset();
@@ -368,11 +402,12 @@ public class newfull_Tele_Op_22489 extends OpMode {
                         }
                         break;
                     case NOTHING:
-                        switch (specimenSequence){
+                        switch (backSpecimenSequence){
                             case OPEN_CLAW:
                                 outtake.setClawOpen(true);
                                 break;
                             case FRONT_GRAB:
+                                outtake.setClawOpen(true);
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                                 break;
@@ -380,9 +415,41 @@ public class newfull_Tele_Op_22489 extends OpMode {
                                 outtake.setClawOpen(false);
                                 break;
                             case BACK_SCORE:
+                                outtake.setClawOpen(false);
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                                 break;
+                        }
+                        break;
+                }
+                break;
+            case FRONT_SPEC_SEQUENCE:
+                switch (frontSpecimenSequence){
+                    case BACK_GRAB:
+                        outtake.setClawOpen(true);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
+                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                        }
+                        break;
+                    case CLOSE_CLAW:
+                        outtake.setClawOpen(false);
+                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                            diffyClawIntake.setClawOpen(true);
+                        }
+                        break;
+                    case FRONT_SCORE:
+                        outtake.setClawOpen(false);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
+                        break;
+                    case OPEN_CLAW:
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
+                        if(outtakeSequenceTime.time() > 1){
+                            outtake.setClawOpen(true);
                         }
                         break;
                 }
@@ -412,6 +479,7 @@ public class newfull_Tele_Op_22489 extends OpMode {
         Storage.CurrentPose = follower.getPose();
 
         tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
+        tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
         tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
         tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
         tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));

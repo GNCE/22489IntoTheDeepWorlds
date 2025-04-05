@@ -3,12 +3,12 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import subsystems.IntakeLimelightSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
@@ -19,8 +19,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo IntakeLDiffy;
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
+    private IntakeLimelightSubsys ll;
     public DcMotorEx IntakeExtend;
-    public Servo light; //TODO: not sure if this is the right class for the headlight
 
     public static int pipelineNumber = 4;
 
@@ -40,7 +40,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_TRANSFER_WAIT_POS = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
-    public static double ARM_DEPOSIT_BACK = 0.2;
+    public static double ARM_DEPOSIT_BACK = 0.05;
 
 
     //EXTENSION CONTROLS
@@ -69,7 +69,6 @@ public class Intake_DiffyClaw extends SubsysCore {
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
-        light = hardwareMap.get(Servo.class, "light");
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
         IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
 
@@ -78,6 +77,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         IntakeExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ll = new IntakeLimelightSubsys();
 
         extensionTime = new ElapsedTime();
         extensionTime.startTime();
@@ -90,6 +90,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = -70;
+        public static double DEPOSIT_POS = -50;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
@@ -119,6 +120,9 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void init(){
         setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
         encoderUpdated = 0;
+        usingLL = false;
+        powerScale = 1;
+        target=IntakeExtensionPositions.RETRACTED_POS;
     }
 
     @Override
@@ -147,7 +151,7 @@ public class Intake_DiffyClaw extends SubsysCore {
                 break;
             case DEPOSIT:
                 ArmPosition = ARM_DEPOSIT_BACK;
-                setPivotPosition(INTAKE_DIFFY_POSITIONS.TRANSFER_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.DEPOSIT_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 
@@ -192,9 +196,24 @@ public class Intake_DiffyClaw extends SubsysCore {
     public int getTargetPosition(){
         return target;
     }
-    public boolean isExtensionBusy() {
-        return IntakeExtend.isBusy();
+    // 11.5 is full
+
+    private double powerScale = 1;
+    public void setPowerScale(double newPowerScale){
+        newPowerScale = Math.min(newPowerScale, 1);
+        newPowerScale = Math.max(0, newPowerScale);
+        powerScale = newPowerScale;
     }
+
+    private boolean usingLL = false;
+
+    public void useVision(){
+        usingLL = true;
+    }
+    public void stopVision(){
+        usingLL = false;
+    }
+
     public void HoldExtension(){ //TODO: Call this in the main loop
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
@@ -203,6 +222,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
+        } else if(usingLL && ll.isResultValid()){
+            power = (16-ll.getTx())*0.01;
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) encoderReset = false;
@@ -213,9 +234,6 @@ public class Intake_DiffyClaw extends SubsysCore {
                 encoderReset = true;
                 encoderUpdated++;
             }
-        } else if (target == IntakeExtensionPositions.RETRACTED_POS && getCurrentPosition() <= 23) {
-            // Do not drain PID controller
-            power = 0;
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
@@ -224,20 +242,38 @@ public class Intake_DiffyClaw extends SubsysCore {
             else power = 0;
         }
 
+        if ((getCurrentPosition() <= IntakeExtensionPositions.RETRACTED_POS+23 && power < 0) ||
+         (getCurrentPosition() >= IntakeExtensionPositions.FULL_EXTENSION_POS-15 && power > 0)) power = 0;
+
+        power*=powerScale;
+        power = Math.max(power, -1);
+        power = Math.min(power, 1);
         IntakeExtend.setPower(power);
         prevTarget = target;
     }
 
     public enum IntakeExtensionStates {
-        FULL_EXTENSION, RETRACTED, AUTO_INTAKE_POSE
+        FULL_EXTENSION, RETRACTED, MANUAL;
+    }
+    public enum ExtensionUnits {
+        inches, ticks;
     }
 
     @Config
     public static class IntakeExtensionPositions{
-        public static int FULL_EXTENSION_POS = 320;
+        public static int FULL_EXTENSION_POS = 335;
         public static int RETRACTED_POS = 0;
-
-        public static int AUTO_EXT_POSE = 100;
+    }
+    public void ExtendTo(double input, ExtensionUnits unit){
+        switch (unit){
+            case inches:
+                input *= 330/11.5;
+            case ticks:
+                break;
+        }
+        input = Math.min(input, IntakeExtensionPositions.FULL_EXTENSION_POS);
+        input = Math.max(input, IntakeExtensionPositions.RETRACTED_POS);
+        target = (int) Math.round(input);
     }
     public void ExtendTo(IntakeExtensionStates input){
         switch(input){
@@ -247,10 +283,11 @@ public class Intake_DiffyClaw extends SubsysCore {
             case RETRACTED:
                 target = IntakeExtensionPositions.RETRACTED_POS;
                 break;
-            case AUTO_INTAKE_POSE:
-                target = IntakeExtensionPositions.AUTO_EXT_POSE;
             default:
                 break;
         }
+    }
+    public boolean extensionReachedTarget(){
+        return Math.abs(IntakeExtend.getCurrentPosition() - target) <= 23;
     }
 }
