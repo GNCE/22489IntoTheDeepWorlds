@@ -28,7 +28,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private Timer pathTimer;
     private ElapsedTime timeSpentInSub;
     private final double backScoreX = 39;
-    private final double frontScoreX = 35;
+    private final double frontScoreX = 38;
     private double firstPickupX = 48, firstPickupY = 72;
     private double secondPickupX = 48, secondPickupY = 72;
 
@@ -90,6 +90,7 @@ public class Auto_6_0_Intaking extends OpMode {
     enum AutoState {
         DRIVE_TO_PRELOAD_SCORE, READY_FOR_PRELOAD, PRELOAD_DRIVE_DONE, PRELOAD_DETECTED_SAMPLE, PRELOAD_DONE_ALIGNING, DETECT_EXTEND, DETECT_RETRACT, PRELOAD_FAILED_ALIGNING, DRIVE_TO_SPIKE_MARK_3, AT_SPIKE_MARK_3
     }
+    int attemptedNext = 0;
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
@@ -109,6 +110,7 @@ public class Auto_6_0_Intaking extends OpMode {
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     intakeDiffyClaw.setClawOpen(true);
                     ll.turnOn();
+                    intakeDiffyClaw.useVision();
                     setPathState(AutoState.PRELOAD_DRIVE_DONE);
                 }
                 break;
@@ -127,9 +129,10 @@ public class Auto_6_0_Intaking extends OpMode {
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 intakeDiffyClaw.setPowerScale(0.2);
                 if(ll.isResultValid()){
+                    attemptedNext++;
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() > 300){
+                if(intakeDiffyClaw.getCurrentPosition() > 300&& !ll.isResultValid()){
                     follower.followPath(
                             follower.pathBuilder()
                                     .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+0.5))
@@ -145,9 +148,10 @@ public class Auto_6_0_Intaking extends OpMode {
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 intakeDiffyClaw.setPowerScale(0.5);
                 if(ll.isResultValid()){
+                    attemptedNext++;
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() < 30){
+                if(intakeDiffyClaw.getCurrentPosition() < 30 && !ll.isResultValid()){
                     counter++; // TODO: Counter UNUSED. ADD TIME OR COUNTER LIMIT
                     follower.followPath(
                             follower.pathBuilder()
@@ -164,7 +168,6 @@ public class Auto_6_0_Intaking extends OpMode {
                     visionCounter++;
                     intakeDiffyClaw.setPowerScale(1);
                     intakeDiffyClaw.useVision();
-
                     double angle = ll.getAngle(); // Output 0 is sample angle
                     if(Math.abs(angle) > 85){
                         if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
@@ -175,11 +178,11 @@ public class Auto_6_0_Intaking extends OpMode {
 
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
 
-                    follower.holdPoint(new Pose(frontScoreX, follower.getPose().getY() - ll.getTy()*0.001, 0));
-                    if(Math.abs(ll.getTx() -16) < 1.5 && Math.abs(ll.getTy()) < 1.5 || pathTimer.getElapsedTime() > 2){
+                    follower.holdPoint(new Pose(frontScoreX, follower.getPose().getY() - ll.getTy()*0.0012, 0));
+                    if(Math.abs(ll.getTx() -16) < 1.5 && Math.abs(ll.getTy()) < 1.5 || pathTimer.getElapsedTimeSeconds() > 5){
                         setPathState(AutoState.PRELOAD_DONE_ALIGNING);
                     }
-                } else if (pathTimer.getElapsedTime() > 2){
+                } else if (pathTimer.getElapsedTimeSeconds() > 5){
                     setPathState(AutoState.PRELOAD_DONE_ALIGNING);
                 }
                 break;
@@ -189,15 +192,15 @@ public class Auto_6_0_Intaking extends OpMode {
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 ll.turnOff();
-                if (pathTimer.getElapsedTime() > 0.2){
+                if (pathTimer.getElapsedTimeSeconds() > 0.7){
                     intakeDiffyClaw.setClawOpen(false);
                     outtake.setClawOpen(true);
                 }
-                if (pathTimer.getElapsedTime() > 0.4){
+                if (pathTimer.getElapsedTimeSeconds() > 1.6){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
-                if(pathTimer.getElapsedTime() > 0.5){
+                if(pathTimer.getElapsedTimeSeconds() > 3){
                     setPathState(AutoState.DRIVE_TO_SPIKE_MARK_3);
                 }
                 break;
@@ -308,6 +311,7 @@ public class Auto_6_0_Intaking extends OpMode {
         Storage.CurrentPose = follower.getPose();
         tel.addData("Auto State", autoState.name());
         tel.addData("Vision Counter", visionCounter);
+        tel.addData("Attempted Alignment", attemptedNext);
         tel.update();
     }
 }

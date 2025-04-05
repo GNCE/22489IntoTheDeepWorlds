@@ -13,7 +13,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     private static double[] pythonOutput;
     private static int pipelineNumber=4;
     public boolean isRunning(){ return ll.isRunning(); }
-    public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 30; }
+    public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 100; }
 
     public void turnOn(){ if(!isRunning()) ll.start(); }
     public void turnOff(){ if(isRunning()) ll.stop(); }

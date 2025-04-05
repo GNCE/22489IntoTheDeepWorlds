@@ -224,7 +224,12 @@ public class Intake_DiffyClaw extends SubsysCore {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
         } else if(usingLL && ll.isResultValid()){
-            power = (16-ll.getTx())*0.01;
+            if (16-ll.getTx() < 0){
+                power = (16-ll.getTx())*0.0136;
+            } else {
+                power = (16-ll.getTx())*0.012;
+
+            }
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) encoderReset = false;
