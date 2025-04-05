@@ -283,9 +283,7 @@ public class Main_TeleOp extends OpMode {
                 ll.turnOff();
                 if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE){
                     diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                    if (diffyClawIntake.extensionReachedTarget()){
-                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                    }
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
                 break;
         }

@@ -32,6 +32,10 @@ public class Auto_6_0_Intaking extends OpMode {
     private double firstPickupX = 48, firstPickupY = 72;
     private double secondPickupX = 48, secondPickupY = 72;
 
+    private double visionCounter = 0;
+
+
+
     // TODO: Find correct starting pose
     // Static
     private final Pose startPose = new Pose(8.145, 65.45, Math.toRadians(0));
@@ -94,7 +98,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 follower.followPath(follower.pathBuilder()
                         .addBezierCurve(new Point(startPose), new Point(frontScoreX, firstPickupY))
                         .setConstantHeadingInterpolation(startPose.getHeading())
-                        .build(),false);
+                        .setZeroPowerAccelerationMultiplier(1.5)
+                        .build(),true);
                 ll.turnOn();
                 intakeDiffyClaw.ExtendTo(firstPickupX - 48, Intake_DiffyClaw.ExtensionUnits.inches);
                 setPathState(AutoState.READY_FOR_PRELOAD);
@@ -120,17 +125,17 @@ public class Auto_6_0_Intaking extends OpMode {
             case DETECT_EXTEND: // TODO: Wrap in !follower.isbusy?
                 intakeDiffyClaw.stopVision();
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                intakeDiffyClaw.setPowerScale(0.3);
+                intakeDiffyClaw.setPowerScale(0.2);
                 if(ll.isResultValid()){
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.extensionReachedTarget()){
+                if(intakeDiffyClaw.getCurrentPosition() > 300){
                     follower.followPath(
                             follower.pathBuilder()
-                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+5))
+                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+0.5))
                                     .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
                                     .build(),
-                            false
+                            true
                     );
                     setPathState(AutoState.DETECT_RETRACT);
                 }
@@ -138,24 +143,25 @@ public class Auto_6_0_Intaking extends OpMode {
             case DETECT_RETRACT:
                 intakeDiffyClaw.stopVision();
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                intakeDiffyClaw.setPowerScale(0.3);
+                intakeDiffyClaw.setPowerScale(0.5);
                 if(ll.isResultValid()){
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.extensionReachedTarget()){
+                if(intakeDiffyClaw.getCurrentPosition() < 30){
                     counter++; // TODO: Counter UNUSED. ADD TIME OR COUNTER LIMIT
                     follower.followPath(
                             follower.pathBuilder()
                                     .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+5))
-                                    .setConstantHeadingInterpolation(follower.getPose().getHeading())
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
                                     .build(),
-                            false
+                            true
                     );
                     setPathState(AutoState.DETECT_EXTEND);
                 }
                 break;
             case PRELOAD_DETECTED_SAMPLE: // CALL WHEN LL DETECT
                 if(ll.isResultValid()){
+                    visionCounter++;
                     intakeDiffyClaw.setPowerScale(1);
                     intakeDiffyClaw.useVision();
 
@@ -169,7 +175,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
 
-                    follower.holdPoint(new Pose(frontScoreX, follower.getPose().getY() - ll.getTy()*0.1, 0));
+                    follower.holdPoint(new Pose(frontScoreX, follower.getPose().getY() - ll.getTy()*0.001, 0));
                     if(Math.abs(ll.getTx() -16) < 1.5 && Math.abs(ll.getTy()) < 1.5 || pathTimer.getElapsedTime() > 2){
                         setPathState(AutoState.PRELOAD_DONE_ALIGNING);
                     }
@@ -268,7 +274,7 @@ public class Auto_6_0_Intaking extends OpMode {
         outtake.setClawOpen(false);
 
         double translatedX = gamepad1.touchpad_finger_1_y * 12 + 60; // Range is 48 to 72
-        double translatedY = gamepad1.touchpad_finger_1_x  * 16.4 + 72; // Range is 55.6 to 88.4
+        double translatedY = (-gamepad1.touchpad_finger_1_x  * 12.2/2) + 72; // Range is 55.6 to 88.4
 
         if(gamepad1.x){
             firstPickupX = translatedX;
@@ -291,6 +297,7 @@ public class Auto_6_0_Intaking extends OpMode {
     public void loop(){
         follower.update();
         autonomousPathUpdate();
+        ll.loop();
         outtake.outtakeLoop();
         outtakeLift.holdLift();
         outtakeLift.loop();
@@ -300,6 +307,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
         Storage.CurrentPose = follower.getPose();
         tel.addData("Auto State", autoState.name());
+        tel.addData("Vision Counter", visionCounter);
         tel.update();
     }
 }
