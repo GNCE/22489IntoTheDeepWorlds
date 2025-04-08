@@ -231,9 +231,9 @@ public class Main_TeleOp extends OpMode {
                     0.25 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         } else { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
-                    flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                    flip * 0.30 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.2 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    flip * 0.15 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.15 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.1 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         }
         if (intakePipelineSwitchButon.input(gamepad1.a)){
             diffyClawIntake.changePipeline(4);
@@ -256,7 +256,7 @@ public class Main_TeleOp extends OpMode {
 //                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
 //                    }
                 } else if (ALignmentButtonPrev.input(gamepad1.left_trigger == 1)){
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 90;
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 110;
 //                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
 //                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
 //                    }

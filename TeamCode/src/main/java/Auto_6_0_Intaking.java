@@ -274,32 +274,34 @@ public class Auto_6_0_Intaking extends OpMode {
                     outtake.setClawOpen(true);
                 }
                 if(pathTimer.getElapsedTime() > 0.3){
+                    follower.followPath(
+                            follower.pathBuilder()
+                                    .addBezierCurve(new Point(follower.getPose()), new Point(sample3Pose))
+                                    .setLinearHeadingInterpolation(follower.getPose().getHeading(), sample3Pose.getHeading())
+                                    .addParametricCallback(0, ()-> {
+                                        ll.turnOff();
+                                    })
+                                    .addParametricCallback(0.6, () -> {
+                                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                                    })
+                                    .addParametricCallback(0.95, ()-> {
+                                        intakeDiffyClaw.setClawOpen(true);
+                                    })
+                                    .addParametricCallback(1, ()-> {
+                                        intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                                        ll.turnOn();
+                                    })
+                                    .build(),
+                            true
+                    );
                     setPathState(AutoState.DRIVE_TO_SPIKE_MARK_3);
                 }
                 break;
             case DRIVE_TO_SPIKE_MARK_3:
-                follower.followPath(
-                        follower.pathBuilder()
-                                .addBezierCurve(new Point(follower.getPose()), new Point(sample3Pose))
-                                .setLinearHeadingInterpolation(follower.getPose().getHeading(), sample3Pose.getHeading())
-                                .addParametricCallback(0, ()-> {
-                                    ll.turnOff();
-                                })
-                                .addParametricCallback(0.6, () -> {
-                                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
-                                })
-                                .addParametricCallback(0.95, ()-> {
-                                    intakeDiffyClaw.setClawOpen(true);
-                                })
-                                .addParametricCallback(1, ()-> {
-                                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
-                                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                                    ll.turnOn();
-                                    setPathState(AutoState.AT_SPIKE_MARK_3);
-                                })
-                                .build(),
-                        false
-                );
+                if(!follower.isBusy()){
+                    setPathState(AutoState.AT_SPIKE_MARK_3);
+                }
                 break;
             case AT_SPIKE_MARK_3:
                 if (!intakeDiffyClaw.extensionReachedTarget()){

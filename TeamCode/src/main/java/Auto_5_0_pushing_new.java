@@ -64,7 +64,7 @@ public class Auto_5_0_pushing_new extends OpMode {
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 5;
     private final double pickupWaitTimeout = 5;
-    private final double zeroPowerAccelerationMultiplierForPickup = 1.5, zeroPowerAccelerationMultiplierForPush = 5.4, zeroPowerAccelerationMultiplerForScore = 3.5;
+    private final double zeroPowerAccelerationMultiplierForPickup = 1.2, zeroPowerAccelerationMultiplierForPush = 5.4, zeroPowerAccelerationMultiplerForScore = 3.5;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
@@ -188,6 +188,7 @@ public class Auto_5_0_pushing_new extends OpMode {
         PUSHING,
         READY_FOR_PICKUP,
         WALL_PICKUP,
+        WALL_DELAY,
         PICKUP,
         READY_TO_SCORE,
         SCORE,
@@ -227,12 +228,14 @@ public class Auto_5_0_pushing_new extends OpMode {
                 break;
             case BEFORE_PUSHING:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                     setPathState(AutoState.READY_FOR_PUSHING);
                 }
                 break;
             case READY_FOR_PUSHING:
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                }
                 if(!follower.isBusy()){
                     follower.followPath(pushDonePaths[counter], false);
                     setPathState(AutoState.PUSHING);
@@ -254,9 +257,17 @@ public class Auto_5_0_pushing_new extends OpMode {
                 }
                 break;
             case WALL_PICKUP:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                if (pathTimer.getElapsedTimeSeconds() > 0.55){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                }
                 if (!follower.isBusy()){
-                    follower.followPath(wallPickup, true);
+                    setPathState(AutoState.WALL_DELAY);
+                }
+                break;
+            case WALL_DELAY:
+                if (pathTimer.getElapsedTimeSeconds() > 0.05) {
+                    follower.followPath(wallPickup, false);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;
@@ -289,19 +300,19 @@ public class Auto_5_0_pushing_new extends OpMode {
                         counter++;
                         if (counter < 4) {
                             follower.followPath(pickupPaths[counter], true);
-                            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                             setPathState(AutoState.WALL_PICKUP);
                         } else {
                             follower.followPath(parkFromFifthPath, false);
-                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                             setPathState(AutoState.PARK);
                         }
                     }
                 }
                 break;
             case PARK:
+                if (pathTimer.getElapsedTimeSeconds() > 0.6){
+                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
+                }
                 break;
             default:
                 break;

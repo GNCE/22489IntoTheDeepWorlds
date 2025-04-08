@@ -87,7 +87,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
 
         public static int LOW_BAR_WAIT = 1250;
-        public static int LOW_BAR_DONE = 840;
+        public static int LOW_BAR_DONE = 820;
         public static int HIGH_BAR_WAIT = 2500;
         public static int HIGH_BAR_DONE = 0;
     }
