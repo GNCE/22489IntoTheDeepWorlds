@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.DriveSubsys;
+import subsystems.HangServoSubsys;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
@@ -29,7 +30,8 @@ public class Main_TeleOp extends OpMode {
     private IntakeLimelightSubsys ll;
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
-    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
+    private HangServoSubsys hangServos;
+    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime, hangTimer;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
     int flip = 1;
@@ -38,6 +40,7 @@ public class Main_TeleOp extends OpMode {
     private UnifiedTelemetry tel;
 
     ToggleButton takeSnapshotButton = new ToggleButton(false);
+
 
     @Override
     public void init() {
@@ -48,6 +51,7 @@ public class Main_TeleOp extends OpMode {
         resetEncoderDelay = new ElapsedTime();
         outtakeSequenceTime = new ElapsedTime();
         avoidIntakeFsmTimer = new ElapsedTime();
+        hangTimer = new ElapsedTime();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
@@ -61,12 +65,15 @@ public class Main_TeleOp extends OpMode {
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
         outtake = new Outtake(hardwareMap);
+        hangServos = new HangServoSubsys();
+        hangServos.init();
 
         intakeSequenceTime.startTime();
         elapsedTime.startTime();
         resetEncoderDelay.startTime();
         outtakeSequenceTime.startTime();
         avoidIntakeFsmTimer.startTime();
+        hangTimer.startTime();
         initfsm = 1;
     }
 
@@ -138,7 +145,7 @@ public class Main_TeleOp extends OpMode {
         }
     }
     public enum ASCENT_SEQUENCE {
-        SLIDES_UP, SLIDES_DOWN;
+        SLIDES_UP_LOW, SLIDES_DOWN_LOW, SERVO_HOOKS, SLIDES_UP_HIGH, SLIDES_UP_GO;
         private static final ASCENT_SEQUENCE[] vals = values();
 
         public ASCENT_SEQUENCE next() {
@@ -159,10 +166,10 @@ public class Main_TeleOp extends OpMode {
 
 
     BUCKET_SEQUENCE bucketSequence = BUCKET_SEQUENCE.TRANSFER;
-    BACK_SPECIMEN_SEQUENCE backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
+    BACK_SPECIMEN_SEQUENCE backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
     FRONT_SPECIMEN_SEQUENCE frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.OPEN_CLAW;
     OUTTAKE_SEQUENCE outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
-    ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP;
+    ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP_GO;
 
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), backSpecSeqNextButton = new ToggleButton(true), backSpecSeqPrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
@@ -281,7 +288,7 @@ public class Main_TeleOp extends OpMode {
                 break;
             case TRANSFER_WAIT:
                 ll.turnOff();
-                if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE){
+                if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
                     diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
@@ -329,7 +336,7 @@ public class Main_TeleOp extends OpMode {
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
             frontSpecimenSequence = FRONT_SPECIMEN_SEQUENCE.vals[FRONT_SPECIMEN_SEQUENCE.vals.length-1];
             backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
-            outtakeSequenceTime.reset();
+            hangTimer.reset();
         } else if(frontSpecSeqNextButton.input(gamepad2.dpad_right)){
             outtakeSequence = OUTTAKE_SEQUENCE.FRONT_SPEC_SEQUENCE;
             frontSpecimenSequence = frontSpecimenSequence.next();
@@ -453,12 +460,51 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case ASCENT:
-                switch (ascentSequence){
-                    case SLIDES_UP:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
+                    avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
+                    avoidIntakeFsmTimer.reset();
+                }
+
+                switch(avoidIntakeFsm){
+                    case LIFT_SLIDES:
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
+                        if(avoidIntakeFsmTimer.time() > 1){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+                            avoidIntakeFsmTimer.reset();
+                            avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
+                        }
                         break;
-                    case SLIDES_DOWN:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
+                    case MOVE_INTAKE:
+                        if(avoidIntakeFsmTimer.time() > 1.5){
+                            avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
+                        }
+                        break;
+                    case NOTHING:
+                        switch (ascentSequence){
+                            case SLIDES_UP_LOW:
+                                outtakeLift.stopHang();
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LOW_BAR_WAIT);
+                                break;
+                            case SLIDES_DOWN_LOW:
+                                outtakeLift.useHang();
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LOW_BAR_DONE);
+                                break;
+                            case SERVO_HOOKS:
+                                hangServos.hang();
+                                break;
+                            case SLIDES_UP_HIGH:
+                                outtakeLift.stopHang();
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_WAIT);
+                                break;
+                            case SLIDES_UP_GO:
+                                outtakeLift.useHang();
+                                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
+                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_DONE);
+                                if(hangTimer.time() > 0.5){
+                                    hangServos.rest();
+                                }
+                                break;
+                        }
                         break;
                 }
                 break;

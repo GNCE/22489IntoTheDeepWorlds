@@ -28,7 +28,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private Timer pathTimer;
     private ElapsedTime timeSpentInSub;
     private final double backScoreX = 39;
-    private final double frontScoreX = 38;
+    private final double frontScoreX = 37.6;
     private double firstPickupX = 48, firstPickupY = 72;
     private double secondPickupX = 48, secondPickupY = 72;
 
@@ -88,9 +88,50 @@ public class Auto_6_0_Intaking extends OpMode {
     private int counter = 0;
 
     enum AutoState {
-        DRIVE_TO_PRELOAD_SCORE, READY_FOR_PRELOAD, PRELOAD_DRIVE_DONE, PRELOAD_DETECTED_SAMPLE, PRELOAD_DONE_ALIGNING, DETECT_EXTEND, DETECT_RETRACT, PRELOAD_FAILED_ALIGNING, DRIVE_TO_SPIKE_MARK_3, AT_SPIKE_MARK_3
+        DRIVE_TO_PRELOAD_SCORE, READY_FOR_PRELOAD, PRELOAD_DRIVE_DONE, PRELOAD_DETECTED_SAMPLE, PRELOAD_DONE_ALIGNING, DETECT_EXTEND, DETECT_RETRACT, PRELOAD_FAILED_ALIGNING, DRIVE_TO_SPIKE_MARK_3, AT_SPIKE_MARK_3, GRAB_SPIKE_MARK_3, AT_SPIKE_MARK_2, GRAB_SPIKE_MARK_2, AT_SPIKE_MARK_1, GRAB_SPIKE_MARK_1
     }
     int attemptedNext = 0;
+
+    public enum VisionStates{
+        ALIGNING, DONE_ALIGNING, FAILED_ALIGNING, NOT_DETECTED
+    }
+    public VisionStates alignUsingVision(){
+        if(ll.isResultValid()){
+            visionCounter++;
+            intakeDiffyClaw.setPowerScale(1);
+            intakeDiffyClaw.useVision();
+            double angle = ll.getAngle(); // Output 0 is sample angle
+            if(Math.abs(angle) > 85){
+                if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
+                else angle = -85;
+            }
+            if(angle < -90) angle = -90;
+            else if(angle > 90) angle = 90;
+
+            Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
+
+            if(!follower.isBusy()){
+                follower.followPath(
+                        follower.pathBuilder()
+                                .addBezierCurve(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY() + ll.getTy()*0.14))
+                                .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
+                                .setPathEndTimeoutConstraint(0)
+                                .setZeroPowerAccelerationMultiplier(0)
+                                .build(),
+                        true
+                );
+            }
+            if((Math.abs(ll.getTx() -13) < 1.5 && Math.abs(ll.getTy()) < 1.5) || pathTimer.getElapsedTimeSeconds() > 0.6){
+                return VisionStates.DONE_ALIGNING;
+            } else {
+                return VisionStates.ALIGNING;
+            }
+        } else if (pathTimer.getElapsedTimeSeconds() > 0.6){
+            return VisionStates.FAILED_ALIGNING;
+        }
+        return VisionStates.NOT_DETECTED;
+    }
+
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
@@ -116,26 +157,33 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case PRELOAD_DRIVE_DONE:
                 if(!follower.isBusy() && intakeDiffyClaw.extensionReachedTarget()){
-                    if(ll.isResultValid()){
-                        setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
-                    } else {
-                        setPathState(AutoState.DETECT_EXTEND);
-                        counter = 0;
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                    if(pathTimer.getElapsedTime() > 0.2){
+                        outtake.setClawOpen(true);
+                    }
+                    if(pathTimer.getElapsedTime() > 0.4){
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
+                        if(ll.isResultValid()){
+                            setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
+                        } else {
+                            setPathState(AutoState.DETECT_EXTEND);
+                        }
                     }
                 }
                 break;
             case DETECT_EXTEND: // TODO: Wrap in !follower.isbusy?
                 intakeDiffyClaw.stopVision();
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                intakeDiffyClaw.setPowerScale(0.2);
+                intakeDiffyClaw.setPowerScale(0.74);
                 if(ll.isResultValid()){
                     attemptedNext++;
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() > 300&& !ll.isResultValid()){
+                if(intakeDiffyClaw.getCurrentPosition() > 315 && !ll.isResultValid()){
                     follower.followPath(
                             follower.pathBuilder()
-                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+0.5))
+                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+1.2))
                                     .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
                                     .build(),
                             true
@@ -146,16 +194,16 @@ public class Auto_6_0_Intaking extends OpMode {
             case DETECT_RETRACT:
                 intakeDiffyClaw.stopVision();
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                intakeDiffyClaw.setPowerScale(0.5);
+                intakeDiffyClaw.setPowerScale(0.8);
                 if(ll.isResultValid()){
                     attemptedNext++;
                     setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() < 30 && !ll.isResultValid()){
+                if(intakeDiffyClaw.getCurrentPosition() < 24 && !ll.isResultValid()){
                     counter++; // TODO: Counter UNUSED. ADD TIME OR COUNTER LIMIT
                     follower.followPath(
                             follower.pathBuilder()
-                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+5))
+                                    .addBezierLine(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY()+1.2))
                                     .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
                                     .build(),
                             true
@@ -178,29 +226,41 @@ public class Auto_6_0_Intaking extends OpMode {
 
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
 
-                    follower.holdPoint(new Pose(frontScoreX, follower.getPose().getY() - ll.getTy()*0.0012, 0));
-                    if(Math.abs(ll.getTx() -16) < 1.5 && Math.abs(ll.getTy()) < 1.5 || pathTimer.getElapsedTimeSeconds() > 5){
+                    if(!follower.isBusy()){
+                        follower.followPath(
+                                follower.pathBuilder()
+                                        .addBezierCurve(new Point(follower.getPose()), new Point(frontScoreX, follower.getPose().getY() + ll.getTy()*0.14))
+                                        .setLinearHeadingInterpolation(follower.getPose().getHeading(), 0)
+                                        .setPathEndTimeoutConstraint(0)
+                                        .setZeroPowerAccelerationMultiplier(0)
+                                        .build(),
+                                true
+                        );
+                    }
+                    if((Math.abs(ll.getTx() -13) < 1.5 && Math.abs(ll.getTy()) < 1.5) || pathTimer.getElapsedTimeSeconds() > 0.6){
                         setPathState(AutoState.PRELOAD_DONE_ALIGNING);
                     }
-                } else if (pathTimer.getElapsedTimeSeconds() > 5){
+                } else if (pathTimer.getElapsedTimeSeconds() > 0.6){
                     setPathState(AutoState.PRELOAD_DONE_ALIGNING);
                 }
                 break;
             case PRELOAD_DONE_ALIGNING:
-                firstPickupY = follower.getPose().getY();
-                follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                intakeDiffyClaw.ExtendTo(intakeDiffyClaw.getCurrentPosition(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                intakeDiffyClaw.stopVision();
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 ll.turnOff();
-                if (pathTimer.getElapsedTimeSeconds() > 0.7){
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
                     intakeDiffyClaw.setClawOpen(false);
-                    outtake.setClawOpen(true);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 1.6){
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                    intakeDiffyClaw.setPowerScale(1);
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.7){
                     setPathState(AutoState.DRIVE_TO_SPIKE_MARK_3);
                 }
                 break;
@@ -225,21 +285,125 @@ public class Auto_6_0_Intaking extends OpMode {
                                 .addParametricCallback(0, ()-> {
                                     ll.turnOff();
                                 })
-                                .addParametricCallback(0.5, () -> {
-                                    intakeDiffyClaw.ExtendTo(330, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                .addParametricCallback(0.6, () -> {
+                                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                                })
+                                .addParametricCallback(0.95, ()-> {
+                                    intakeDiffyClaw.setClawOpen(true);
+                                })
+                                .addParametricCallback(1, ()-> {
+                                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                                    ll.turnOn();
+                                    setPathState(AutoState.AT_SPIKE_MARK_3);
                                 })
                                 .build(),
                         false
                 );
-                setPathState(AutoState.AT_SPIKE_MARK_3);
                 break;
             case AT_SPIKE_MARK_3:
-                if (!follower.isBusy()){
-                    if(ll.isResultValid()){
-                        // If valid, align for a little bit. If not, just hope for the best and pickup right away.
-                    } else {
-
+                if (!intakeDiffyClaw.extensionReachedTarget()){
+                    VisionStates currentState = alignUsingVision();
+                    if(currentState == VisionStates.FAILED_ALIGNING || currentState == VisionStates.DONE_ALIGNING){
+                        intakeDiffyClaw.ExtendTo(intakeDiffyClaw.getCurrentPosition(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                        intakeDiffyClaw.stopVision();
+                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                        ll.turnOff();
+                        setPathState(AutoState.GRAB_SPIKE_MARK_3);
+                        break;
                     }
+                }
+                break;
+            case GRAB_SPIKE_MARK_3:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    intakeDiffyClaw.setClawOpen(false);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                    intakeDiffyClaw.setPowerScale(1);
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                    intakeDiffyClaw.setClawOpen(true);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.9){
+                    follower.followPath(samp3to2, true);
+                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    setPathState(AutoState.AT_SPIKE_MARK_2);
+                }
+                break;
+            case AT_SPIKE_MARK_2:
+                if(!follower.isBusy() && intakeDiffyClaw.extensionReachedTarget()){
+                    VisionStates currentState = alignUsingVision();
+                    if(currentState == VisionStates.FAILED_ALIGNING || currentState == VisionStates.DONE_ALIGNING){
+                        intakeDiffyClaw.ExtendTo(intakeDiffyClaw.getCurrentPosition(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                        intakeDiffyClaw.stopVision();
+                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                        ll.turnOff();
+                        setPathState(AutoState.GRAB_SPIKE_MARK_2);
+                        break;
+                    }
+                }
+                break;
+            case GRAB_SPIKE_MARK_2:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    intakeDiffyClaw.setClawOpen(false);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                    intakeDiffyClaw.setPowerScale(1);
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                    intakeDiffyClaw.setClawOpen(true);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.9){
+                    follower.followPath(samp2to1, true);
+                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    setPathState(AutoState.AT_SPIKE_MARK_1);
+                }
+                break;
+            case AT_SPIKE_MARK_1:
+                if(!follower.isBusy() && intakeDiffyClaw.extensionReachedTarget()){
+                    VisionStates currentState = alignUsingVision();
+                    if(currentState == VisionStates.FAILED_ALIGNING || currentState == VisionStates.DONE_ALIGNING){
+                        intakeDiffyClaw.ExtendTo(intakeDiffyClaw.getCurrentPosition(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                        intakeDiffyClaw.stopVision();
+                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                        ll.turnOff();
+                        setPathState(AutoState.GRAB_SPIKE_MARK_1);
+                        break;
+                    }
+                }
+                break;
+            case GRAB_SPIKE_MARK_1:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    intakeDiffyClaw.setClawOpen(false);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                    intakeDiffyClaw.setPowerScale(1);
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                    intakeDiffyClaw.setClawOpen(true);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.9){
+                    follower.followPath(samp1toFirstPickup, true);
+                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    setPathState(AutoState.AT_SPIKE_MARK_1);
                 }
                 break;
             default:
@@ -259,11 +423,15 @@ public class Auto_6_0_Intaking extends OpMode {
         ll = new IntakeLimelightSubsys();
         ll.init();
         ll.setPipelineNumber(Storage.isRed ? 6 : 5);
+
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
+
         outtake = new Outtake(hardwareMap);
+
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
+
         buildStaticPaths();
     }
 
@@ -277,7 +445,8 @@ public class Auto_6_0_Intaking extends OpMode {
         outtake.setClawOpen(false);
 
         double translatedX = gamepad1.touchpad_finger_1_y * 12 + 60; // Range is 48 to 72
-        double translatedY = (-gamepad1.touchpad_finger_1_x  * 12.2/2) + 72; // Range is 55.6 to 88.4
+        double translatedY = (-gamepad1.touchpad_finger_1_x  * 12.2/2) + 72;
+        if(translatedY > 76 || translatedY < 68) telemetry.addLine("NO GO ZONE");
 
         if(gamepad1.x){
             firstPickupX = translatedX;

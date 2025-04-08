@@ -40,6 +40,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         touchSensor.setMode(DigitalChannel.Mode.INPUT);
 
         controller = new PIDController(p, i, d);
+        hanging = false;
     }
     public int getCurrentPosition(){
         return (llift.getCurrentPosition() + clift.getCurrentPosition())/2;
@@ -69,7 +70,9 @@ public class OuttakeLiftSubsys extends SubsysCore{
         clift.setZeroPowerBehavior(zeroPowerBehavior);
     }
     public enum OuttakeLiftPositions {
-        TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE
+        BACK_PICKUP_WAIT, TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
+        LOW_BAR_WAIT, LOW_BAR_DONE,
+        HIGH_BAR_WAIT, HIGH_BAR_DONE
     }
     @Config
     public static class OuttakeLiftPositionsCONFIG {
@@ -78,8 +81,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
         public static int FRONT_SCORE_WAIT_POS = 1250;
         public static int FRONT_SCORE_DONE_POS = 1620;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 660;
+        public static int BACK_SCORE_POS = 590;
         public static int BACK_PICKUP_POS = 0;
+        public static int BACK_PICKUP_WAIT_POS = 200;
+
+
+        public static int LOW_BAR_WAIT = 1250;
+        public static int LOW_BAR_DONE = 840;
+        public static int HIGH_BAR_WAIT = 2500;
+        public static int HIGH_BAR_DONE = 0;
     }
     public void LiftTo(OuttakeLiftPositions input){
         switch(input){
@@ -110,6 +120,21 @@ public class OuttakeLiftSubsys extends SubsysCore{
             case AVOID_INTAKE:
                 target = 500;
                 break;
+            case BACK_PICKUP_WAIT:
+                target = OuttakeLiftPositionsCONFIG.BACK_PICKUP_WAIT_POS;
+                break;
+            case LOW_BAR_WAIT:
+                target = OuttakeLiftPositionsCONFIG.LOW_BAR_WAIT;
+                break;
+            case LOW_BAR_DONE:
+                target = OuttakeLiftPositionsCONFIG.LOW_BAR_DONE;
+                break;
+            case HIGH_BAR_WAIT:
+                target = OuttakeLiftPositionsCONFIG.HIGH_BAR_WAIT;
+                break;
+            case HIGH_BAR_DONE:
+                target = OuttakeLiftPositionsCONFIG.HIGH_BAR_DONE;
+                break;
             default:
                 break;
         }
@@ -121,6 +146,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
     private static int prevTarget = 0;
     private boolean encoderReset = true;
 
+    public boolean hanging = false;
+    public void useHang(){
+        hanging = true;
+    }
+    public void stopHang(){
+        hanging = false;
+    }
+    public static double hp = 0.02, hi = 0, hd = 0.000001, hf = -0.0006;
+
     public void holdLift(){
         double power;
         if (Math.abs(opMode.gamepad2.left_stick_y)>0.1) {
@@ -130,14 +164,17 @@ public class OuttakeLiftSubsys extends SubsysCore{
         } else if(target == 0 && (target != prevTarget || !encoderReset)) {
             if(target != prevTarget) encoderReset = false;
             power = -1;
-            if(touchSensor.getState() || clift.getCurrent(CurrentUnit.AMPS) > 10){
+            if(!touchSensor.getState() && clift.getCurrent(CurrentUnit.AMPS) > 5){
                 setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 encoderReset = true;
             }
+        } else if(hanging){
+            controller.setPIDF(hp, hi, hd, hf);
+            power = controller.calculate(getCurrentPosition(), target);
         } else {
             // PIDF Controller
-            controller.setPID(p, i, d);
+            controller.setPIDF(p, i, d, 0);
             double pid = controller.calculate(getCurrentPosition(), target);
             double ticks_in_degree = 145.1 / 360.0;
             double ff = Math.cos(Math.toRadians(target/ticks_in_degree)) * f;
@@ -154,7 +191,10 @@ public class OuttakeLiftSubsys extends SubsysCore{
         tel.addData("Left Lift Position", llift.getCurrentPosition());
         tel.addData("Right Lift Position", rlift.getCurrentPosition());
         tel.addData("Center Lift Position", clift.getCurrentPosition());
+        tel.addData("Llift Power", llift.getPower());
+        tel.addData("Rlift Power", rlift.getPower());
+        tel.addData("Clift Power", clift.getPower());
         tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
-        tel.addData("Limit Switch Pressed?", touchSensor.getState());
+        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
     }
 }

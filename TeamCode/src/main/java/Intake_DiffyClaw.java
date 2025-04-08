@@ -44,8 +44,9 @@ public class Intake_DiffyClaw extends SubsysCore {
 
 
     //EXTENSION CONTROLS
-    private PIDController controller;
+    private PIDController controller, visionPID;
     public static double p = 0.03, i = 0, d = 0.00027;
+    public static double vp = 0.03, vi = 0, vd = 0.00027;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
@@ -83,13 +84,14 @@ public class Intake_DiffyClaw extends SubsysCore {
         extensionTime.startTime();
 
         controller = new PIDController(p, i, d);
+        visionPID = new PIDController(vp, vi, vd);
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
         public static double TRANSFER_POS = 90;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
-        public static double REST_POS = -70;
+        public static double REST_POS = -40;
         public static double DEPOSIT_POS = -50;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
@@ -147,7 +149,7 @@ public class Intake_DiffyClaw extends SubsysCore {
                 break;
             case INTAKE_REST:
                 ArmPosition = ARM_REST;
-                setPivotPosition(INTAKE_DIFFY_POSITIONS.REST_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.REST_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case DEPOSIT:
                 ArmPosition = ARM_DEPOSIT_BACK;
@@ -224,12 +226,9 @@ public class Intake_DiffyClaw extends SubsysCore {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
         } else if(usingLL && ll.isResultValid()){
-            if (16-ll.getTx() < 0){
-                power = (16-ll.getTx())*0.0136;
-            } else {
-                power = (16-ll.getTx())*0.012;
-
-            }
+            double error = 13-ll.getTx();
+            visionPID.setPID(vp, vi, vd);
+            power = visionPID.calculate(error);
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) encoderReset = false;
