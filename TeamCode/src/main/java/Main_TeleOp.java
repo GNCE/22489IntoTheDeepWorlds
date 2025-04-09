@@ -21,7 +21,7 @@ import subsystems.UnifiedTelemetry;
 @TeleOp(name = "Main TeleOp", group = "_TeleOp")
 @Config
 public class Main_TeleOp extends OpMode {
-    public static double mx =  -0.012, my =  -0.012;
+    public static double mx =  -0.008, my =  -0.021;
     public static double targetX = 16, targetY = 0;
     private Follower follower;
 
@@ -175,6 +175,7 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
     private ToggleButton frontSpecSeqNextButton = new ToggleButton(true), frontSpecSeqPrevButton = new ToggleButton(true);
     private ToggleButton headingLockButton = new ToggleButton(false);
+    private ToggleButton headingLockDuringVision = new ToggleButton(false);
     private ToggleButton pipelineToggleButton = new ToggleButton(false);
     public static double hp = 0.8, hi = 0, hd = 0.00013;
     public static double angleThreshold = 0.05;

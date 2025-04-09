@@ -22,6 +22,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
         return isDataFresh() && (llResult.isValid() || getTa() > 6);
     }
 
+
     public double getTa() { return ta; }
     public double getTx(){ return tx; }
     public double getTy(){ return ty; }
