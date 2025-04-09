@@ -38,9 +38,9 @@ public class Auto_5_0_pushing_new extends OpMode {
     private final Pose secondSamplePos = new Pose(startPushingSampleX, 15, Math.toRadians(180));
     private final Pose secondSampleControl = new Pose(74, 29, Math.toRadians(180));
     private final Pose secondSampleEnd = new Pose(28, 18, Math.toRadians(180));
-    private final Pose thirdSamplePos = new Pose(startPushingSampleX, 9, Math.toRadians(180));
+    private final Pose thirdSamplePos = new Pose(startPushingSampleX, 8, Math.toRadians(180));
     private final Pose thirdSampleControl = new Pose(74, 23, Math.toRadians(180));
-    private final Pose thirdSampleEnd = new Pose(25, 9, Math.toRadians(180));
+    private final Pose thirdSampleEnd = new Pose(25, 8, Math.toRadians(180));
 
     private final Pose outtakeFirstPickupPose = new Pose(11, 9, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(16, 32, Math.toRadians(180));

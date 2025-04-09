@@ -58,7 +58,7 @@ public class Outtake {
         public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = -90;
         public static double SPECIMEN_FRONT_PICKUP = 10;
-        public static double SPECIMEN_BACK_SCORE = -70;
+        public static double SPECIMEN_BACK_SCORE = -60;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE = 10;
         public static double ORIENTATION_UP = 0;

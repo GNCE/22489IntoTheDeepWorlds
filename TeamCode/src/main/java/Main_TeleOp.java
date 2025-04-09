@@ -288,7 +288,7 @@ public class Main_TeleOp extends OpMode {
                 break;
             case TRANSFER_WAIT:
                 ll.turnOff();
-                if (intakeSequenceTime.time() > 0.3){
+                if (intakeSequenceTime.time() > 0.7){
                     diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
                 if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){

@@ -33,7 +33,7 @@ public class Auto_0_4 extends OpMode{
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(13, 130, Math.toRadians(315));
+    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(24, 121, Math.toRadians(0));
@@ -155,24 +155,24 @@ public class Auto_0_4 extends OpMode{
                 setPathState(AutoState.SCORE_PRELOAD);
                 break;
             case SCORE_WAIT:
-                if (!follower.isBusy()){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3){
                     outtakeSequenceTime.reset();
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
             case SCORE_PRELOAD:
                 bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 2.2) {
                     follower.followPath(grabPickups[sampleCounter], true);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 2){
+                if (pathTimer.getElapsedTimeSeconds()> 3){
                     outtakeSequenceTime.reset();
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
                 break;
             case INTAKE_WAIT:
                 bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if ( pathTimer.getElapsedTimeSeconds() > 1.5) {
+                if ( pathTimer.getElapsedTimeSeconds() > 2.2) {
                     intakeSequenceTime.reset();
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
@@ -196,7 +196,7 @@ public class Auto_0_4 extends OpMode{
             case TRANSFER_SAMPLE:
                 follower.breakFollowing();
                 intakeSequence = INTAKE_SEQUENCE.GRAB;
-                if (pathTimer.getElapsedTimeSeconds() > 1.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 2.5) {
                     intakeSequenceTime.reset();
                     setPathState(AutoState.OUTTAKE_GRAB_SAMPLE);
                 }
@@ -204,14 +204,14 @@ public class Auto_0_4 extends OpMode{
             case OUTTAKE_GRAB_SAMPLE:
                 intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
                 follower.followPath(scorePickups[sampleCounter],true);
-                if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                if (pathTimer.getElapsedTimeSeconds() > 2.5){
                     outtakeSequenceTime.reset();
                     setPathState(AutoState.READY_TO_SCORE);
                 }
                 break;
             case READY_TO_SCORE:
                 bucketSequence = BUCKET_SEQUENCE.TRANSFER;
-                if (pathTimer.getElapsedTimeSeconds() > 1.5){
+                if (pathTimer.getElapsedTimeSeconds() > 2.5){
                     outtakeSequenceTime.reset();
                     setPathState(AutoState.SCORE);
                 }
