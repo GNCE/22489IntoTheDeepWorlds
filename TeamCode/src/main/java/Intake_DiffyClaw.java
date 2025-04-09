@@ -30,10 +30,10 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0.285;
-    public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.41;
-    public static double CLAW_LOOSE = 0.44;
-    public static double CLAW_OPENED = 0.95;
+    public static double clawPos = 0.93;
+    public static double CLAW_CLOSED = 0.33;
+    public static double CLAW_LOOSE = 0.41;
+    public static double CLAW_OPENED = 0.93;
     //tune these values vvvvv
     public static double ARM_REST = 0.05;
     public static double ARM_TRANSFER_POS = 0.41;
@@ -88,7 +88,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 90;
+        public static double TRANSFER_POS = 80;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = -40;
@@ -163,11 +163,7 @@ public class Intake_DiffyClaw extends SubsysCore {
             RightArmPivot.setPosition(ArmPosition);
             LeftArmPivot.setPosition(ArmPosition);
         }
-        if ((IntakeClamp.getPosition()!=CLAW_CLOSED) && !clawOpen){
-            IntakeClamp.setPosition(CLAW_CLOSED);
-        } else if ((IntakeClamp.getPosition()!=CLAW_OPENED) && clawOpen){
-            IntakeClamp.setPosition(CLAW_OPENED);
-        }
+        IntakeClamp.setPosition(clawPos);
 
         tel.addData("Horizontal Extension Target Position", target);
         tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
@@ -180,9 +176,24 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void setIntakeState(IntakeState intakeState){
         this.intakeState = intakeState;
     }
+    enum CLAW_STATE {
+        OPEN,
+        CLOSED,
+        LOOSE
+    }
 
-    public void setClawOpen(boolean state){
-        clawOpen = state;
+    public void setClawOpen(CLAW_STATE state){
+        switch (state){
+            case OPEN:
+                clawPos = CLAW_OPENED;
+                break;
+            case CLOSED:
+                clawPos = CLAW_CLOSED;
+                break;
+            case LOOSE:
+                clawPos = CLAW_LOOSE;
+                break;
+        }
     }
 
 

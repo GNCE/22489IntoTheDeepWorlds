@@ -11,8 +11,8 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.494;
-    public static double DEFAULT_RDIFFY_POS = 0.506;
+    public static double DEFAULT_LDIFFY_POS = 0.45;
+    public static double DEFAULT_RDIFFY_POS = 0.51;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -48,8 +48,8 @@ public class Outtake {
         lpivhigh.setDirection(Servo.Direction.FORWARD);
         Rdiffy = hardwareMap.get(Servo.class,"outtakeRDiffy");
         Ldiffy = hardwareMap.get(Servo.class,"outtakeLDiffy");
-        Rdiffy.setDirection(Servo.Direction.FORWARD);
-        Ldiffy.setDirection(Servo.Direction.REVERSE);
+        Rdiffy.setDirection(Servo.Direction.REVERSE);
+        Ldiffy.setDirection(Servo.Direction.FORWARD);
     }
 
     @Config
@@ -66,7 +66,7 @@ public class Outtake {
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
-        double ServoRange = 360*5;
+        double ServoRange = 355;
         LdiffyPos = DEFAULT_LDIFFY_POS + UpDownAngle/ServoRange + Orientation*((double) 18/52)/ServoRange;
         RdiffyPos = DEFAULT_RDIFFY_POS + UpDownAngle/ServoRange - Orientation*((double) 18/52)/ServoRange;
     }

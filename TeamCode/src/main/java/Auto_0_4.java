@@ -295,7 +295,7 @@ public class Auto_0_4 extends OpMode{
                 intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 ll.turnOn();
-                intake.setClawOpen(true);
+                intake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if (ll.isRunning() && ll.isResultValid()) {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
                     double angle = ll.getAngle(); // Output 0 is sample angle
@@ -317,7 +317,7 @@ public class Auto_0_4 extends OpMode{
                         .ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     intake
-                            .setClawOpen(false);
+                            .setClawOpen(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
                 if (intakeSequenceTime.time() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -346,7 +346,7 @@ public class Auto_0_4 extends OpMode{
                     outtake.setClawOpen(false);
                 }
                 if (outtakeSequenceTime.time() > 0.74){
-                    intake.setClawOpen(true);
+                    intake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
                 if(outtakeSequenceTime.time() > 1){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
