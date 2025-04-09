@@ -150,8 +150,8 @@ public class Auto_0_4 extends OpMode{
         switch (autoState) {
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreload, true);
-                outtakeSequenceTime.reset();
-                bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
+                outtake.setClawOpen(false);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                 setPathState(AutoState.SCORE_PRELOAD);
                 break;
             case SCORE_WAIT:
@@ -334,36 +334,6 @@ public class Auto_0_4 extends OpMode{
                 break;
             }
 
-        switch (bucketSequence){
-            case TRANSFER:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                outtake.setClawOpen(true);
-                break;
-            case GRAB_AND_LIFT:
-                intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                if (outtakeSequenceTime.time() > 0.23){
-                    outtake.setClawOpen(false);
-                }
-                if (outtakeSequenceTime.time() > 0.74){
-                    intake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                }
-                if(outtakeSequenceTime.time() > 1){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
-                    resetEncoderDelay.reset();
-                }
-                break;
-            case SCORE:
-                outtake.setClawOpen(true);
-                if (resetEncoderDelay.time() > 0.8){
-                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                }
-                break;
-            case RESET:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
-                break;
-        }
         Storage.CurrentPose = follower.getPose();
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());

@@ -413,6 +413,8 @@ public class Main_TeleOp extends OpMode {
                     case NOTHING:
                         switch (backSpecimenSequence){
                             case OPEN_CLAW:
+                                if (outtakeSequenceTime.time() < 0.075){
+                                gamepad1.rumbleBlips(2);}
                                 outtake.setClawOpen(true);
                                 break;
                             case FRONT_GRAB:
@@ -424,6 +426,8 @@ public class Main_TeleOp extends OpMode {
                                 outtake.setClawOpen(false);
                                 break;
                             case BACK_SCORE:
+                                if (outtakeSequenceTime.time() < 0.1){
+                                    gamepad1.rumbleBlips(1);}
                                 outtake.setClawOpen(false);
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
