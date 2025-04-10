@@ -205,10 +205,11 @@ public class Main_TeleOp extends OpMode {
             intakeSequenceTime.reset();
         }
 
-        if(headingLockButton.input(gamepad1.dpad_right)){
+        if(headingLockButton.input(gamepad1.dpad_right) || headingLockDuringVision.input(gamepad1.right_stick_button)){
             targetHeading = follower.getPose().getHeading();
         }
-        if(headingLockButton.getVal()){
+
+        if(headingLockButton.getVal() || gamepad1.right_stick_button){
             headingError = targetHeading - follower.getPose().getHeading();
             headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);
             if(headingError > 2*Math.PI - headingError){
@@ -221,7 +222,9 @@ public class Main_TeleOp extends OpMode {
                 headingPIDController.setPID(hp, hi, hd);
                 headingCorrection = headingPIDController.calculate(headingError);
             }
+        }
 
+        if(headingLockButton.getVal() && !gamepad1.right_stick_button){
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -headingCorrection);
@@ -263,7 +266,7 @@ public class Main_TeleOp extends OpMode {
 //                    }
                 }
                 if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
-                    follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
+                    follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, -headingCorrection);
                     double angle = ll.getAngle(); // Output 0 is sample angle
                     if(Math.abs(angle) > 85){
                         if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
