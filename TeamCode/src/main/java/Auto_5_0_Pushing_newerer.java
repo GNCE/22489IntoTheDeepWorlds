@@ -79,7 +79,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 0;
     private final double pickupWaitTimeout = 0;
-    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.42, zeroPowerAccelerationMultiplierForPickupFirst = 0.38, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
+    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.4, zeroPowerAccelerationMultiplierForPickupFirst = 0.38, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
