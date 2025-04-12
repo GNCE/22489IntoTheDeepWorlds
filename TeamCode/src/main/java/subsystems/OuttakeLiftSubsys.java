@@ -17,7 +17,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     DigitalChannel touchSensor;
 
     private PIDController controller;
-    public static double p = 0.012, i = 0, d = 0.00023, f = 0.05;
+    public static double p = 0.0087, i = 0, d = 0.000067, f = 0.05;
 
     public static int target = 0;
     private static UnifiedTelemetry tel = new UnifiedTelemetry();
@@ -87,7 +87,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
 
         public static int LOW_BAR_WAIT = 2444;
-        public static int LOW_BAR_DONE = 1603;
+        public static int LOW_BAR_DONE = 1640;
         public static int HIGH_BAR_WAIT = 4888;
         public static int HIGH_BAR_DONE = 0;
     }
@@ -140,7 +140,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         }
     }
     public boolean isBusy(){
-        return Math.abs(target - getCurrentPosition()) <= 20;
+        return Math.abs(target - getCurrentPosition()) <= 12;
     }
 
     private static int prevTarget = 0;

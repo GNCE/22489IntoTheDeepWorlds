@@ -271,6 +271,8 @@ public class Auto_0_4 extends OpMode{
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
+        outtake.setClawOpen(false);
+        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
         outtake.outtakeLoop();
         telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         telemetry.update();

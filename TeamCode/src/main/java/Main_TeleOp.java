@@ -190,6 +190,7 @@ public class Main_TeleOp extends OpMode {
 
     AVOID_INTAKE_FSM avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
     ElapsedTime avoidIntakeFsmTimer;
+    public static double DELAY = 0.5;
 
     @Override
     public void loop() {
@@ -384,12 +385,9 @@ public class Main_TeleOp extends OpMode {
                         break;
                     case SCORE:
                         outtake.setClawOpen(true);
-                        if (resetEncoderDelay.time() > 0.5){
+                        if (resetEncoderDelay.time() > 0.2){
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
-                        break;
-                    case RESET:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
                         break;
                 }
                 break;
@@ -409,14 +407,15 @@ public class Main_TeleOp extends OpMode {
                         }
                         break;
                     case MOVE_INTAKE:
-                        if(avoidIntakeFsmTimer.time() > 1.5){
+                        if(avoidIntakeFsmTimer.time() > DELAY){
                             avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
+                            backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
                         }
                         break;
                     case NOTHING:
                         switch (backSpecimenSequence){
                             case OPEN_CLAW:
-                                if (outtakeSequenceTime.time() < 0.03){
+                                if (outtakeSequenceTime.time() < 0.02){
                                 gamepad1.rumbleBlips(1);}
                                 outtake.setClawOpen(true);
                                 if (outtakeSequenceTime.time() > 0.3){
@@ -432,7 +431,8 @@ public class Main_TeleOp extends OpMode {
                                 outtake.setClawOpen(false);
                                 break;
                             case BACK_SCORE:
-                                gamepad1.rumble(50);
+                                if (outtakeSequenceTime.time() < 0.02){
+                                    gamepad1.rumbleBlips(1);}
                                 outtake.setClawOpen(false);
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
@@ -517,6 +517,9 @@ public class Main_TeleOp extends OpMode {
                                 }
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();
+                                }
+                                if (outtakeLift.isBusy()){
+                                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                                 }
                                 break;
                         }

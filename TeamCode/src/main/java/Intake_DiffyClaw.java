@@ -45,7 +45,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     //EXTENSION CONTROLS
     private PIDController controller, visionPID;
-    public static double p = 0.03, i = 0, d = 0.00027;
+    public static double p = 0.02, i = 0, d = 0.00048;
     public static double vp = 0.03, vi = 0, vd = 0.00027;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();

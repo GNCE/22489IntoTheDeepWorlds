@@ -116,7 +116,7 @@ public class Outtake {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case Auto_Wait:
-                ArmPosition = 0.5;
+                ArmPosition = 0.4;
                 setPivotPosition(DIFFY_POSITIONS.AUTO_INIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
         }
