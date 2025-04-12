@@ -12,13 +12,14 @@ public class IntakeLimelightSubsys extends SubsysCore {
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
     private static int pipelineNumber=4;
-    public boolean isRunning(){ return ll.isRunning(); }
+    private boolean prevllon = false, llon = false;
     public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 100; }
 
-    public void turnOn(){ if(!isRunning()) ll.start(); }
-    public void turnOff(){ if(isRunning()) ll.stop(); }
+    public boolean isRunning(){ return llon; }
+    public void turnOn(){ llon = true; }
+    public void turnOff(){ llon = false; }
     public boolean isResultValid(){
-        if(!isRunning()) return false;
+        if(!llon) return false;
         return isDataFresh() && (llResult.isValid() || getTa() > 6);
     }
 
@@ -43,11 +44,17 @@ public class IntakeLimelightSubsys extends SubsysCore {
         light = hardwareMap.get(Servo.class, "light");
         ll.setPollRateHz(100);
         light.setPosition(0);
+        turnOff();
     }
 
     @Override
     public void loop(){
-        if(isRunning()){
+        if(prevllon != llon){
+            if(llon) ll.start();
+            else ll.stop();
+        }
+
+        if(llon){
             light.setPosition(1);
             ll.pipelineSwitch(pipelineNumber);
             llResult = ll.getLatestResult();
@@ -64,6 +71,8 @@ public class IntakeLimelightSubsys extends SubsysCore {
         } else {
             light.setPosition(0);
         }
+
+        prevllon = llon;
 
         tel.addLine("Limelight Data");
         tel.addData("Connected?", ll.isConnected());

@@ -31,7 +31,7 @@ public class Main_TeleOp extends OpMode {
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private HangServoSubsys hangServos;
-    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime, hangTimer;
+    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime, hangTimer, loopTime;
     private final Pose startPose = Storage.CurrentPose;
     private double targetHeading = 180, headingError, headingCorrection;
     int flip = 1;
@@ -52,6 +52,7 @@ public class Main_TeleOp extends OpMode {
         outtakeSequenceTime = new ElapsedTime();
         avoidIntakeFsmTimer = new ElapsedTime();
         hangTimer = new ElapsedTime();
+        loopTime = new ElapsedTime();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
@@ -95,6 +96,7 @@ public class Main_TeleOp extends OpMode {
     public void start() {
         follower.startTeleopDrive();
         diffyClawIntake.init();
+        loopTime.startTime();
     }
     public enum INTAKE_SEQUENCE{
         TRANSFER_WAIT, READY, GRAB;
@@ -518,7 +520,7 @@ public class Main_TeleOp extends OpMode {
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();
                                 }
-                                if(outtakeLift.getCurrentPosition() < 15){
+                                if(outtakeLift.getCurrentPosition() < 10){
                                     diffyClawIntake.useHang();
                                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.HANG);
                                     hangServos.hang();
@@ -552,6 +554,8 @@ public class Main_TeleOp extends OpMode {
         tel.addData("Y", follower.getPose().getY());
         tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
         tel.addData("Elapsed Time", elapsedTime.toString());
+        tel.addData("Loop Time", loopTime.toString());
         tel.update();
+        loopTime.reset();
     }
 }

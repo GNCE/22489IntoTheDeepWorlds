@@ -23,7 +23,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 39.3;
-    private final double scoreY = 78;
+    private final double scoreY = 76;
 
     private final Pose startPose = new Pose(7.1, 65.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
@@ -50,16 +50,14 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
             {
                     new Pose(18.5, 12.0158940397351, Math.toRadians(180)),
                     new Pose(72.28609271523179, 14.87682119205298, Math.toRadians(180)),
-                    new Pose(64.08476821192053, 10.108609271523186, Math.toRadians(180)),
-                    new Pose(61.98675496688742, 4.386754966887411, Math.toRadians(180)),
-                    new Pose(31.47019867549669, 7.629139072847689, Math.toRadians(180)),
-                    new Pose(10.5, 6.675496688741724, Math.toRadians(180)),
+                    new Pose(64.08476821192053, 10.3, Math.toRadians(180)),
+                    new Pose(61.98675496688742, 4.768, Math.toRadians(180)),
+                    new Pose(31.47019867549669, 8.9, Math.toRadians(180)),
+                    new Pose(14, 7.25, Math.toRadians(180)),
             }
     };
 
-    private final Pose thirdSampleEnd = new Pose(22, 7.5, Math.toRadians(180));
-
-    private final Pose outtakeFirstPickupPose = new Pose(10.6, 9, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(10.7, 9, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
     private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
@@ -67,7 +65,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose outtakePickupControl2 = new Pose(25, 40, Math.toRadians(180));
 
     private final double scoreControlX = 23;
-    private final double scoreYChange = 1.7;
+    private final double scoreYChange = 1.5;
     private final Pose firstScorePose = new Pose(scoreX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose firstScoreControl = new Pose(scoreControlX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(180));
@@ -81,7 +79,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 0;
     private final double pickupWaitTimeout = 0;
-    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.43, zeroPowerAccelerationMultiplierForPickupFirst = 0.39, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
+    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.42, zeroPowerAccelerationMultiplierForPickupFirst = 0.38, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
@@ -101,19 +99,19 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 .build();
         goToSecondPush = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[1]))
-                .setLinearHeadingInterpolation(samplePushPoses[1][0].getHeading(), samplePushPoses[1][samplePushPoses[0].length-1].getHeading())
+                .setLinearHeadingInterpolation(samplePushPoses[1][0].getHeading(), samplePushPoses[1][samplePushPoses[1].length-1].getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPushWAIT)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
                 .build();
         goToThirdPush = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[2]))
-                .setLinearHeadingInterpolation(samplePushPoses[2][0].getHeading(), samplePushPoses[2][samplePushPoses[0].length-1].getHeading())
+                .setLinearHeadingInterpolation(samplePushPoses[2][0].getHeading(), samplePushPoses[2][samplePushPoses[2].length-1].getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPushWAIT)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
                 .build();
         firstPickupPath = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(samplePushPoses[2][samplePushPoses[0].length-1]), new Point(samplePushPoses[2][samplePushPoses[0].length-1])))
-                .setLinearHeadingInterpolation(samplePushPoses[2][samplePushPoses[0].length-1].getHeading(), samplePushPoses[2][samplePushPoses[0].length-1].getHeading())
+                .addPath(new BezierCurve(new Point(samplePushPoses[2][samplePushPoses[2].length-1]), new Point(outtakeFirstPickupPose)))
+                .setLinearHeadingInterpolation(samplePushPoses[2][samplePushPoses[2].length-1].getHeading(), outtakeFirstPickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickupFirst)
                 .setPathEndTimeoutConstraint(25)
                 .build();
@@ -246,7 +244,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], true);
+                        follower.followPath(pickupPaths[counter], false);
                     }
                 }
                 break;
@@ -261,7 +259,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 break;
             case WALL_DELAY:
                 if (pathTimer.getElapsedTimeSeconds() > 0.0) {
-                    follower.followPath(wallPickup, true);
+                    follower.followPath(wallPickup, false);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;

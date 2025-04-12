@@ -89,6 +89,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         controller = new PIDController(p, i, d);
         visionPID = new PIDController(vp, vi, vd);
         hangPID = new PIDController(hp, hi, hd);
+        hanging = false;
+        usingLL = false;
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
@@ -128,6 +130,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
         encoderUpdated = 0;
         usingLL = false;
+        hanging = false;
         powerScale = 1;
         target=IntakeExtensionPositions.RETRACTED_POS;
     }
@@ -172,7 +175,9 @@ public class Intake_DiffyClaw extends SubsysCore {
             RightArmPivot.setPosition(ArmPosition);
             LeftArmPivot.setPosition(ArmPosition);
         }
-        IntakeClamp.setPosition(clawPos);
+        if (clawPos != IntakeClamp.getPosition()){
+            IntakeClamp.setPosition(clawPos);
+        }
 
         tel.addData("Horizontal Extension Target Position", target);
         tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());

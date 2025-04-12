@@ -42,7 +42,7 @@ public class Auto_5_0_pushing_new extends OpMode {
     private final Pose thirdSampleControl = new Pose(74, 23, Math.toRadians(180));
     private final Pose thirdSampleEnd = new Pose(22, 7.5, Math.toRadians(180));
 
-    private final Pose outtakeFirstPickupPose = new Pose(10.6, 9, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(10.5, 9, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
     private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
     private final Pose outtakePickupControlFirst = new Pose(44, 32, Math.toRadians(180));
@@ -64,7 +64,7 @@ public class Auto_5_0_pushing_new extends OpMode {
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 0;
     private final double pickupWaitTimeout = 0;
-    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.43, zeroPowerAccelerationMultiplierForPickupFirst = 0.39, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
+    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.42, zeroPowerAccelerationMultiplierForPickupFirst = 0.37, zeroPowerAccelerationMultiplierForPush = 4.5, zeroPowerAccelerationMultiplierForPushWAIT = 1 ,zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
@@ -116,13 +116,13 @@ public class Auto_5_0_pushing_new extends OpMode {
                 .addPath(new BezierCurve(new Point(thirdSampleEnd), new Point(outtakeFirstPickupPose)))
                 .setLinearHeadingInterpolation(thirdSampleEnd.getHeading(), outtakePickupWaitPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickupFirst)
-                .setPathEndTimeoutConstraint(25)
+                .setPathEndTimeoutConstraint(100)
                 .build();
         wallPickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose),new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(outtakePickupWaitPose.getHeading(),outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickupLastTwo)
-                .setPathEndTimeoutConstraint(25)
+                .setPathEndTimeoutConstraint(100)
                 .build();
         firstScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupWaitPose), new Point(firstScoreControl), new Point(firstScorePose)))
@@ -257,7 +257,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], true);
+                        follower.followPath(pickupPaths[counter], false);
                     }
                 }
                 break;

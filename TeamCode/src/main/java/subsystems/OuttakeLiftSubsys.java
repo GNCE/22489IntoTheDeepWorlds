@@ -158,8 +158,10 @@ public class OuttakeLiftSubsys extends SubsysCore{
     public void holdLift(){
         double power;
         if(!touchSensor.getState()){
-            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if(getCurrentPosition() != 0){
+                setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
         }
 
         if (Math.abs(opMode.gamepad2.left_stick_y)>0.1) {
