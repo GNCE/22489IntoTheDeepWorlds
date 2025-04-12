@@ -233,7 +233,7 @@ public class Main_TeleOp extends OpMode {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.25 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+                    0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         } else { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
                     flip * 0.15 * Math.tan(1.12 * -gamepad1.left_stick_y),

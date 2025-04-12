@@ -28,7 +28,7 @@ public class Auto_0_4 extends OpMode{
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(14, 129, Math.toRadians(315));
+    private final Pose scorePose = new Pose(20, 123, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(24, 121, Math.toRadians(0));
@@ -148,7 +148,7 @@ public class Auto_0_4 extends OpMode{
                 outtake.setClawOpen(false);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
-                setPathState(AutoState.SCORE_PRELOAD);
+                setPathState(AutoState.SCORE_WAIT);
                 break;
             case SCORE_WAIT:
                 if (!follower.isBusy() && !outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds()>4){

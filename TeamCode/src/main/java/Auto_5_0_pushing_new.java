@@ -272,7 +272,7 @@ public class Auto_5_0_pushing_new extends OpMode {
                 break;
             case WALL_DELAY:
                 if (pathTimer.getElapsedTimeSeconds() > 0.0) {
-                    follower.followPath(wallPickup, true);
+                    follower.followPath(wallPickup, false);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;
