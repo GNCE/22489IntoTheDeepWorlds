@@ -77,18 +77,18 @@ public class OuttakeLiftSubsys extends SubsysCore{
     @Config
     public static class OuttakeLiftPositionsCONFIG {
         public static int TRANSFER_POS = 0;
-        public static int BUCKET_POS = 2000;
-        public static int FRONT_SCORE_WAIT_POS = 1250;
-        public static int FRONT_SCORE_DONE_POS = 1620;
+        public static int BUCKET_POS = 3910;
+        public static int FRONT_SCORE_WAIT_POS = 2444;
+        public static int FRONT_SCORE_DONE_POS = 3167;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 590;
+        public static int BACK_SCORE_POS = 1154;
         public static int BACK_PICKUP_POS = 0;
-        public static int BACK_PICKUP_WAIT_POS = 200;
+        public static int BACK_PICKUP_WAIT_POS = 391;
 
 
-        public static int LOW_BAR_WAIT = 1250;
-        public static int LOW_BAR_DONE = 820;
-        public static int HIGH_BAR_WAIT = 2500;
+        public static int LOW_BAR_WAIT = 2444;
+        public static int LOW_BAR_DONE = 1603;
+        public static int HIGH_BAR_WAIT = 4888;
         public static int HIGH_BAR_DONE = 0;
     }
     public void LiftTo(OuttakeLiftPositions input){
@@ -140,7 +140,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         }
     }
     public boolean isBusy(){
-        return Math.abs(target - getCurrentPosition()) <= 4;
+        return Math.abs(target - getCurrentPosition()) <= 20;
     }
 
     private static int prevTarget = 0;
@@ -157,6 +157,11 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
     public void holdLift(){
         double power;
+        if(!touchSensor.getState()){
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
         if (Math.abs(opMode.gamepad2.left_stick_y)>0.1) {
             // Manual Takeover. Disable PID or limits
             power = -opMode.gamepad2.left_stick_y;
@@ -164,9 +169,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         } else if(target == 0 && (target != prevTarget || !encoderReset)) {
             if(target != prevTarget) encoderReset = false;
             power = -1;
-            if(!touchSensor.getState() && clift.getCurrent(CurrentUnit.AMPS) > 5){
-                setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if(!touchSensor.getState()){
                 encoderReset = true;
             }
         } else if(hanging){
@@ -181,6 +184,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
             power = pid + ff;
         }
 
+        prevTarget = target;
         setPower(power);
     }
 

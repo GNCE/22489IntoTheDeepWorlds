@@ -228,7 +228,7 @@ public class Main_TeleOp extends OpMode {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -headingCorrection);
-        } else if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT) {
+        } else if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT || intakeSequence == INTAKE_SEQUENCE.GRAB) {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
@@ -253,7 +253,7 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 ll.turnOn();
-                diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if (ALignmentButtonNext.input(gamepad1.right_trigger == 1)){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
 //                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
@@ -283,7 +283,7 @@ public class Main_TeleOp extends OpMode {
                 ll.turnOff();
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
-                    diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.CLOSED);
+                    diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
                 if (intakeSequenceTime.time() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -293,7 +293,7 @@ public class Main_TeleOp extends OpMode {
             case TRANSFER_WAIT:
                 ll.turnOff();
                 if (intakeSequenceTime.time() > 0.7){
-                    diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                    diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
                 if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
                     diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
@@ -374,7 +374,7 @@ public class Main_TeleOp extends OpMode {
                             outtake.setClawOpen(false);
                         }
                         if (outtakeSequenceTime.time() > 0.74){
-                            diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                            diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
                         if(outtakeSequenceTime.time() > 1){
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
@@ -384,7 +384,7 @@ public class Main_TeleOp extends OpMode {
                         break;
                     case SCORE:
                         outtake.setClawOpen(true);
-                        if (resetEncoderDelay.time() > 0.8){
+                        if (resetEncoderDelay.time() > 0.5){
                             outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
                         }
                         break;
@@ -402,7 +402,7 @@ public class Main_TeleOp extends OpMode {
                 switch(avoidIntakeFsm){
                     case LIFT_SLIDES:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
-                        if(avoidIntakeFsmTimer.time() > 1){
+                        if(!outtakeLift.isBusy()){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                             avoidIntakeFsmTimer.reset();
                             avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
@@ -416,9 +416,12 @@ public class Main_TeleOp extends OpMode {
                     case NOTHING:
                         switch (backSpecimenSequence){
                             case OPEN_CLAW:
-                                if (outtakeSequenceTime.time() < 0.075){
-                                gamepad1.rumbleBlips(2);}
+                                if (outtakeSequenceTime.time() < 0.03){
+                                gamepad1.rumbleBlips(1);}
                                 outtake.setClawOpen(true);
+                                if (outtakeSequenceTime.time() > 0.3){
+                                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
+                                }
                                 break;
                             case FRONT_GRAB:
                                 outtake.setClawOpen(true);
@@ -429,8 +432,7 @@ public class Main_TeleOp extends OpMode {
                                 outtake.setClawOpen(false);
                                 break;
                             case BACK_SCORE:
-                                if (outtakeSequenceTime.time() < 0.1){
-                                    gamepad1.rumbleBlips(1);}
+                                gamepad1.rumble(50);
                                 outtake.setClawOpen(false);
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
@@ -453,7 +455,7 @@ public class Main_TeleOp extends OpMode {
                         outtake.setClawOpen(false);
                         if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
-                            diffyClawIntake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                            diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
                         break;
                     case FRONT_SCORE:
@@ -508,9 +510,11 @@ public class Main_TeleOp extends OpMode {
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_WAIT);
                                 break;
                             case SLIDES_UP_GO:
-                                outtakeLift.useHang();
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_DONE);
+                                if(hangTimer.time() > 0.2){
+                                    outtakeLift.useHang();
+                                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_DONE);
+                                }
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();
                                 }

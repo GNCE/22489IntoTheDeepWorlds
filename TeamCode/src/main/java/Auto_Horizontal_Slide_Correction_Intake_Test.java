@@ -13,9 +13,6 @@ import subsystems.IntakeLimelightSubsys;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 
 @Autonomous (name = "INTAKING TEST AUTO")
@@ -64,7 +61,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
             case READY_FOR_PRELOAD:
                 if(outtakeLift.getCurrentPosition() > 300){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                    intakeDiffyClaw.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                     ll.turnOn();
                     follower.startTeleopDrive();
                     setPathState(AutoState.PRELOAD_DRIVE_DONE);
@@ -149,7 +146,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 ll.turnOff();
                 if (pathTimer.getElapsedTime() > 0.2){
-                    intakeDiffyClaw.setClawOpen(Intake_DiffyClaw.CLAW_STATE.CLOSED);
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                     outtake.setClawOpen(true);
                 }
                 if (pathTimer.getElapsedTime() > 0.4){

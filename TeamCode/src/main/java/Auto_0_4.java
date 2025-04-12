@@ -5,15 +5,10 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
-import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -152,76 +147,80 @@ public class Auto_0_4 extends OpMode{
                 follower.followPath(scorePreload, true);
                 outtake.setClawOpen(false);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                 setPathState(AutoState.SCORE_PRELOAD);
                 break;
             case SCORE_WAIT:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3){
-                    outtakeSequenceTime.reset();
+                if (!follower.isBusy() && !outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
             case SCORE_PRELOAD:
-                bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if (pathTimer.getElapsedTimeSeconds() > 2.2) {
+                outtake.setClawOpen(true);
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     follower.followPath(grabPickups[sampleCounter], true);
+                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 3){
-                    outtakeSequenceTime.reset();
-                    setPathState(AutoState.INTAKE_SAMPLE);
+                if (pathTimer.getElapsedTimeSeconds()> 1){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    setPathState(AutoState.INTAKE_WAIT);
                 }
                 break;
             case INTAKE_WAIT:
-                bucketSequence = BUCKET_SEQUENCE.SCORE;
-                if ( pathTimer.getElapsedTimeSeconds() > 2.2) {
-                    intakeSequenceTime.reset();
+                if (!follower.isBusy()) {
+                    follower.breakFollowing();
+                    follower.startTeleopDrive();
+                    intakeSequence = INTAKE_SEQUENCE.READY;
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
                 break;
             case INTAKE_SAMPLE:
-                bucketSequence = BUCKET_SEQUENCE.TRANSFER;
-                if (!follower.isBusy()){
-                    follower.breakFollowing();
-                    follower.startTeleopDrive();
+                if (!follower.isBusy() && (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED == ll.getAngle() || pathTimer.getElapsedTimeSeconds()>4)){
                     intakeSequenceTime.reset();
+                    follower.breakFollowing();
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
-                intakeSequence = INTAKE_SEQUENCE.READY;
-                if (pathTimer.getElapsedTimeSeconds() > 3){
-                    intakeSequenceTime.reset();
+                intakeSequence = INTAKE_SEQUENCE.GRAB;
+                if (pathTimer.getElapsedTimeSeconds() > 2){
                     setPathState(AutoState.TRANSFER_SAMPLE);
                 }
                 break;
             case TRANSFER_SAMPLE:
-                follower.breakFollowing();
-                intakeSequence = INTAKE_SEQUENCE.GRAB;
-                if (pathTimer.getElapsedTimeSeconds() > 2.5) {
-                    intakeSequenceTime.reset();
-                    setPathState(AutoState.OUTTAKE_GRAB_SAMPLE);
-                }
+                intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                setPathState(AutoState.OUTTAKE_GRAB_SAMPLE);
                 break;
             case OUTTAKE_GRAB_SAMPLE:
-                intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
                 follower.followPath(scorePickups[sampleCounter],true);
-                if (pathTimer.getElapsedTimeSeconds() > 2.5){
-                    outtakeSequenceTime.reset();
-                    setPathState(AutoState.READY_TO_SCORE);
+                if (pathTimer.getElapsedTimeSeconds() > 0.23){
+                    outtake.setClawOpen(false);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.3){
+                        intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                        setPathState(AutoState.READY_TO_SCORE);
+                    }
+
                 }
                 break;
             case READY_TO_SCORE:
-                bucketSequence = BUCKET_SEQUENCE.TRANSFER;
-                if (pathTimer.getElapsedTimeSeconds() > 2.5){
-                    outtakeSequenceTime.reset();
+                if (!follower.isBusy() && !outtakeLift.isBusy()){
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     setPathState(AutoState.SCORE);
                 }
                 break;
             case SCORE:
-                bucketSequence= BUCKET_SEQUENCE.GRAB_AND_LIFT;
                 sampleCounter++;
                 if (!follower.isBusy() && sampleCounter < 3){
-                    outtakeSequenceTime.reset();
-                    setPathState(AutoState.INTAKE_WAIT);
+                    outtake.setClawOpen(true);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        follower.followPath(grabPickups[sampleCounter], true);
+                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                    }
+                    if (pathTimer.getElapsedTimeSeconds()> 1) {
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                        setPathState(AutoState.INTAKE_WAIT);
+                    }
                 } else {
                     setPathState(AutoState.PARK);
                 }
@@ -295,7 +294,7 @@ public class Auto_0_4 extends OpMode{
                 intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 ll.turnOn();
-                intake.setClawOpen(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if (ll.isRunning() && ll.isResultValid()) {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
                     double angle = ll.getAngle(); // Output 0 is sample angle
@@ -317,7 +316,7 @@ public class Auto_0_4 extends OpMode{
                         .ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     intake
-                            .setClawOpen(Intake_DiffyClaw.CLAW_STATE.CLOSED);
+                            .setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
                 if (intakeSequenceTime.time() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;

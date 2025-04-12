@@ -34,6 +34,7 @@ public class Outtake {
         TRANSFER,
         SAMPLESCORE,
         SPECBACKSCORE,
+        SPECBACKSCOREOUT,
         SPECBACKPICKUP,
         RESET_ENCODER,
         Auto_Wait
@@ -59,6 +60,7 @@ public class Outtake {
         public static double TRANSFER = -90;
         public static double SPECIMEN_FRONT_PICKUP = 10;
         public static double SPECIMEN_BACK_SCORE = -60;
+        public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE = 10;
         public static double ORIENTATION_UP = 0;
@@ -96,6 +98,10 @@ public class Outtake {
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSCORE_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
+            case SPECBACKSCOREOUT:
+                ArmPosition = ARM_BACKSCORE_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE_OUT, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case RESET_ENCODER:
                 ArmPosition = 0.55;

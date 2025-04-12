@@ -182,7 +182,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         LOOSE
     }
 
-    public void setClawOpen(CLAW_STATE state){
+    public void setClawState(CLAW_STATE state){
         switch (state){
             case OPEN:
                 clawPos = CLAW_OPENED;
