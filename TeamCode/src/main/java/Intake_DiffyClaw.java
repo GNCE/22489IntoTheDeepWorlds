@@ -41,12 +41,14 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
+    public static double ARM_HANG = 0.25;
 
 
     //EXTENSION CONTROLS
-    private PIDController controller, visionPID;
+    private PIDController controller, visionPID, hangPID;
     public static double p = 0.03, i = 0, d = 0.00027;
     public static double vp = 0.03, vi = 0, vd = 0.00027;
+    public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.000005;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
@@ -58,7 +60,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         INTAKE_ARM_READY,
         INTAKE_ARM_PICKUP,
         INTAKE_REST,
-        DEPOSIT
+        DEPOSIT,
+        HANG
 
     }
     public Intake_DiffyClaw() {
@@ -85,6 +88,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
         controller = new PIDController(p, i, d);
         visionPID = new PIDController(vp, vi, vd);
+        hangPID = new PIDController(hp, hi, hd);
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
@@ -96,6 +100,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
+        public static double HANG = 0;
 
     }
 
@@ -154,6 +159,10 @@ public class Intake_DiffyClaw extends SubsysCore {
             case DEPOSIT:
                 ArmPosition = ARM_DEPOSIT_BACK;
                 setPivotPosition(INTAKE_DIFFY_POSITIONS.DEPOSIT_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case HANG:
+                ArmPosition = ARM_HANG;
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.HANG, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 
@@ -228,6 +237,10 @@ public class Intake_DiffyClaw extends SubsysCore {
         usingLL = false;
     }
 
+    private boolean hanging = false;
+    public void useHang(){ hanging = true; }
+    public void stopHang(){ hanging = false; }
+
     public void HoldExtension(){ //TODO: Call this in the main loop
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
@@ -236,10 +249,13 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
-        } else if(usingLL && ll.isResultValid()){
-            double error = 13-ll.getTx();
+        } else if(usingLL && ll.isResultValid()) {
+            double error = 13 - ll.getTx();
             visionPID.setPID(vp, vi, vd);
             power = visionPID.calculate(error);
+        } else if(hanging){
+            hangPID.setPIDF(hp, hi, hd, hf);
+            power = hangPID.calculate(getCurrentPosition(), target);
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) encoderReset = false;

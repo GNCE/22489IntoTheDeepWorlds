@@ -156,12 +156,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case PRELOAD_DRIVE_DONE:
-                if(!follower.isBusy() && intakeDiffyClaw.extensionReachedTarget()){
+                if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
-                    if(pathTimer.getElapsedTime() > 0.2){
+                    if(pathTimer.getElapsedTime() > 0.5){
                         outtake.setClawOpen(true);
                     }
-                    if(pathTimer.getElapsedTime() > 0.4){
+                    if(pathTimer.getElapsedTime() > 1){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
                         if(ll.isResultValid()){
@@ -212,6 +212,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case PRELOAD_DETECTED_SAMPLE: // CALL WHEN LL DETECT
+                VisionStates currentVisionState = alignUsingVision();
                 if(ll.isResultValid()){
                     visionCounter++;
                     intakeDiffyClaw.setPowerScale(1);

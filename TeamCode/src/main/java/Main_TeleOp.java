@@ -518,6 +518,11 @@ public class Main_TeleOp extends OpMode {
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();
                                 }
+                                if(outtakeLift.getCurrentPosition() < 15){
+                                    diffyClawIntake.useHang();
+                                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.HANG);
+                                    hangServos.hang();
+                                }
                                 break;
                         }
                         break;
