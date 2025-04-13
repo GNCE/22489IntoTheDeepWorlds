@@ -179,6 +179,22 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton headingLockButton = new ToggleButton(false);
     private ToggleButton headingLockDuringVision = new ToggleButton(false);
     private ToggleButton pipelineToggleButton = new ToggleButton(false);
+    private ToggleButton autoScoreToggleButton = new ToggleButton(false);
+    public static Pose[] scorePoses = {
+            new Pose(11.1, 32, Math.toRadians(180)),
+            new Pose(20, 32, Math.toRadians(180)),
+            new Pose(20, 32, Math.toRadians(180)),
+            new Pose(30, 65, Math.toRadians(180)),
+            new Pose(39.3, 68, Math.toRadians(180))
+    };
+    public static Pose[] pickupPoses = {
+            new Pose(39.3, 68, Math.toRadians(180)),
+            new Pose(20, 32, Math.toRadians(180)),
+            new Pose(15, 32, Math.toRadians(180)),
+            new Pose(11.1, 32, Math.toRadians(180))
+    };
+
+
     public static double hp = 0.8, hi = 0, hd = 0.00013;
     public static double angleThreshold = 0.05;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
@@ -194,16 +210,32 @@ public class Main_TeleOp extends OpMode {
     ElapsedTime avoidIntakeFsmTimer;
     public static double DELAY = 0.5;
 
+    enum AUTO_SCORE {
+        PICKUP, SCORE, NOTHING;
+    }
+    AUTO_SCORE autoScore;
+
     @Override
     public void loop() {
+        boolean justChanged = autoScoreToggleButton.input(gamepad2.left_bumper);
+        if(justChanged){
+            if(autoScoreToggleButton.getVal()) autoScore = AUTO_SCORE.PICKUP;
+            else autoScore = AUTO_SCORE.NOTHING;
+        }
+        switch (autoScore){
+            case PICKUP:
+                break;
+        }
+
+        
         diffyClawIntake.loop();
         diffyClawIntake.HoldExtension();
         ll.loop();
         outtakeLift.loop();
-        if(intakeSequenceNextButton.input(gamepad2.left_bumper)||intakeSequenceNextButton2.input(gamepad1.left_bumper)){
+        if(intakeSequenceNextButton2.input(gamepad1.left_bumper)){
             intakeSequence = intakeSequence.next();
             intakeSequenceTime.reset();
-        } else if(intakeSequencePreviousButton.input(gamepad2.right_bumper)||intakeSequencePreviousButton2.input(gamepad1.right_bumper)){
+        } else if(intakeSequencePreviousButton2.input(gamepad1.right_bumper)){
             intakeSequence = intakeSequence.prev();
             intakeSequenceTime.reset();
         }
