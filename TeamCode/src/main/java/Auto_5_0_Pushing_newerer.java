@@ -53,14 +53,14 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                     new Pose(67.3271523178808, 13.160264900662249, Math.toRadians(180)),
                     new Pose(66.37350993377483, 5.531125827814575, Math.toRadians(180)),
                     new Pose(32.805298013245036, 10.299337748344369, Math.toRadians(180)),
-                    new Pose(18, 9.5, Math.toRadians(180)),
+                    new Pose(18, 10, Math.toRadians(180)),
             }
     };
 
 
     private final double scoreControlX = 23;
     private final double scoreYChange = 1.1;
-    private final Pose outtakeFirstPickupPose = new Pose(10.1, 9.5, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(10.1, 10, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
     private final Pose outtakePickupPose = new Pose(10.1, 32, Math.toRadians(180));
 
@@ -301,7 +301,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
             case SCORE:
                 if(pathTimer.getElapsedTimeSeconds() > 0.04){
                     outtake.setClawOpen(true);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.26) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.34) {
                         counter++;
                         if (counter < 4) {
                             follower.followPath(pickupPaths[counter], false);
