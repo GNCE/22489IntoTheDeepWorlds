@@ -43,7 +43,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         hanging = false;
     }
     public int getCurrentPosition(){
-        return (llift.getCurrentPosition() + clift.getCurrentPosition())/2;
+        return (llift.getCurrentPosition() + rlift.getCurrentPosition())/2;
     }
 
     public void setPower(double power){
@@ -87,8 +87,8 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
 
         public static int LOW_BAR_WAIT = 2444;
-        public static int LOW_BAR_DONE = 1640;
-        public static int HIGH_BAR_WAIT = 4888;
+        public static int LOW_BAR_DONE = 1590;
+        public static int HIGH_BAR_WAIT = 4650;
         public static int HIGH_BAR_DONE = 0;
     }
     public void LiftTo(OuttakeLiftPositions input){
@@ -153,7 +153,9 @@ public class OuttakeLiftSubsys extends SubsysCore{
     public void stopHang(){
         hanging = false;
     }
-    public static double hp = 0.02, hi = 0, hd = 0.000001, hf = -0.0006;
+    public static double hp = 0.009, hi = 0, hd = 0, hf = -0.000055;
+    public boolean doneHanging = false;
+    public static double doneHangingPower = -0.5;
 
     public void holdLift(){
         double power;
@@ -169,12 +171,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
             power = -opMode.gamepad2.left_stick_y;
             target = getCurrentPosition();
         } else if(target == 0 && (target != prevTarget || !encoderReset)) {
-            if(target != prevTarget) encoderReset = false;
+            if (target != prevTarget) encoderReset = false;
             power = -1;
-            if(!touchSensor.getState()){
+            if (!touchSensor.getState()) {
                 encoderReset = true;
+                if(hanging) doneHanging = true;
             }
-        } else if(hanging){
+        } else if(doneHanging){
+            power = doneHangingPower;
+        }else if(hanging){
             controller.setPIDF(hp, hi, hd, hf);
             power = controller.calculate(getCurrentPosition(), target);
         } else {

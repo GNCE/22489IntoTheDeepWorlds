@@ -507,7 +507,7 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case ASCENT:
-                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
+                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.HANG){
                     avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
                     avoidIntakeFsmTimer.reset();
                 }
@@ -552,7 +552,7 @@ public class Main_TeleOp extends OpMode {
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();
                                 }
-                                if(outtakeLift.getCurrentPosition() < 10){
+                                if(hangTimer.time() > 3){
                                     diffyClawIntake.useHang();
                                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.HANG);
                                     hangServos.hang();

@@ -151,7 +151,7 @@ public class Auto_0_4 extends OpMode{
                 setPathState(AutoState.SCORE_WAIT);
                 break;
             case SCORE_WAIT:
-                if (!follower.isBusy() && !outtakeLift.isBusy() && pathTimer.getElapsedTimeSeconds()>4){
+                if (!follower.isBusy() && !outtakeLift.isBusy()){
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;

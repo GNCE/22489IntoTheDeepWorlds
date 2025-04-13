@@ -48,7 +48,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private PIDController controller, visionPID, hangPID;
     public static double p = 0.02, i = 0, d = 0.00048;
     public static double vp = 0.03, vi = 0, vd = 0.00027;
-    public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0000001;
+    public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0001;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
     ElapsedTime extensionTime;
@@ -260,8 +260,7 @@ public class Intake_DiffyClaw extends SubsysCore {
             power = visionPID.calculate(error);
         } else if(hanging){
             hangPID.setPIDF(hp, hi, hd, hf);
-            if(Math.abs(getCurrentPosition() - target) > 5) power = hangPID.calculate(getCurrentPosition(), target);
-            else power = 0;
+            power = hangPID.calculate(getCurrentPosition(), target);
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) encoderReset = false;
