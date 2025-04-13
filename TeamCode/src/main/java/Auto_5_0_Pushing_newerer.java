@@ -22,7 +22,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
-    private final double scoreX = 38.8;
+    private final double scoreX = 37;
     private final double scoreY = 77;
 
     private final Pose startPose = new Pose(6.55, 65.5, Math.toRadians(180));
@@ -38,31 +38,31 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                     new Pose(65.80132450331126, 29.75364238410596, Math.toRadians(180)),
                     new Pose(68.09006622516556, 15.067549668874179, Math.toRadians(180)),
                     new Pose(51.30596026490066, 24.985430463576165, Math.toRadians(180)),
-                    new Pose(18.5, 23.5, Math.toRadians(180)),
+                    new Pose(18, 23.5, Math.toRadians(180)),
             },
             {
-                    new Pose(18.5, 23.5, Math.toRadians(180)),
+                    new Pose(18, 23.5, Math.toRadians(180)),
                     new Pose(69.61589403973511, 26.939072847682112, Math.toRadians(180)),
                     new Pose(65.0384105960265, 17.784105960264895, Math.toRadians(180)),
                     new Pose(60.46092715231788, 10.536423841059603, Math.toRadians(180)),
-                    new Pose(18.5, 16.0158940397351, Math.toRadians(180)),
+                    new Pose(18, 16.0158940397351, Math.toRadians(180)),
             },
             {
-                    new Pose(18.5, 15.0158940397351, Math.toRadians(180)),
-                    new Pose(68.09006622516556, 13.87682119205298, Math.toRadians(180)),
-                    new Pose(60.65165562913907, 12.3, Math.toRadians(180)),
-                    new Pose(61.98675496688742, 11.768, Math.toRadians(180)),
-                    new Pose(31.47019867549669, 9.5, Math.toRadians(180)),
-                    new Pose(16, 9.5, Math.toRadians(180)),
+                    new Pose(18, 16.0158940397351, Math.toRadians(180)),
+                    new Pose(66.37350993377483, 16.784105960264895, Math.toRadians(180)),
+                    new Pose(67.3271523178808, 13.160264900662249, Math.toRadians(180)),
+                    new Pose(66.37350993377483, 5.531125827814575, Math.toRadians(180)),
+                    new Pose(32.805298013245036, 10.299337748344369, Math.toRadians(180)),
+                    new Pose(18, 9.5, Math.toRadians(180)),
             }
     };
 
 
     private final double scoreControlX = 23;
     private final double scoreYChange = 1.1;
-    private final Pose outtakeFirstPickupPose = new Pose(10.3, 9.5, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(10.1, 9.5, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
-    private final Pose outtakePickupPose = new Pose(10.3, 32, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(10.1, 32, Math.toRadians(180));
 
     private final Pose firstOuttakePickupControl1 = new Pose(scoreX-10, scoreY - scoreYChange, Math.toRadians(180));
     private final Pose firstOuttakePickupControl2 = new Pose(scoreX-15, scoreY - scoreYChange, Math.toRadians(180));
@@ -92,7 +92,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
     private final double pushPathEndTimeout = 300;
     private final double pickupWaitTimeout = 100;
-    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.43, zeroPowerAccelerationMultiplierForPickupWall= 0.5, zeroPowerAccelerationMultiplierForPickupFirst = 0.5, zeroPowerAccelerationMultiplierForPushWAIT = 2, zeroPowerAccelerationMultiplerForScore = 4;
+    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.415, zeroPowerAccelerationMultiplierForPickupWall= 0.6, zeroPowerAccelerationMultiplierForPickupFirst = 0.5, zeroPowerAccelerationMultiplierForPushWAIT = 2, zeroPowerAccelerationMultiplerForScore = 3.6;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
