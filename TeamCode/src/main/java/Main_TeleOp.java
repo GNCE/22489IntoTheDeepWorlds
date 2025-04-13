@@ -4,6 +4,8 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -53,6 +55,7 @@ public class Main_TeleOp extends OpMode {
         avoidIntakeFsmTimer = new ElapsedTime();
         hangTimer = new ElapsedTime();
         loopTime = new ElapsedTime();
+        autoScoreTimer = new ElapsedTime();
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
@@ -75,6 +78,7 @@ public class Main_TeleOp extends OpMode {
         outtakeSequenceTime.startTime();
         avoidIntakeFsmTimer.startTime();
         hangTimer.startTime();
+        autoScoreTimer.startTime();
         initfsm = 1;
     }
 
@@ -211,16 +215,74 @@ public class Main_TeleOp extends OpMode {
     public static double DELAY = 0.5;
 
     enum AUTO_SCORE {
-        PICKUP, SCORE, NOTHING;
+        DRIVE_TO_PICKUP, PICKUP_AND_GO, DRIVE_TO_SCORE, SCORE_AND_GO, NOTHING;
     }
     AUTO_SCORE autoScore;
+    ElapsedTime autoScoreTimer;
+
+    public PathChain pickupSpec, scoreSpec;
+
+    public void setAutoScoreState(AUTO_SCORE newState){
+        autoScore = newState;
+        autoScoreTimer.reset();
+    }
+
+    public void buildAutoScorePaths(){
+        pickupSpec = follower.pathBuilder()
+                .addPath(new BezierCurve(pickupPoses))
+                .setLinearHeadingInterpolation(pickupPoses[0].getHeading(), pickupPoses[pickupPoses.length-1].getHeading())
+                .build();
+        scoreSpec = follower.pathBuilder()
+                .addPath(new BezierCurve(scorePoses))
+                .setLinearHeadingInterpolation(scorePoses[0].getHeading(), scorePoses[scorePoses.length-1].getHeading())
+                .build();
+    }
 
     @Override
     public void loop() {
         boolean justChanged = autoScoreToggleButton.input(gamepad2.left_bumper);
         if(justChanged){
-            if(autoScoreToggleButton.getVal()) autoScore = AUTO_SCORE.PICKUP;
+            if(autoScoreToggleButton.getVal()){
+                autoScore = AUTO_SCORE.PICKUP_AND_GO;
+                follower.setPose(scorePoses[0]);
+                follower.updatePose();
+                follower.update();
+            }
             else autoScore = AUTO_SCORE.NOTHING;
+        }
+
+        switch(autoScore){
+            case DRIVE_TO_PICKUP:
+                if(!follower.isBusy()){
+                    setAutoScoreState(AUTO_SCORE.PICKUP_AND_GO);
+                }
+                break;
+            case PICKUP_AND_GO:
+                backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.CLOSE_CLAW;
+                if(autoScoreTimer.time() > 0.3){
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
+                }
+                if(autoScoreTimer.time() > 0.5){
+                    follower.followPath(scoreSpec, true);
+                    setAutoScoreState(AUTO_SCORE.DRIVE_TO_SCORE);
+                }
+                break;
+            case DRIVE_TO_SCORE:
+                if(!follower.isBusy()){
+                    setAutoScoreState(AUTO_SCORE.SCORE_AND_GO);
+                }
+                break;
+            case SCORE_AND_GO:
+                backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
+                if(autoScoreTimer.time() > 0.3){
+                    follower.followPath(pickupSpec, true);
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
+                    setAutoScoreState(AUTO_SCORE.DRIVE_TO_PICKUP);
+                }
+                break;
+            case NOTHING:
+                if(follower.isBusy()) follower.breakFollowing();
+                break;
         }
 
 
