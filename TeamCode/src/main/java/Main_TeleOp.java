@@ -227,7 +227,7 @@ public class Main_TeleOp extends OpMode {
                 break;
         }
 
-        
+
         diffyClawIntake.loop();
         diffyClawIntake.HoldExtension();
         ll.loop();
