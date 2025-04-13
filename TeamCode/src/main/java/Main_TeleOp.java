@@ -195,6 +195,8 @@ public class Main_TeleOp extends OpMode {
     };
     public static Pose[] pickupPoses = {
             new Pose(39.3, 68, Math.toRadians(180)),
+            new Pose(35, 68, Math.toRadians(180)),
+            new Pose(30, 68, Math.toRadians(180)),
             new Pose(20, 32, Math.toRadians(180)),
             new Pose(15, 32, Math.toRadians(180)),
             new Pose(11.1, 32, Math.toRadians(180))
@@ -260,22 +262,22 @@ public class Main_TeleOp extends OpMode {
                 break;
             case PICKUP_AND_GO:
                 backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.CLOSE_CLAW;
-                if(autoScoreTimer.time() > 0.3){
-                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
-                }
                 if(autoScoreTimer.time() > 0.5){
                     follower.followPath(scoreSpec, true);
                     setAutoScoreState(AUTO_SCORE.DRIVE_TO_SCORE);
                 }
                 break;
             case DRIVE_TO_SCORE:
+                if(autoScoreTimer.time() > 0.2){
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
+                }
                 if(!follower.isBusy()){
                     setAutoScoreState(AUTO_SCORE.SCORE_AND_GO);
                 }
                 break;
             case SCORE_AND_GO:
                 backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
-                if(autoScoreTimer.time() > 0.3){
+                if(autoScoreTimer.time() > 0.5){
                     follower.followPath(pickupSpec, true);
                     backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
                     setAutoScoreState(AUTO_SCORE.DRIVE_TO_PICKUP);
