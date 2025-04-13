@@ -245,6 +245,7 @@ public class Main_TeleOp extends OpMode {
             if(autoScoreToggleButton.getVal()){
                 autoScore = AUTO_SCORE.PICKUP_AND_GO;
                 follower.setPose(scorePoses[0]);
+                follower.updatePose();
                 follower.update();
             }
             else autoScore = AUTO_SCORE.NOTHING;
