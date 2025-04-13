@@ -22,10 +22,10 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
-    private final double scoreX = 39.3;
-    private final double scoreY = 76;
+    private final double scoreX = 38.8;
+    private final double scoreY = 77;
 
-    private final Pose startPose = new Pose(7.1, 65.5, Math.toRadians(180));
+    private final Pose startPose = new Pose(6.55, 65.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(180));
 
@@ -38,33 +38,33 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                     new Pose(65.80132450331126, 29.75364238410596, Math.toRadians(180)),
                     new Pose(68.09006622516556, 15.067549668874179, Math.toRadians(180)),
                     new Pose(51.30596026490066, 24.985430463576165, Math.toRadians(180)),
-                    new Pose(18.5, 22.5, Math.toRadians(180)),
+                    new Pose(19, 23.5, Math.toRadians(180)),
             },
             {
-                    new Pose(18.5, 22.5, Math.toRadians(180)),
-                    new Pose(69.61589403973511, 25.939072847682112, Math.toRadians(180)),
-                    new Pose(65.0384105960265, 16.784105960264895, Math.toRadians(180)),
-                    new Pose(60.46092715231788, 9.536423841059603, Math.toRadians(180)),
-                    new Pose(18.5, 12.0158940397351, Math.toRadians(180)),
+                    new Pose(20, 23.5, Math.toRadians(180)),
+                    new Pose(69.61589403973511, 26.939072847682112, Math.toRadians(180)),
+                    new Pose(65.0384105960265, 17.784105960264895, Math.toRadians(180)),
+                    new Pose(60.46092715231788, 10.536423841059603, Math.toRadians(180)),
+                    new Pose(19, 16.0158940397351, Math.toRadians(180)),
             },
             {
-                    new Pose(18.5, 12.0158940397351, Math.toRadians(180)),
-                    new Pose(72.28609271523179, 14.87682119205298, Math.toRadians(180)),
-                    new Pose(64.08476821192053, 10.3, Math.toRadians(180)),
-                    new Pose(61.98675496688742, 4.768, Math.toRadians(180)),
-                    new Pose(31.47019867549669, 8.9, Math.toRadians(180)),
-                    new Pose(14, 7.25, Math.toRadians(180)),
+                    new Pose(20, 16.0158940397351, Math.toRadians(180)),
+                    new Pose(68.09006622516556, 19.87682119205298, Math.toRadians(180)),
+                    new Pose(60.65165562913907, 12.3, Math.toRadians(180)),
+                    new Pose(61.98675496688742, 11.768, Math.toRadians(180)),
+                    new Pose(31.47019867549669, 9.5, Math.toRadians(180)),
+                    new Pose(16, 9.5, Math.toRadians(180)),
             }
     };
 
-    private final Pose outtakeFirstPickupPose = new Pose(10.7, 9, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(10.7, 9.5, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
     private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
     private final Pose outtakePickupControl1 = new Pose(30, 32, Math.toRadians(180));
     private final Pose outtakePickupControl2 = new Pose(20, 32, Math.toRadians(180));
 
     private final double scoreControlX = 23;
-    private final double scoreYChange = 1.3;
+    private final double scoreYChange = 1.1;
     private final Pose firstScorePose = new Pose(scoreX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose firstScoreControl = new Pose(scoreControlX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(180));
@@ -76,9 +76,9 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(180));
     private final Pose fifthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*5, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
-    private final double pushPathEndTimeout = 0;
+    private final double pushPathEndTimeout = 100;
     private final double pickupWaitTimeout = 0;
-    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 4, zeroPowerAccelerationMultiplierForPickupWall= 0.5, zeroPowerAccelerationMultiplierForPickupFirst = 0.5, zeroPowerAccelerationMultiplierForPushWAIT = 4,zeroPowerAccelerationMultiplerForScore = 4;
+    private final double zeroPowerAccelerationMultiplierForPickupLastTwo = 0.43, zeroPowerAccelerationMultiplierForPickupWall= 0.5, zeroPowerAccelerationMultiplierForPickupFirst = 0.5, zeroPowerAccelerationMultiplierForPushWAIT = 0.6, zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain goToFirstPush, pushFirstSample, goToSecondPush, pushSecondSample, goToThirdPush, pushThirdSample, firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath, firstScorePath, secondScorePath,thirdScorePath, fourthScorePath, fifthScorePath;
@@ -220,7 +220,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 break;
             case DRIVE_TO_PUSHING:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
-                    follower.followPath(pushWaitPaths[counter], false);
+                    follower.followPath(pushWaitPaths[counter], true);
                     counter = 0;
                     setPathState(AutoState.BEFORE_PUSHING);
                 }
@@ -236,19 +236,19 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 if(!follower.isBusy()){
                     counter++;
                     if(counter < 3){
-                        follower.followPath(pushWaitPaths[counter], false);
+                        follower.followPath(pushWaitPaths[counter], true);
                         setPathState(AutoState.READY_FOR_PUSHING);
                     } else {
                         counter = 0;
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], false);
+                        follower.followPath(pickupPaths[counter], true);
                     }
                 }
                 break;
             case WALL_PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() > 0.55){
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                 }
@@ -258,7 +258,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 break;
             case WALL_DELAY:
                 if (pathTimer.getElapsedTimeSeconds() > 0.0) {
-                    follower.followPath(wallPickup, false);
+                    follower.followPath(wallPickup, true);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;
@@ -274,7 +274,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                     if(pathTimer.getElapsedTimeSeconds() > 0.28){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                        follower.followPath(scorePaths[counter], false);
+                        follower.followPath(scorePaths[counter], true);
                         setPathState(AutoState.READY_TO_SCORE);
                     }
                 }
