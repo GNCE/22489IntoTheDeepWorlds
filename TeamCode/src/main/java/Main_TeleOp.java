@@ -222,10 +222,6 @@ public class Main_TeleOp extends OpMode {
             if(autoScoreToggleButton.getVal()) autoScore = AUTO_SCORE.PICKUP;
             else autoScore = AUTO_SCORE.NOTHING;
         }
-        switch (autoScore){
-            case PICKUP:
-                break;
-        }
 
 
         diffyClawIntake.loop();
