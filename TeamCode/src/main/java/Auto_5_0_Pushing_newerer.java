@@ -294,7 +294,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
             case PICKUP:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setClawOpen(false);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.28){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.32){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);
