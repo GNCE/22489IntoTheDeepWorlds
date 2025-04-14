@@ -86,6 +86,9 @@ public class Intake_DiffyClaw extends SubsysCore {
         extensionTime = new ElapsedTime();
         extensionTime.startTime();
 
+        timer = new ElapsedTime();
+        timer.startTime();
+
         controller = new PIDController(p, i, d);
         visionPID = new PIDController(vp, vi, vd);
         hangPID = new PIDController(hp, hi, hd);
@@ -217,6 +220,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private static boolean encoderReset = true;
     private static int encoderUpdated = 0;
 
+    ElapsedTime timer;
 
     public int getCurrentPosition(){
         return IntakeExtend.getCurrentPosition();
@@ -263,9 +267,12 @@ public class Intake_DiffyClaw extends SubsysCore {
             power = hangPID.calculate(getCurrentPosition(), target);
         } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
-            if (prevTarget != target) encoderReset = false;
+            if (prevTarget != target) {
+                encoderReset = false;
+                timer.reset();
+            }
             power = -1;
-            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 3 && IntakeExtend.getVelocity() == 0) {
+            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 3 && IntakeExtend.getVelocity() == 0 && timer.seconds() > 0.5) {
                 IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 encoderReset = true;
