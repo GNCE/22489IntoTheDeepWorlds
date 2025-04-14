@@ -11,20 +11,20 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.45;
-    public static double DEFAULT_RDIFFY_POS = 0.51;
+    public static double DEFAULT_LDIFFY_POS = 0.47;
+    public static double DEFAULT_RDIFFY_POS = 0.47;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0.2;
     public static double leftArmOffset = (double) 0.045;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.38;
-    public static double CLAW_OPENED = 0.9;
+    public static double CLAW_CLOSED = 0.46;
+    public static double CLAW_OPENED = 0.23;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
     public static double ARM_TRANSFER_POS = 0.49;
-    public static double ARM_FRONTPICKUP_POS = 0.37;
+    public static double ARM_FRONTPICKUP_POS = 0.38;
     public static double ARM_BACKSCORE_POS = 0.9;
     public static double ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_BACKPICKUP_POS = 0.9;

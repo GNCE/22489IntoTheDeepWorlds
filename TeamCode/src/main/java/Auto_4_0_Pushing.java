@@ -185,6 +185,7 @@ public class Auto_4_0_Pushing extends OpMode {
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
                     outtake.setClawOpen(true);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
                     setPathState(AutoState.DRIVE_TO_PUSHING);
                 }
                 break;
@@ -196,7 +197,7 @@ public class Auto_4_0_Pushing extends OpMode {
                 }
                 break;
             case BEFORE_PUSHING:
-                if(pathTimer.getElapsedTimeSeconds() > 0){
+                if(!follower.isBusy()){
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                     setPathState(AutoState.READY_FOR_PUSHING);
@@ -213,18 +214,25 @@ public class Auto_4_0_Pushing extends OpMode {
                     counter++;
                     if(counter < 2){
                         follower.followPath(pushWaitPaths[counter]);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                         setPathState(AutoState.READY_FOR_PUSHING);
                     } else {
                         counter = 0;
-                        setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                         follower.followPath(pickupPaths[counter], true);
+                        setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                     }
                 }
                 break;
             case WALL_PICKUP:
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                if (pathTimer.getElapsedTimeSeconds() > 0.35){
+                    outtake.setClawOpen(true);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                }
                 if (!follower.isBusy()){
                     follower.followPath(wallPickup);
                     setPathState(AutoState.READY_FOR_PICKUP);
@@ -239,7 +247,7 @@ public class Auto_4_0_Pushing extends OpMode {
             case PICKUP:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setClawOpen(false);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.29){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.1){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], true);
@@ -259,8 +267,7 @@ public class Auto_4_0_Pushing extends OpMode {
                         counter++;
                         if (counter < 3) {
                             follower.followPath(pickupPaths[counter], false);
-                            outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                            outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
                             setPathState(AutoState.WALL_PICKUP);
                         } else {
                             follower.followPath(parkFromFourthPath, true);

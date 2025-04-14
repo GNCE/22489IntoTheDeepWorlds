@@ -203,7 +203,7 @@ public class Main_TeleOp extends OpMode {
     };
 
 
-    public static double hp = 0.8, hi = 0, hd = 0.00013;
+    public static double hp = 0.4, hi = 0, hd = 0.00008;
     public static double angleThreshold = 0.05;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
 
@@ -576,14 +576,12 @@ public class Main_TeleOp extends OpMode {
                 switch(avoidIntakeFsm){
                     case LIFT_SLIDES:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
-                        if(avoidIntakeFsmTimer.time() > 1){
-                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
-                            avoidIntakeFsmTimer.reset();
-                            avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
-                        }
+                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+                        avoidIntakeFsmTimer.reset();
+                        avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
                         break;
                     case MOVE_INTAKE:
-                        if(avoidIntakeFsmTimer.time() > 1.5){
+                        if(avoidIntakeFsmTimer.time() > 0){
                             avoidIntakeFsm = AVOID_INTAKE_FSM.NOTHING;
                         }
                         break;

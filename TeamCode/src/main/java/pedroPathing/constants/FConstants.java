@@ -47,7 +47,7 @@ public class FConstants {
         FollowerConstants.pathEndTimeoutConstraint = 300;
         FollowerConstants.pathEndTValueConstraint = 0.98;
         FollowerConstants.pathEndVelocityConstraint = 0.05;
-        FollowerConstants.pathEndTranslationalConstraint = 0.1;
+        FollowerConstants.pathEndTranslationalConstraint = 0.25;
         FollowerConstants.pathEndHeadingConstraint = 0.007;
 
         FollowerConstants.nominalVoltage = 12.8;
