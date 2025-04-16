@@ -117,7 +117,7 @@ public class Outtake {
                 break;
             case Auto_Wait:
                 ArmPosition = 0.4;
-                setPivotPosition(DIFFY_POSITIONS.AUTO_INIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.AUTO_INIT, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 

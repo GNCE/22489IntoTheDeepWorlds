@@ -26,33 +26,33 @@ public class FConstants {
         FollowerConstants.xMovement = 79.69146378054067;
         FollowerConstants.yMovement = 61.38700135658614;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -40;
+        FollowerConstants.forwardZeroPowerAcceleration = -28.5;
         FollowerConstants.lateralZeroPowerAcceleration = -67.7347039339156;
 
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.09,0,0.007,0);
-        FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0);
+        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.09,0,0.005,0); // Not being used, @see useSecondaryTranslationalPID
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(1.7,0,0.035,0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(3.4,0,0.4,0);
         FollowerConstants.useSecondaryHeadingPID = true;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(0.4,0,0.005,0); // Not being used, @see useSecondaryHeadingPID
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(1.3,0,0.2,0); // Not being used, @see useSecondaryHeadingPID
 
-        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.05,0,0.00005,0.6,0);
+        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.01,0,0.0001,0.6,0);
         FollowerConstants.useSecondaryDrivePID = true;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.005,0,0.000001,0.6,0); // Not being used, @see useSecondaryDrivePID
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.02,0,0.0005,0.6,0); // Not being used, @see useSecondaryDrivePID
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.0005;
 
-        FollowerConstants.pathEndTimeoutConstraint = 300;
-        FollowerConstants.pathEndTValueConstraint = 0.98;
-        FollowerConstants.pathEndVelocityConstraint = 0.05;
+        FollowerConstants.pathEndTimeoutConstraint = 50;
+        FollowerConstants.pathEndTValueConstraint = 0.95;
+        FollowerConstants.pathEndVelocityConstraint = 0.1;
         FollowerConstants.pathEndTranslationalConstraint = 0.25;
         FollowerConstants.pathEndHeadingConstraint = 0.007;
 
-        FollowerConstants.nominalVoltage = 12.8;
+        FollowerConstants.nominalVoltage = 12.54;
 
-        FollowerConstants.useVoltageCompensationInAuto = true;
+        FollowerConstants.useVoltageCompensationInAuto = false;
 
         FollowerConstants.useBrakeModeInTeleOp = true;
     }

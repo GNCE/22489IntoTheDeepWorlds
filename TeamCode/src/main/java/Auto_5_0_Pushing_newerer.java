@@ -23,7 +23,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 36.15;
-    private final double scoreY = 77;
+    private final double scoreY = 75;
 
     private final Pose startPose = new Pose(6.55, 65.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
@@ -38,31 +38,33 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                     new Pose(65.80132450331126, 29.75364238410596, Math.toRadians(180)),
                     new Pose(68.09006622516556, 15.067549668874179, Math.toRadians(180)),
                     new Pose(51.30596026490066, 24.985430463576165, Math.toRadians(180)),
-                    new Pose(18, 23.5, Math.toRadians(180)),
+                    new Pose(17.6, 23.5, Math.toRadians(180)),
             },
             {
-                    new Pose(18, 23.5, Math.toRadians(180)),
+                    new Pose(17.6, 23.5, Math.toRadians(180)),
                     new Pose(69.61589403973511, 26.939072847682112, Math.toRadians(180)),
                     new Pose(65.0384105960265, 17.784105960264895, Math.toRadians(180)),
                     new Pose(60.46092715231788, 10.536423841059603, Math.toRadians(180)),
-                    new Pose(18, 16.0158940397351, Math.toRadians(180)),
+                    new Pose(17.6, 16.3158940397351, Math.toRadians(180)),
             },
             {
-                    new Pose(18, 16.0158940397351, Math.toRadians(180)),
-                    new Pose(66.37350993377483, 16.784105960264895, Math.toRadians(180)),
-                    new Pose(67.3271523178808, 13.160264900662249, Math.toRadians(180)),
-                    new Pose(66.37350993377483, 5.531125827814575, Math.toRadians(180)),
-                    new Pose(32.805298013245036, 10.299337748344369, Math.toRadians(180)),
-                    new Pose(18, 9, Math.toRadians(180)),
+                    new Pose(17.6, 16.3158940397351, Math.toRadians(180)),
+                    new Pose(69, 17.08, Math.toRadians(180)),
+                    new Pose(68.85, 11.4, Math.toRadians(180)),
+                    new Pose(59, 10, Math.toRadians(180)),
+                    new Pose(55.883, 7.5, Math.toRadians(180)),
+                    new Pose(49.78, 8.9, Math.toRadians(180)),
+                    new Pose(25.9, 8.9, Math.toRadians(180)),
+                    new Pose(19, 8.9, Math.toRadians(180)),
             }
     };
 
 
     private final double scoreControlX = 23;
-    private final double scoreYChange = 1.1;
-    private final Pose outtakeFirstPickupPose = new Pose(10.1, 9.5, Math.toRadians(180));
-    private final Pose outtakePickupWaitPose = new Pose(14.5, 32, Math.toRadians(180));
-    private final Pose outtakePickupPose = new Pose(12.1, 32, Math.toRadians(180));
+    private final double scoreYChange = 1.15;
+    private final Pose outtakeFirstPickupPose = new Pose(9.5, 8.6, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(18, 32, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
 
     private final Pose firstOuttakePickupControl1 = new Pose(scoreX-10, scoreY - scoreYChange, Math.toRadians(180));
     private final Pose firstOuttakePickupControl2 = new Pose(scoreX-15, scoreY - scoreYChange, Math.toRadians(180));
@@ -78,7 +80,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
 
 
     private final Pose outtakePickupControl3 = new Pose(30, 32, Math.toRadians(180));
-    private final Pose outtakePickupControl4 = new Pose(20, 32, Math.toRadians(180));
+    private final Pose outtakePickupControl4 = new Pose(22, 32, Math.toRadians(180));
     private final Pose firstScorePose = new Pose(scoreX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose firstScoreControl = new Pose(scoreControlX, scoreY-scoreYChange, Math.toRadians(180));
     private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(180));
@@ -90,15 +92,15 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(180));
     private final Pose fifthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*5, Math.toRadians(180));
     private final Pose parkPose = new Pose(18, 30, Math.toRadians(230));
-    private final double pushPathEndTimeout = 300;
-    private final double pickupWaitTimeout = 100;
+    private final double pushPathEndTimeout = 50;
+    private final double pickupWaitTimeout = 50;
 
     // TODO: ZPAM VARIABLES
-    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 3;
-    private final double zeroPowerAccelerationMultiplierForPickupWall= 0.4;
-    private final double zeroPowerAccelerationMultiplierForPickupFirst = 0.5;
+    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.6;
+    private final double zeroPowerAccelerationMultiplierForPickupWall= 0.25;
+    private final double zeroPowerAccelerationMultiplierForPickupFirst = 1.5;
     private final double zeroPowerAccelerationMultiplierForPush = 2;
-    private final double zeroPowerAccelerationMultiplerForScore = 3.5;
+    private final double zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain pushSample1, pushSample2, pushSample3;
@@ -110,7 +112,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(startPose), new Point(preloadScoreControl), new Point(preloadScorePose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadScorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.3)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
         pushSample1 = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[0]))
@@ -127,7 +129,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
         pushSample3 = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[2]))
                 .setLinearHeadingInterpolation(samplePushPoses[2][0].getHeading(), samplePushPoses[2][samplePushPoses[2].length-1].getHeading())
-                .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
+                .setZeroPowerAccelerationMultiplier(2)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
                 .build();
         firstPickupPath = follower.pathBuilder()
@@ -266,7 +268,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                        follower.followPath(pickupPaths[counter], false);
+                        follower.followPath(pickupPaths[counter], true);
                     }
                 }
                 break;
@@ -281,7 +283,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 break;
             case WALL_DELAY:
                 if (pathTimer.getElapsedTimeSeconds() > 0.0) {
-                    follower.followPath(wallPickup, 0.5, true);
+                    follower.followPath(wallPickup, 0.01, true);
                     setPathState(AutoState.READY_FOR_PICKUP);
                 }
                 break;
@@ -316,6 +318,7 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                             follower.followPath(pickupPaths[counter], false);
                             setPathState(AutoState.WALL_PICKUP);
                         } else {
+                            outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
                             follower.followPath(parkFromFifthPath, false);
                             setPathState(AutoState.PARK);
                         }
