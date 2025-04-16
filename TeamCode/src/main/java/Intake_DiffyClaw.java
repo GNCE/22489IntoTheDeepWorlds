@@ -296,7 +296,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     public enum IntakeExtensionStates {
-        FULL_EXTENSION, RETRACTED, MANUAL;
+        FULL_EXTENSION, RETRACTED, AUTO_POS;
     }
     public enum ExtensionUnits {
         inches, ticks;
@@ -305,7 +305,9 @@ public class Intake_DiffyClaw extends SubsysCore {
     @Config
     public static class IntakeExtensionPositions{
         public static int FULL_EXTENSION_POS = 335;
+
         public static int RETRACTED_POS = 0;
+        public static int AUTO_POS = 250;
     }
     public void ExtendTo(double input, ExtensionUnits unit){
         switch (unit){
@@ -326,6 +328,8 @@ public class Intake_DiffyClaw extends SubsysCore {
             case RETRACTED:
                 target = IntakeExtensionPositions.RETRACTED_POS;
                 break;
+            case AUTO_POS:
+                target = IntakeExtensionPositions.AUTO_POS;
             default:
                 break;
         }

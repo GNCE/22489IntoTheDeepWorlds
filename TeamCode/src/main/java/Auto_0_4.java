@@ -14,6 +14,8 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.OuttakeLiftSubsys;
+import subsystems.SubsysCore;
+import subsystems.UnifiedTelemetry;
 
 @Autonomous (name = "0+4 auton pls worky")
 public class Auto_0_4 extends OpMode{
@@ -23,12 +25,13 @@ public class Auto_0_4 extends OpMode{
     private Outtake outtake;
     private IntakeLimelightSubsys ll;
     private Timer pathTimer, opmodeTimer;
+    private UnifiedTelemetry tel;
     private ElapsedTime outtakeSequenceTime, intakeSequenceTime, resetEncoderDelay;
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(15, 115, Math.toRadians(315));
+    private final Pose scorePose = new Pose(12, 130, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(24, 121, Math.toRadians(0));
@@ -152,7 +155,7 @@ public class Auto_0_4 extends OpMode{
                 sampleCounter = 0;
                 break;
             case SCORE_WAIT:
-                if (!follower.isBusy() && !outtakeLift.isBusy()){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.2){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
@@ -161,39 +164,44 @@ public class Auto_0_4 extends OpMode{
                 if (pathTimer.getElapsedTimeSeconds() > 0.5){
                     outtake.setClawOpen(true);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     follower.followPath(grabPickups[sampleCounter], true);
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 1.1){
+                if (pathTimer.getElapsedTimeSeconds()> 1.7){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                     setPathState(AutoState.INTAKE_WAIT);
                 }
                 break;
             case INTAKE_WAIT:
                 if (!follower.isBusy()) {
-                    follower.breakFollowing();
-                    follower.startTeleopDrive();
-                    intakeSequence = INTAKE_SEQUENCE.READY;
+                    intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_POS);
+                    intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
                 break;
             case INTAKE_SAMPLE:
-                if (!follower.isBusy() && (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED == ll.getAngle() || pathTimer.getElapsedTimeSeconds()>3)){
-                    intakeSequenceTime.reset();
-                    follower.breakFollowing();
+                if (pathTimer.getElapsedTimeSeconds() > 1.4) {
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
-                intakeSequence = INTAKE_SEQUENCE.GRAB;
-                if (pathTimer.getElapsedTimeSeconds() > 2){
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    intake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                     setPathState(AutoState.TRANSFER_SAMPLE);
                 }
                 break;
             case TRANSFER_SAMPLE:
-                intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                setPathState(AutoState.OUTTAKE_GRAB_SAMPLE);
+                if (pathTimer.getElapsedTimeSeconds() > 1.4) {
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                    setPathState(AutoState.OUTTAKE_GRAB_SAMPLE);
+                }
                 break;
             case OUTTAKE_GRAB_SAMPLE:
                 follower.followPath(scorePickups[sampleCounter],true);
@@ -247,6 +255,10 @@ public class Auto_0_4 extends OpMode{
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
+        SubsysCore.setGlobalParameters(hardwareMap, this);
+        tel = new UnifiedTelemetry();
+        tel.init(this.telemetry);
+
         outtake = new Outtake(hardwareMap);
 
         outtakeLift = new OuttakeLiftSubsys();
@@ -278,8 +290,8 @@ public class Auto_0_4 extends OpMode{
         outtake.setClawOpen(false);
         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
         outtake.outtakeLoop();
-        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
-        telemetry.update();
+        tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+        tel.update();
     }
 
     public static double mx =  -0.012, my =  -0.012;
@@ -293,56 +305,12 @@ public class Auto_0_4 extends OpMode{
         outtakeLift.holdLift();
         outtake.outtakeLoop();
         autonomousPathUpdate();
-        if (intakeSequence != INTAKE_SEQUENCE.READY){
-        follower.update();}
-        switch (intakeSequence){
-            case READY:
-                intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                ll.turnOn();
-                intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if (ll.isRunning() && ll.isResultValid()) {
-                    follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
-                    double angle = ll.getAngle(); // Output 0 is sample angle
-                    if(Math.abs(angle) > 85){
-                        if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
-                        else angle = -85;
-                    }
-                    if(angle < -90) angle = -90;
-                    else if(angle > 90) angle = 90;
-
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
-                }
-                break;
-            case GRAB:
-                intake
-                        .setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                ll.turnOff();
-                intake
-                        .ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                if (intakeSequenceTime.time() > 0.2){
-                    intake
-                            .setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
-                }
-                if (intakeSequenceTime.time() > 0.4){
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-                    intake
-                            .setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                }
-                break;
-            case TRANSFER_WAIT:
-                ll.turnOff();
-                    intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                    if (intake.extensionReachedTarget()){
-                        intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                    }
-                break;
-            }
+        follower.update();
 
         Storage.CurrentPose = follower.getPose();
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.update();
+        tel.addData("x", follower.getPose().getX());
+        tel.addData("y", follower.getPose().getY());
+        tel.addData("heading", follower.getPose().getHeading());
+        tel.update();
     }
 }
