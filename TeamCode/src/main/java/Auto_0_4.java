@@ -40,7 +40,7 @@ public class Auto_0_4 extends OpMode{
     private final Pose pickup2Pose = new Pose(25.5, 129, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(26, 132, Math.toRadians(20));
+    private final Pose pickup3Pose = new Pose(27.5, 131, Math.toRadians(25));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
@@ -152,6 +152,7 @@ public class Auto_0_4 extends OpMode{
                 outtake.setClawOpen(false);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
+                Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 setPathState(AutoState.SCORE_WAIT);
                 sampleCounter = 0;
                 break;

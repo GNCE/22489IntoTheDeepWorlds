@@ -182,12 +182,12 @@ public class Intake_DiffyClaw extends SubsysCore {
             IntakeClamp.setPosition(clawPos);
         }
 
-        tel.addData("Horizontal Extension Target Position", target);
-        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
-        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
-        tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
-        tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
-        tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
+//        tel.addData("Horizontal Extension Target Position", target);
+//        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
+//        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
+//        tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
+//        tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
+//        tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
     }
 
     public void setIntakeState(IntakeState intakeState){

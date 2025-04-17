@@ -197,15 +197,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
     @Override
     public void loop(){
-        tel.addData("Target", target);
-        tel.addData("Current Lift Position", getCurrentPosition());
-        tel.addData("Left Lift Position", llift.getCurrentPosition());
-        tel.addData("Right Lift Position", rlift.getCurrentPosition());
-        tel.addData("Center Lift Position", clift.getCurrentPosition());
-        tel.addData("Llift Power", llift.getPower());
-        tel.addData("Rlift Power", rlift.getPower());
-        tel.addData("Clift Power", clift.getPower());
-        tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
-        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
+//        tel.addData("Target", target);
+//        tel.addData("Current Lift Position", getCurrentPosition());
+//        tel.addData("Left Lift Position", llift.getCurrentPosition());
+//        tel.addData("Right Lift Position", rlift.getCurrentPosition());
+//        tel.addData("Center Lift Position", clift.getCurrentPosition());
+//        tel.addData("Llift Power", llift.getPower());
+//        tel.addData("Rlift Power", rlift.getPower());
+//        tel.addData("Clift Power", clift.getPower());
+//        tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
+//        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
     }
 }

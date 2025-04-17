@@ -62,9 +62,10 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
 
     private final double scoreControlX = 23;
     private final double scoreYChange = 1.15;
+
     private final Pose outtakeFirstPickupPose = new Pose(9.5, 8.6, Math.toRadians(180));
     private final Pose outtakePickupWaitPose = new Pose(18, 32, Math.toRadians(180));
-    private final Pose outtakePickupPose = new Pose(11.1, 32, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(10.1, 32, Math.toRadians(180));
 
     private final Pose firstOuttakePickupControl1 = new Pose(scoreX-10, scoreY - scoreYChange, Math.toRadians(180));
     private final Pose firstOuttakePickupControl2 = new Pose(scoreX-15, scoreY - scoreYChange, Math.toRadians(180));
@@ -97,8 +98,8 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
 
     // TODO: ZPAM VARIABLES
     private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.6;
-    private final double zeroPowerAccelerationMultiplierForPickupWall= 0.25;
-    private final double zeroPowerAccelerationMultiplierForPickupFirst = 1.5;
+    private final double zeroPowerAccelerationMultiplierForPickupWall= 0.6;
+    private final double zeroPowerAccelerationMultiplierForPickupFirst = 1.3;
     private final double zeroPowerAccelerationMultiplierForPush = 2;
     private final double zeroPowerAccelerationMultiplerForScore = 4;
 
@@ -136,13 +137,13 @@ public class Auto_5_0_Pushing_newerer extends OpMode {
                 .addPath(new BezierCurve(new Point(samplePushPoses[2][samplePushPoses[2].length-1]), new Point(outtakeFirstPickupPose)))
                 .setLinearHeadingInterpolation(samplePushPoses[2][samplePushPoses[2].length-1].getHeading(), outtakeFirstPickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickupFirst)
-                .setPathEndTimeoutConstraint(25)
+                .setPathEndTimeoutConstraint(20)
                 .build();
         wallPickup = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose),new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(outtakePickupWaitPose.getHeading(),outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPickupWall)
-                .setPathEndTimeoutConstraint(25)
+                .setPathEndTimeoutConstraint(20)
                 .build();
         firstScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupWaitPose), new Point(firstScoreControl), new Point(firstScorePose)))

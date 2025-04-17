@@ -74,17 +74,17 @@ public class IntakeLimelightSubsys extends SubsysCore {
 
         prevllon = llon;
 
-        tel.addLine("Limelight Data");
-        tel.addData("Connected?", ll.isConnected());
-        tel.addData("Running", isRunning());
-        if(isRunning()){
-            tel.addData("Pipeline:", getPipelineNumber());
-            tel.addData("Data Valid", isResultValid());
-            tel.addData("Data Fresh", isDataFresh());
-            tel.addData("Detected X", getTx());
-            tel.addData("Detected Y", getTy());
-            tel.addData("Detected Area", getTa());
-            tel.addData("Detected Angle", getAngle());
-        }
+//        tel.addLine("Limelight Data");
+//        tel.addData("Connected?", ll.isConnected());
+//        tel.addData("Running", isRunning());
+//        if(isRunning()){
+//            tel.addData("Pipeline:", getPipelineNumber());
+//            tel.addData("Data Valid", isResultValid());
+//            tel.addData("Data Fresh", isDataFresh());
+//            tel.addData("Detected X", getTx());
+//            tel.addData("Detected Y", getTy());
+//            tel.addData("Detected Area", getTa());
+//            tel.addData("Detected Angle", getAngle());
+//        }
     }
 }

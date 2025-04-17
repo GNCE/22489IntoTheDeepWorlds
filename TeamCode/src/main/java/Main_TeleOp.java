@@ -637,17 +637,17 @@ public class Main_TeleOp extends OpMode {
         follower.update();
         Storage.CurrentPose = follower.getPose();
 
-        tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
-        tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
-        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
-        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
-        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
-        tel.addData("X", follower.getPose().getX());
-        tel.addData("Y", follower.getPose().getY());
-        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-        tel.addData("Elapsed Time", elapsedTime.toString());
-        tel.addData("Loop Time", loopTime.toString());
-        tel.update();
+//        tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
+//        tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
+//        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
+//        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
+//        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
+//        tel.addData("X", follower.getPose().getX());
+//        tel.addData("Y", follower.getPose().getY());
+//        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+//        tel.addData("Elapsed Time", elapsedTime.toString());
+//        tel.addData("Loop Time", loopTime.toString());
+//        tel.update();
         loopTime.reset();
     }
 }
