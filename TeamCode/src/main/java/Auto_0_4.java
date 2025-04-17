@@ -34,13 +34,13 @@ public class Auto_0_4 extends OpMode{
     private final Pose scorePose = new Pose(11.5, 128.5, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(24, 121, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(24.5, 120, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(24, 129, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(25.5, 129, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(25, 132.5, Math.toRadians(15));
+    private final Pose pickup3Pose = new Pose(26, 132, Math.toRadians(20));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
@@ -303,8 +303,9 @@ public class Auto_0_4 extends OpMode{
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
+
         outtake.setClawOpen(false);
-        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+        outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.outtakeLoop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
