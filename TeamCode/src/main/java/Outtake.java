@@ -23,21 +23,25 @@ public class Outtake {
     public static double CLAW_OPENED = 0.23;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
-    public static double ARM_TRANSFER_POS = 0.49;
+    public static double ARM_TRANSFER_POS = 0.48;
+    public static double ARM_TRANSFER_WAIT = 0.52;
     public static double ARM_FRONTPICKUP_POS = 0.38;
     public static double ARM_BACKSCORE_POS = 0.9;
     public static double ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_BACKPICKUP_POS = 0.9;
+    public static double ARM_SAMPLE_SCORE_WAIT = 0.6;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCORE,
         TRANSFER,
+        TRANSFER_WAIT,
         SAMPLESCORE,
         SPECBACKSCORE,
         SPECBACKSCOREOUT,
         SPECBACKPICKUP,
         RESET_ENCODER,
-        Auto_Wait
+        Auto_Wait,
+        SAMPLE_SCORE_WAIT,
 
     }
     public Outtake(HardwareMap hardwareMap) {
@@ -65,6 +69,7 @@ public class Outtake {
         public static double SPECIMEN_FRONT_SCORE = 10;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
+        public static double SAMPLE_SCORE_WAIT = 0;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
@@ -119,6 +124,14 @@ public class Outtake {
                 ArmPosition = 0.4;
                 setPivotPosition(DIFFY_POSITIONS.AUTO_INIT, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
+            case TRANSFER_WAIT:
+                ArmPosition = ARM_TRANSFER_WAIT;
+                setPivotPosition(DIFFY_POSITIONS.TRANSFER, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case SAMPLE_SCORE_WAIT:
+                ArmPosition = ARM_SAMPLE_SCORE_WAIT;
+                setPivotPosition(DIFFY_POSITIONS.SAMPLE_SCORE_WAIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
+
         }
 
         updatePivotPosition();

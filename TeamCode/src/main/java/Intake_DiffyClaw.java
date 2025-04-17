@@ -32,12 +32,12 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ArmPosition = 0.285;
     public static double clawPos = 0.93;
     public static double CLAW_CLOSED = 0.35;
-    public static double CLAW_LOOSE = 0.405;
+    public static double CLAW_LOOSE = 0.42;
     public static double CLAW_OPENED = 0.93;
     //tune these values vvvvv
     public static double ARM_REST = 0.05;
-    public static double ARM_TRANSFER_POS = 0.41;
-    public static double ARM_TRANSFER_WAIT_POS = 0.48;
+    public static double ARM_TRANSFER_POS = 0.43;
+    public static double ARM_TRANSFER_WAIT_POS = 0.43;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
@@ -97,7 +97,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 80;
+        public static double TRANSFER_POS = 90;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = -40;
@@ -307,7 +307,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static int FULL_EXTENSION_POS = 335;
 
         public static int RETRACTED_POS = 0;
-        public static int AUTO_POS = 250;
+        public static int AUTO_POS = 225;
     }
     public void ExtendTo(double input, ExtensionUnits unit){
         switch (unit){

@@ -461,11 +461,12 @@ public class Main_TeleOp extends OpMode {
                 switch (bucketSequence){
                     case TRANSFER:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                         outtake.setClawOpen(true);
                         break;
                     case GRAB_AND_LIFT:
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                         if (outtakeSequenceTime.time() > 0.23){
                             outtake.setClawOpen(false);
                         }
