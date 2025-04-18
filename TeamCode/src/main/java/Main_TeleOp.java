@@ -481,8 +481,8 @@ public class Main_TeleOp extends OpMode {
                         break;
                     case SCORE:
                         outtake.setClawOpen(true);
-                        if (resetEncoderDelay.time() > 0.2){
-                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+                        if (resetEncoderDelay.time() > 0.3){
+                            outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                         }
                         break;
                 }

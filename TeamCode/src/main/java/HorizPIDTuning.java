@@ -1,3 +1,4 @@
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -5,6 +6,7 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
+@Disabled
 @TeleOp (name = "Horiz PID Tuning", group = "Tuning")
 public class HorizPIDTuning extends OpMode {
     Intake_DiffyClaw intakeDiffyClaw;

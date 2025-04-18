@@ -6,6 +6,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
@@ -15,6 +16,7 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
+@Disabled
 @Autonomous (name = "Auto_5_0 reverted")
 public class Auto_5_0_norex extends OpMode {
     private Follower follower;

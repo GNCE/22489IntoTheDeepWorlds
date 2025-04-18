@@ -4,6 +4,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,6 +16,7 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
+@Disabled
 @Autonomous (name = "INTAKING TEST AUTO")
 public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
     private Follower follower;
@@ -111,6 +113,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                                     .build(),
                             false
                     );
+
                     setPathState(AutoState.DETECT_EXTEND);
                 }
                 break;

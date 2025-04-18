@@ -1,3 +1,4 @@
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -6,6 +7,7 @@ import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 
 
+@Disabled
 @TeleOp (name = " PID Tuning", group = "Tuning")
 public class LiftPIDTuning extends OpMode {
     OuttakeLiftSubsys outtakeLift;

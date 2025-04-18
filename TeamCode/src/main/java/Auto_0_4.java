@@ -31,16 +31,16 @@ public class Auto_0_4 extends OpMode{
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(11.5, 128.5, Math.toRadians(315));
+    private final Pose scorePose = new Pose(12, 128, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
     private final Pose pickup1Pose = new Pose(24.5, 120, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(25.5, 129, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(24.5, 129, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(27.5, 131, Math.toRadians(25));
+    private final Pose pickup3Pose = new Pose(26, 131, Math.toRadians(25));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
@@ -180,11 +180,12 @@ public class Auto_0_4 extends OpMode{
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_POS);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    if(sampleCounter == 2) Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 30;
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
                 break;
             case INTAKE_SAMPLE:
-                if (pathTimer.getElapsedTimeSeconds() > 1.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 1.1) {
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
@@ -226,7 +227,7 @@ public class Auto_0_4 extends OpMode{
                 break;
             case READY_TO_SCORE:
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
-                if(pathTimer.getElapsedTimeSeconds() > 0.4){
+                if(pathTimer.getElapsedTimeSeconds() > 0.45){
                     outtake.setClawOpen(true);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 0.7){
@@ -252,6 +253,7 @@ public class Auto_0_4 extends OpMode{
                 }
                 break;
             case PARK:
+                Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 if (pathTimer.getElapsedTimeSeconds() > 0.6){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                 }
