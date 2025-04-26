@@ -17,6 +17,8 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 @Disabled
+@Deprecated
+
 @Autonomous (name = "5+0 Pushing Specimen Auto")
 public class Auto_5_0_Pushing extends OpMode {
     private Follower follower;

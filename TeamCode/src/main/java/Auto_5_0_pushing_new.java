@@ -16,6 +16,8 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 @Disabled
+@Deprecated
+
 @Autonomous (name = "Auto_5_0_pushing_new")
 public class Auto_5_0_pushing_new extends OpMode {
     private Follower follower;

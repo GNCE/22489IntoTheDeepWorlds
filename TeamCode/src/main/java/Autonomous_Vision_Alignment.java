@@ -50,6 +50,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
         ll.loop();
         diffyClawIntake.HoldExtension();
         diffyClawIntake.loop();
+        follower.update();
         if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
             headingError = targetHeading - follower.getPose().getHeading();
             headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);

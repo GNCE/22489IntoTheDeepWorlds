@@ -15,8 +15,8 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@Autonomous (name = "Auto_5_0_pushing_newerer")
-public class Auto_5_0_Pushing_newerer extends OpMode {
+@Autonomous (name = "5 + 0 Autonomous - Pushing")
+public class Auto_5_0_Worlds_Pushing extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private OuttakeLiftSubsys outtakeLift;

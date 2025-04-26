@@ -17,6 +17,7 @@ import subsystems.UnifiedTelemetry;
 
 
 @Disabled
+@Deprecated
 @Autonomous (name = "Auto_5_0 reverted")
 public class Auto_5_0_norex extends OpMode {
     private Follower follower;
