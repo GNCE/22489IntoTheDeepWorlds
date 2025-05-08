@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -30,7 +31,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         llift = hardwareMap.get(DcMotorEx.class, "llift");
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         clift = hardwareMap.get(DcMotorEx.class, "clift");
-        llift.setDirection(DcMotorSimple.Direction.FORWARD);
+        llift.setDirection(DcMotorSimple.Direction.REVERSE);
         rlift.setDirection(DcMotorSimple.Direction.REVERSE);
         clift.setDirection(DcMotorSimple.Direction.REVERSE);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

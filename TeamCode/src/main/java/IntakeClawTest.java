@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
 @TeleOp(name = "Intake Claw Test")
 @Config
 public class IntakeClawTest extends OpMode {
@@ -29,8 +28,8 @@ public class IntakeClawTest extends OpMode {
     public void init(){
         Rdiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         Ldiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
-        Rdiffy.setDirection(Servo.Direction.REVERSE);
-        Ldiffy.setDirection(Servo.Direction.FORWARD);
+        Rdiffy.setDirection(Servo.Direction.FORWARD);
+        Ldiffy.setDirection(Servo.Direction.REVERSE);
 
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
         IntakeClamp.setDirection(Servo.Direction.REVERSE);

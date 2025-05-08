@@ -49,6 +49,10 @@ public class UnifiedTelemetry {
         return this;
     }
 
+    public boolean isTelemetryEnabled(){
+        return sendTel;
+    }
+
 //    public void drawHeading(double heading) {
 //        currentDashPack.fieldOverlay()
 //            .setStroke("red")
