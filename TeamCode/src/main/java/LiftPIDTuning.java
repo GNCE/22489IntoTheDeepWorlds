@@ -7,7 +7,6 @@ import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 
 
-@Disabled
 @TeleOp (name = " PID Tuning", group = "Tuning")
 public class LiftPIDTuning extends OpMode {
     OuttakeLiftSubsys outtakeLift;

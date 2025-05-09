@@ -11,8 +11,8 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.47;
-    public static double DEFAULT_RDIFFY_POS = 0.47;
+    public static double DEFAULT_LDIFFY_POS = 0.465;
+    public static double DEFAULT_RDIFFY_POS = 0.535;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 

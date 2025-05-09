@@ -6,7 +6,6 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@Disabled
 @TeleOp (name = "Horiz PID Tuning", group = "Tuning")
 public class HorizPIDTuning extends OpMode {
     Intake_DiffyClaw intakeDiffyClaw;

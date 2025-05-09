@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
 @TeleOp(name = "Outtake Claw Test")
 @Config
 public class OuttakeClawTest extends OpMode {
