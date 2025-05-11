@@ -11,8 +11,8 @@ public class Outtake {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.465;
-    public static double DEFAULT_RDIFFY_POS = 0.535;
+    public static double DEFAULT_LDIFFY_POS = 0.496;
+    public static double DEFAULT_RDIFFY_POS = 0.504;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -20,13 +20,13 @@ public class Outtake {
     public static double leftArmOffset = (double) 0.045;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.46;
-    public static double CLAW_OPENED = 0.23;
+    public static double CLAW_OPENED = 0.16;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
     public static double ARM_TRANSFER_POS = 0.48;
     public static double ARM_TRANSFER_WAIT = 0.52;
     public static double ARM_FRONTPICKUP_POS = 0.38;
-    public static double ARM_BACKSCORE_POS = 0.9;
+    public static double ARM_BACKSCORE_POS = 0.87;
     public static double ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_BACKPICKUP_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.6;
@@ -61,8 +61,8 @@ public class Outtake {
     public static class DIFFY_POSITIONS {
         public static double AUTO_INIT = 100;
         public static double SAMPLE_SCORE = 40;
-        public static double TRANSFER = -90;
-        public static double SPECIMEN_FRONT_PICKUP = 10;
+        public static double TRANSFER = -100;
+        public static double SPECIMEN_FRONT_PICKUP = -10;
         public static double SPECIMEN_BACK_SCORE = -60;
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;

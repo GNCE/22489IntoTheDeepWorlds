@@ -24,8 +24,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.455;
-    public static double DEFAULT_RDIFFY_POS = 0.525;
+    public static double DEFAULT_LDIFFY_POS = 0.45;
+    public static double DEFAULT_RDIFFY_POS = 0.522;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -36,8 +36,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_OPENED = 0.93;
     //tune these values vvvvv
     public static double ARM_REST = 0.05;
-    public static double ARM_TRANSFER_POS = 0.43;
-    public static double ARM_TRANSFER_WAIT_POS = 0.43;
+    public static double ARM_TRANSFER_POS = 0.44;
+    public static double ARM_TRANSFER_WAIT_POS = 0.44;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
@@ -46,7 +46,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     //EXTENSION CONTROLS
     private PIDController controller, visionPID, hangPID;
-    public static double p = 0.02, i = 0, d = 0.00048;
+    public static double p = 0.02, i = 0, d = 0.00053;
     public static double vp = 0.03, vi = 0, vd = 0.00027;
     public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0001;
     public int target = 0;
@@ -100,7 +100,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double TRANSFER_POS = 90;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
-        public static double REST_POS = -40;
+        public static double REST_POS = 0;
         public static double DEPOSIT_POS = -50;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
@@ -182,12 +182,12 @@ public class Intake_DiffyClaw extends SubsysCore {
             IntakeClamp.setPosition(clawPos);
         }
 
-//        tel.addData("Horizontal Extension Target Position", target);
-//        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
-//        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
-//        tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
-//        tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
-//        tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
+        tel.addData("Horizontal Extension Target Position", target);
+        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
+        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
+        tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
+        tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
+        tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
     }
 
     public void setIntakeState(IntakeState intakeState){

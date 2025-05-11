@@ -14,7 +14,7 @@ public class OuttakeLift_MotorTest extends OpMode {
         rlift1 = hardwareMap.get(DcMotorEx.class, "rlift");
         llift2 = hardwareMap.get(DcMotorEx.class, "clift");
 
-        llift1.setDirection(DcMotor.Direction.REVERSE);
+        llift1.setDirection(DcMotor.Direction.FORWARD);
         rlift1.setDirection(DcMotor.Direction.REVERSE);
         llift2.setDirection(DcMotor.Direction.REVERSE);
 

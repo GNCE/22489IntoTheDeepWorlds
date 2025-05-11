@@ -18,7 +18,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     DigitalChannel touchSensor;
 
     private PIDController controller;
-    public static double p = 0.0087, i = 0, d = 0.000067, f = 0.05;
+    public static double p = 0.0087, i = 0, d = 0.00015, f = 0.05;
 
     public static int target = 0;
     private static UnifiedTelemetry tel = new UnifiedTelemetry();
@@ -31,7 +31,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         llift = hardwareMap.get(DcMotorEx.class, "llift");
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         clift = hardwareMap.get(DcMotorEx.class, "clift");
-        llift.setDirection(DcMotorSimple.Direction.REVERSE);
+        llift.setDirection(DcMotorSimple.Direction.FORWARD);
         rlift.setDirection(DcMotorSimple.Direction.REVERSE);
         clift.setDirection(DcMotorSimple.Direction.REVERSE);
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,18 +78,18 @@ public class OuttakeLiftSubsys extends SubsysCore{
     @Config
     public static class OuttakeLiftPositionsCONFIG {
         public static int TRANSFER_POS = 0;
-        public static int BUCKET_POS = 3910;
-        public static int FRONT_SCORE_WAIT_POS = 2444;
-        public static int FRONT_SCORE_DONE_POS = 3167;
+        public static int BUCKET_POS = 2800;
+        public static int FRONT_SCORE_WAIT_POS = 1750;
+        public static int FRONT_SCORE_DONE_POS = 2265;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 1154;
+        public static int BACK_SCORE_POS = 825;
         public static int BACK_PICKUP_POS = 0;
-        public static int BACK_PICKUP_WAIT_POS = 391;
+        public static int BACK_PICKUP_WAIT_POS = 280;
 
 
-        public static int LOW_BAR_WAIT = 2444;
-        public static int LOW_BAR_DONE = 1630;
-        public static int HIGH_BAR_WAIT = 4650;
+        public static int LOW_BAR_WAIT = 1750;
+        public static int LOW_BAR_DONE = 1166;
+        public static int HIGH_BAR_WAIT = 3350;
         public static int HIGH_BAR_DONE = 0;
     }
     public void LiftTo(OuttakeLiftPositions input){
@@ -198,15 +198,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
 
     @Override
     public void loop(){
-//        tel.addData("Target", target);
-//        tel.addData("Current Lift Position", getCurrentPosition());
-//        tel.addData("Left Lift Position", llift.getCurrentPosition());
-//        tel.addData("Right Lift Position", rlift.getCurrentPosition());
-//        tel.addData("Center Lift Position", clift.getCurrentPosition());
-//        tel.addData("Llift Power", llift.getPower());
-//        tel.addData("Rlift Power", rlift.getPower());
-//        tel.addData("Clift Power", clift.getPower());
-//        tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
-//        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
+        tel.addData("Target", target);
+        tel.addData("Current Lift Position", getCurrentPosition());
+        tel.addData("Left Lift Position", llift.getCurrentPosition());
+        tel.addData("Right Lift Position", rlift.getCurrentPosition());
+        tel.addData("Center Lift Position", clift.getCurrentPosition());
+        tel.addData("Llift Power", llift.getPower());
+        tel.addData("Rlift Power", rlift.getPower());
+        tel.addData("Clift Power", clift.getPower());
+        tel.addData("Clift Current:", clift.getCurrent(CurrentUnit.AMPS));
+        tel.addData("Limit Switch Pressed?", !touchSensor.getState());
     }
 }

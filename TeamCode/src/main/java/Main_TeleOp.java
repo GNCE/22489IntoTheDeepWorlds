@@ -553,6 +553,9 @@ public class Main_TeleOp extends OpMode {
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                             diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
+                        if (outtakeSequenceTime.time() > 0.5){
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                        }
                         break;
                     case FRONT_SCORE:
                         outtake.setClawOpen(false);
@@ -638,7 +641,7 @@ public class Main_TeleOp extends OpMode {
         Storage.CurrentPose = follower.getPose();
 
 //        tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
-//        tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
+        tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
 //        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
 //        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
 //        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
@@ -647,7 +650,7 @@ public class Main_TeleOp extends OpMode {
 //        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 //        tel.addData("Elapsed Time", elapsedTime.toString());
 //        tel.addData("Loop Time", loopTime.toString());
-//        tel.update();
+        tel.update();
         loopTime.reset();
     }
 }
