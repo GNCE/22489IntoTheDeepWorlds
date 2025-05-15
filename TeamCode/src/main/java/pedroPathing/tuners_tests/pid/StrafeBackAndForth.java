@@ -5,12 +5,11 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.Point;
 
@@ -18,24 +17,24 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 /**
- * This is the CurvedBackAndForth autonomous OpMode. It runs the robot in a specified distance
- * forward and to the left. On reaching the end of the forward Path, the robot runs the backward
- * Path the same distance back to the start. Rinse and repeat! This is good for testing a variety
- * of Vectors, like the drive Vector, the translational Vector, the heading Vector, and the
- * centripetal Vector. Remember to test your tunings on StraightBackAndForth as well, since tunings
- * that work well for curves might have issues going in straight lines.
+ * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
+ * straight forward. On reaching the end of the forward Path, the robot runs the backward Path the
+ * same distance back to the start. Rinse and repeat! This is good for testing a variety of Vectors,
+ * like the drive Vector, the translational Vector, and the heading Vector. Remember to test your
+ * tunings on CurvedBackAndForth as well, since tunings that work well for straight lines might
+ * have issues going in curves.
  *
  * @author Anyi Lin - 10158 Scott's Bots
  * @author Aaron Yang - 10158 Scott's Bots
  * @author Harrison Womack - 10158 Scott's Bots
- * @version 1.0, 3/13/2024
+ * @version 1.0, 3/12/2024
  */
 @Config
-@Autonomous (name = "Curved Back And Forth", group = "PIDF Testing")
-public class CurvedBackAndForth extends OpMode {
+@Autonomous (name = "Strafe Back And Forth", group = "PIDF Tuning")
+public class StrafeBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
-    public static double DISTANCE = 20;
+    public static double DISTANCE = 40;
 
     private boolean forward = true;
 
@@ -52,18 +51,18 @@ public class CurvedBackAndForth extends OpMode {
     public void init() {
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
 
-        forwards = new Path(new BezierCurve(new Point(0,0, Point.CARTESIAN), new Point(Math.abs(DISTANCE),0, Point.CARTESIAN), new Point(Math.abs(DISTANCE),DISTANCE, Point.CARTESIAN)));
-        backwards = new Path(new BezierCurve(new Point(Math.abs(DISTANCE),DISTANCE, Point.CARTESIAN), new Point(Math.abs(DISTANCE),0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
 
-        backwards.setReversed(true);
+        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(0,DISTANCE, Point.CARTESIAN)));
+        forwards.setConstantHeadingInterpolation(0);
+        backwards = new Path(new BezierLine(new Point(0,DISTANCE, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
+        backwards.setConstantHeadingInterpolation(0);
 
         follower.followPath(forwards);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        telemetryA.addLine("This will run the robot in a curve going " + DISTANCE + " inches"
-                            + " to the left and the same number of inches forward. The robot will go"
-                            + "forward and backward continuously along the path. Make sure you have"
-                            + "enough room.");
+        telemetryA.addLine("This will run the robot to the side as a line going " + DISTANCE
+                + " inches to some direction. The robot will go right and left continuously"
+                + " along the path. Make sure you have enough room.");
         telemetryA.update();
     }
 

@@ -23,23 +23,23 @@ public class FConstants {
 
         FollowerConstants.mass = 15.5;
 
-        FollowerConstants.xMovement = 73.40592699663702;
-        FollowerConstants.yMovement = 55.60059530562092;
+        FollowerConstants.xMovement = 72.63250067519097;
+        FollowerConstants.yMovement = 55.00711797139106;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -30.17792406024835;
-        FollowerConstants.lateralZeroPowerAcceleration = -69.10862875630924;
+        FollowerConstants.forwardZeroPowerAcceleration = -31.920673072184087;
+        FollowerConstants.lateralZeroPowerAcceleration = -70.91520272340031;
 
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(20,0,0.001,0);
-        FollowerConstants.useSecondaryTranslationalPID = true;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.0001,0,0.00005,0);
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.4,0,0.03,0);
+        FollowerConstants.useSecondaryTranslationalPID = false;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(1,0,0.08,0); // NOT IN USE. DO NOT USE
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(3.4,0,0.4,0);
-        FollowerConstants.useSecondaryHeadingPID = true;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(1.5,0,0.1,0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(2,0,0.225,0);
+        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(1.5,0,0.1,0); // NOT IN USE. DO NOT USE
 
         FollowerConstants.drivePIDFCoefficients.setCoefficients(0.035,0,0.0022,0.6,0);
         FollowerConstants.useSecondaryDrivePID = true;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.02,0,0.00004,0.6,0);
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.02,0,0.00003,0.6,0);
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 3.5;
         FollowerConstants.centripetalScaling = 0.0005;
