@@ -20,7 +20,7 @@
 //    private Follower follower;
 //    private Outtake outtake;
 //    private OuttakeLiftSubsys outtakeLift;
-//    private Intake_DiffyClaw diffyClawIntake;
+//    private subsystems.Intake_DiffyClaw diffyClawIntake;
 //    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
 //    private final Pose startPose = Storage.CurrentPose;
 //    private double targetHeading = 180, headingError, headingCorrection;
@@ -34,7 +34,7 @@
 //        follower.setStartingPose(startPose);
 //
 //        SubsysCore.setGlobalParameters(hardwareMap, this);
-//        diffyClawIntake = new Intake_DiffyClaw();
+//        diffyClawIntake = new subsystems.Intake_DiffyClaw();
 //        outtake = new Outtake(hardwareMap);
 //        outtakeLift = new OuttakeLiftSubsys();
 //
@@ -68,7 +68,7 @@
 //    public void start() {
 //        follower.startTeleopDrive();
 //        outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-//        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+//        diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_REST);
 //    }
 //
 //    // ***** ------------------ INTAKE SEQUENCE ------------------------- ***** \\
@@ -140,38 +140,38 @@
 //        }
 //        switch (intakeSequence){
 //            case READY:
-//                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+//                diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
 //                if (!diffyClawIntake.isExtensionBusy()){
 //                    diffyClawIntake.setClawOpen(true);
 //                }
 //                if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -45;
 //                    }
 //                } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -45){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
 //                    }
 //                }
 //                break;
 //            case GRAB:
-//                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+//                diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
 //                if (intakeSequenceTime.time() > 0.2){
 //                    diffyClawIntake.setClawOpen(false);
 //                }
 //                if (intakeSequenceTime.time() > 0.4){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-//                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+//                    diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
 //                }
 //                break;
 //            case TRANSFER_WAIT:
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
 //                if (!diffyClawIntake.isExtensionBusy() && !isTransfering && !isScoringSpecs){
-//                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
+//                    diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
 //                break;
 //        }
 //        diffyClawIntake.loop();
@@ -223,7 +223,7 @@
 //                        break;
 //                    case GRAB_AND_LIFT:
 //                        isTransfering = true;
-//                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+//                        diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.TRANSFER);
 //                        if (outtakeSequenceTime.time() > 0.23){
 //                            outtake.setClawOpen(false);
 //                        }
@@ -271,14 +271,14 @@
 //            case OVERRIDE_TO_SPEC:
 //                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
 //                if (!outtakeLift.isBusy()){
-//                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
+//                    diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_REST);
 //                    outtakeSequence = OUTTAKE_SEQUENCE.SPECIMEN_SEQUENCE;
 //                }
 //                break;
 //            case OVERRIDE_TO_INTAKE:
 //                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
 //                if (!outtakeLift.isBusy()){
-//                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+//                    diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
 //                    outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
 //                }
 //                break;

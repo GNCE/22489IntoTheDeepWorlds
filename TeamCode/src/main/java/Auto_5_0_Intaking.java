@@ -19,7 +19,7 @@
 //@Autonomous (name = "Specimen Auto")
 //public class Auto_5_0_Intaking extends OpMode {
 //    private Follower follower;
-//    private Intake_DiffyClaw intakeDiffyClaw;
+//    private subsystems.Intake_DiffyClaw intakeDiffyClaw;
 //    private OuttakeLiftSubsys outtakeLift;
 //    private Outtake outtake;
 //    private Timer pathTimer;
@@ -185,8 +185,8 @@
 //                break;
 //            case INTAKE_READY:
 //                if(!follower.isBusy()){
-//                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakePositions.AUTO_INTAKE_POSE);
-//                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+//                    intakeDiffyClaw.ExtendTo(subsystems.Intake_DiffyClaw.IntakePositions.AUTO_INTAKE_POSE);
+//                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
 //                    intakeDiffyClaw.setClawOpen(true);
 //                    intakeDiffyClaw.HoldExtension();
 //                    setPathState(AutoState.INTAKING);
@@ -194,13 +194,13 @@
 //                break;
 //            case INTAKING:
 //                if (pathTimer.getElapsedTimeSeconds()>0.4){
-//                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+//                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
 //                }
 //                if (pathTimer.getElapsedTimeSeconds()>0.6){
 //                    intakeDiffyClaw.setClawOpen(false);
 //                }
 //                if (pathTimer.getElapsedTimeSeconds()>0.8){
-//                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+//                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.DEPOSIT);
 //                    setPathState(AutoState.DEPOSITING);
 //                }
 //
@@ -276,7 +276,7 @@
 //        follower = new Follower(hardwareMap);
 //        follower.setStartingPose(startPose);
 //
-//        intakeDiffyClaw = new Intake_DiffyClaw();
+//        intakeDiffyClaw = new subsystems.Intake_DiffyClaw();
 //        outtake = new Outtake(hardwareMap);
 //        outtakeLift = new OuttakeLift(hardwareMap,this);
 //        buildPaths();

@@ -1,7 +1,7 @@
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import subsystems.Intake_DiffyClaw;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 

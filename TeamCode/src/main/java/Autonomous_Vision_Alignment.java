@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
+import subsystems.Intake_DiffyClaw;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 

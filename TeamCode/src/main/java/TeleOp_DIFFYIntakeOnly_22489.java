@@ -22,7 +22,7 @@
 //    public static double targetX = 7, targetY = 0;
 //    private Follower follower;
 //
-//    private Intake_DiffyClaw diffyClawIntake;
+//    private subsystems.Intake_DiffyClaw diffyClawIntake;
 //    private IntakeLimelightSubsys ll;
 //    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay;
 //    private final Pose startPose = Storage.CurrentPose;
@@ -47,7 +47,7 @@
 //        tel.init(this.telemetry);
 //        SubsysCore.setGlobalParameters(hardwareMap, this);
 //
-//        diffyClawIntake = new Intake_DiffyClaw();
+//        diffyClawIntake = new subsystems.Intake_DiffyClaw();
 //        ll = new IntakeLimelightSubsys();
 //        ll.init();
 //
@@ -111,54 +111,54 @@
 //        }
 //        switch (intakeSequence){
 //            case READY:
-//                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+//                diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
 //                ll.turnOn();
 //
 //                if (!diffyClawIntake.isExtensionBusy()){
 //                    diffyClawIntake.setClawOpen(true);
 //                }
 //                if (ALignmentButtonNext.input(gamepad1.left_trigger == 1)){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 45;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
 //                    }
 //                } else if (ALignmentButtonPrev.input(gamepad1.right_trigger == 1)){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 45;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
 //                    }
 //                }
 //                if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
 //                    follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, 0);
 //                    double angle = -ll.getAngle(); // Output 0 is sample angle
 //                    if(Math.abs(angle) > 80){
-//                        if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
+//                        if(subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 80;
 //                        else angle = -80;
 //                    }
 //                    if(angle < -90) angle = -90;
 //                    else if(angle > 90) angle = 90;
 //
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle;
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle;
 //                }
 //                break;
 //            case GRAB:
-//                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+//                diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
 //                ll.turnOff();
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
 //                if (intakeSequenceTime.time() > 0.2){
 //                    diffyClawIntake.setClawOpen(false);
 //                }
 //                if (intakeSequenceTime.time() > 0.4){
-//                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-//                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+//                    subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
+//                    diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
 //                }
 //                break;
 //            case TRANSFER_WAIT:
 //                ll.turnOff();
-//                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+//                diffyClawIntake.ExtendTo(subsystems.Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
 //                if (!diffyClawIntake.isExtensionBusy()){
-//                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
+//                diffyClawIntake.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);}
 //                break;
 //        }
 //        if(takeSnapshotButton.input(gamepad1.a)){

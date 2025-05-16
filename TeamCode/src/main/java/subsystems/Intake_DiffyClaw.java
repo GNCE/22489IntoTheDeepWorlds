@@ -1,3 +1,4 @@
+package subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -7,10 +8,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-
-import subsystems.IntakeLimelightSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
 
 @Config
 public class Intake_DiffyClaw extends SubsysCore {
@@ -42,6 +39,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
     public static double ARM_HANG = 0.25;
+    public static double ARM_VISION = 0.45;
 
 
     //EXTENSION CONTROLS
@@ -61,6 +59,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         INTAKE_ARM_PICKUP,
         INTAKE_REST,
         DEPOSIT,
+        VISION,
         HANG
 
     }
@@ -102,6 +101,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = 0;
         public static double DEPOSIT_POS = -50;
+        public static double VISION_POS = 0;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
@@ -126,7 +126,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         pipelineNumber = pipelineNum;
     }
 
-    IntakeState intakeState = IntakeState.TRANSFER;
+    public IntakeState intakeState = IntakeState.TRANSFER;
 
     @Override
     public void init(){
@@ -170,6 +170,10 @@ public class Intake_DiffyClaw extends SubsysCore {
                 ArmPosition = ARM_HANG;
                 setPivotPosition(INTAKE_DIFFY_POSITIONS.HANG, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
+            case VISION:
+                ArmPosition = ARM_VISION;
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.VISION_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
         }
 
         updatePivotPosition();
@@ -193,7 +197,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void setIntakeState(IntakeState intakeState){
         this.intakeState = intakeState;
     }
-    enum CLAW_STATE {
+    public enum CLAW_STATE {
         OPEN,
         CLOSED,
         LOOSE
@@ -238,6 +242,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     private boolean usingLL = false;
+    private boolean startResetting = false;
+    private int resetI = 0;
 
     public void useVision(){
         usingLL = true;
@@ -251,6 +257,17 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void stopHang(){ hanging = false; }
 
     public void HoldExtension(){ //TODO: Call this in the main loop
+        if(startResetting){
+            IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            resetI++;
+            if(resetI > 10){
+                resetI = 0;
+                startResetting = false;
+            }
+        }
+
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
             power = opMode.gamepad2.left_trigger;
@@ -272,9 +289,9 @@ public class Intake_DiffyClaw extends SubsysCore {
                 timer.reset();
             }
             power = -1;
-            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 3 && IntakeExtend.getVelocity() == 0 && timer.seconds() > 0.5) {
-                IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 6 && IntakeExtend.getVelocity() == 0 && timer.seconds() > 0.5) {
+                startResetting = true;
+                resetI = 0;
                 encoderReset = true;
                 encoderUpdated++;
             }
@@ -282,7 +299,7 @@ public class Intake_DiffyClaw extends SubsysCore {
             // PIDF Controller
             controller.setPID(p, i, d);
             double pid = controller.calculate(getCurrentPosition(), target);
-            if(Math.abs(getCurrentPosition() - target) > 5) power = pid;
+            if(Math.abs(getCurrentPosition() - target) > (target == 0 ? 10 : 5)) power = pid;
             else power = 0;
         }
 
@@ -304,7 +321,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class IntakeExtensionPositions{
-        public static int FULL_EXTENSION_POS = 335;
+        public static int FULL_EXTENSION_POS = 380;
 
         public static int RETRACTED_POS = 0;
         public static int AUTO_POS = 225;

@@ -24,7 +24,7 @@
 //@Autonomous (name = "Auto_5_0_pushing_newer")
 //public class Auto_5_0_Pushing_newer extends OpMode {
 //    private Follower follower;
-//    private Intake_DiffyClaw intakeDiffyClaw;
+//    private subsystems.Intake_DiffyClaw intakeDiffyClaw;
 //    private OuttakeLiftSubsys outtakeLift;
 //    private Outtake outtake;
 //    private Timer pathTimer;
@@ -269,7 +269,7 @@
 //        tel.init(this.telemetry);
 //        SubsysCore.setGlobalParameters(hardwareMap, this);
 //
-//        intakeDiffyClaw = new Intake_DiffyClaw();
+//        intakeDiffyClaw = new subsystems.Intake_DiffyClaw();
 //        intakeDiffyClaw.init();
 //        outtake = new Outtake(hardwareMap);
 //        outtakeLift = new OuttakeLiftSubsys();

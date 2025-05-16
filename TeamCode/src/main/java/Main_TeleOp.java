@@ -15,6 +15,7 @@ import pedroPathing.constants.LConstants;
 import subsystems.DriveSubsys;
 import subsystems.HangServoSubsys;
 import subsystems.IntakeLimelightSubsys;
+import subsystems.Intake_DiffyClaw;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -141,7 +142,7 @@ public class Main_TeleOp extends OpMode {
         }
     }
     public enum FRONT_SPECIMEN_SEQUENCE {
-        BACK_GRAB, CLOSE_CLAW, FRONT_SCORE, OPEN_CLAW;
+        BACK_GRAB, DROP_SAMPLE, CLOSE_CLAW, FRONT_SCORE, OPEN_CLAW;
         private static final FRONT_SPECIMEN_SEQUENCE[] vals = values();
 
         public FRONT_SPECIMEN_SEQUENCE next() {
@@ -352,13 +353,13 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if (ALignmentButtonNext.input(gamepad1.right_trigger == 1)){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
 //                    }
                 } else if (ALignmentButtonPrev.input(gamepad1.left_trigger == 1)){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 110;
-//                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
-//                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
+//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
+//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
 //                    }
                 }
                 if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
@@ -541,10 +542,19 @@ public class Main_TeleOp extends OpMode {
                 switch (frontSpecimenSequence){
                     case BACK_GRAB:
                         outtake.setClawOpen(true);
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
                         if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                        }
+                        break;
+                    case DROP_SAMPLE:
+                        diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
+                        }
+                        if(outtakeSequenceTime.time() > 1){
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
                         }
                         break;
                     case CLOSE_CLAW:
