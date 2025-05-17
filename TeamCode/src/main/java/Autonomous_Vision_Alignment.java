@@ -45,6 +45,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
         diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+        ll.setPipelineNumber(4);
     }
     @Override
     public void loop(){
