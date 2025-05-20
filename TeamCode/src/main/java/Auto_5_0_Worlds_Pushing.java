@@ -28,44 +28,43 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 37;
-    private final double scoreY = 75;
+    private final double scoreY = 73;
 
-    private final Pose startPose = new Pose(6.55, 65.5, Math.toRadians(180));
+    private final Pose startPose = new Pose(6.55, 63.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
     private final Pose preloadScorePose = new Pose(scoreX, scoreY, Math.toRadians(180));
 
     private final Pose[][] samplePushPoses = {
             {
                 preloadScorePose,
-                        new Pose(24.222516556291392, 36.42913907284768, Math.toRadians(180)),
-                        new Pose(25.366887417218543, 19.835761589403972, Math.toRadians(180)),
-                        new Pose(58.55364238410596, 51.11523178807946, Math.toRadians(180)),
-                        new Pose(38.145695364238414, 27.846357615894043, Math.toRadians(180)),
-                        new Pose(60.65165562913907, 37.954966887417214, Math.toRadians(180)),
-                        new Pose(56.83708609271523, 23.45960264900662, Math.toRadians(180))
+                        new Pose(24.222516556291392, 34.42913907284768, Math.toRadians(180)),
+                        new Pose(25.366887417218543, 17.835761589403972, Math.toRadians(180)),
+                        new Pose(58.55364238410596, 49.11523178807946, Math.toRadians(180)),
+                        new Pose(38.145695364238414, 25.846357615894043, Math.toRadians(180)),
+                        new Pose(60.65165562913907, 35.954966887417214, Math.toRadians(180)),
+                        new Pose(56.83708609271523, 21.45960264900662, Math.toRadians(180))
             },
             {
-                    new Pose(56.83708609271523, 23.45960264900662, Math.toRadians(180)),
-                    new Pose(25.5, 22.69668874172185, Math.toRadians(180))
+                    new Pose(56.83708609271523, 21.45960264900662, Math.toRadians(180)),
+                    new Pose(25.5, 21.45960264900662, Math.toRadians(180))
             },
             {
-                    new Pose(25.5, 22.69668874172185, Math.toRadians(180)),
-                    new Pose(66.9456953642384, 27.36688741721855, Math.toRadians(180)),
-                    new Pose(57.21854304635761, 20.11920529801324, Math.toRadians(180)),
-                    new Pose(57.790728476821194, 15.923178807947014, Math.toRadians(180)),
+                    new Pose(25.5, 21.45960264900662, Math.toRadians(180)),
+                    new Pose(65.0384105960265, 26.70198675496688, Math.toRadians(180)),
+                    new Pose(61.41456953642384, 12.397350993377483, Math.toRadians(180)),
             },
             {
-                    new Pose(57.790728476821194, 15.923178807947014, Math.toRadians(180)),
-                    new Pose(25.5, 15.923178807947014, Math.toRadians(180)),
+                    new Pose(57.790728476821194, 12.397350993377483, Math.toRadians(180)),
+                    new Pose(25.5, 12.397350993377483, Math.toRadians(180)),
             },
             {
-                    new Pose(25.5, 15.923178807947014, Math.toRadians(180)),
-                    new Pose(64.46622516556292, 17.356291390728476, Math.toRadians(180)),
-                    new Pose(57.40927152317881, 9.5, Math.toRadians(180)),
+                    new Pose(25.5, 12.397350993377483, Math.toRadians(180)),
+                    new Pose(66.18278145695365, 13.923178807947014, Math.toRadians(180)),
+                    new Pose(57.40927152317881, 7.5, Math.toRadians(180)),
             },
             {
-                    new Pose(57.40927152317881, 9.5, Math.toRadians(180)),
-                    new Pose(9.5, 9.5, Math.toRadians(180))
+                    new Pose(57.40927152317881, 7.5, Math.toRadians(180)),
+                    new Pose(9.5, 7.5, Math.toRadians(180))
             }
     };
 
@@ -102,9 +101,9 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
 
     private final double scoreControlX = 23;
     private final double scoreYChange = 1.15;
-    private final Pose outtakeFirstPickupPose = new Pose(9.5, 9, Math.toRadians(180));
-    private final Pose outtakePickupWaitPose = new Pose(15, 32, Math.toRadians(180));
-    private final Pose outtakePickupPose = new Pose(9, 32, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(9.5, 7.5, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(15, 30, Math.toRadians(180));
+    private final Pose outtakePickupPose = new Pose(9, 30, Math.toRadians(180));
 
     private final Pose firstOuttakePickupControl1 = new Pose(scoreX-10, scoreY - scoreYChange, Math.toRadians(180));
     private final Pose firstOuttakePickupControl2 = new Pose(scoreX-15, scoreY - scoreYChange, Math.toRadians(180));
@@ -139,7 +138,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.6;
     private final double zeroPowerAccelerationMultiplierForPickupWall= 2;
     private final double zeroPowerAccelerationMultiplierForPickupFirst = 3.5;
-    private final double zeroPowerAccelerationMultiplierForPush = 4;
+    private final double zeroPowerAccelerationMultiplierForPush = 2;
     private final double zeroPowerAccelerationMultiplerForScore = 4;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
@@ -192,7 +191,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
                 .setLinearHeadingInterpolation(samplePushPoses[2][0].getHeading(), samplePushPoses[2][samplePushPoses[2].length-1].getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
-                .setPathEndTValueConstraint(0.925)
+                .setPathEndTValueConstraint(0.97)
                 .build();
         pushSample2 = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[3]))
@@ -206,7 +205,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
                 .setLinearHeadingInterpolation(samplePushPoses[4][0].getHeading(), samplePushPoses[4][samplePushPoses[4].length-1].getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPush)
                 .setPathEndTimeoutConstraint(pushPathEndTimeout)
-                .setPathEndTValueConstraint(0.925)
+                .setPathEndTValueConstraint(0.97)
                 .build();
         pushSample3 = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[5]))
