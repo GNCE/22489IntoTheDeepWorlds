@@ -1,4 +1,4 @@
-package subsystems;
+package config.subsystems;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;

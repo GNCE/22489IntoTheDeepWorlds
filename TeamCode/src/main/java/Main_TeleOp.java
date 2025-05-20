@@ -12,12 +12,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.DriveSubsys;
-import subsystems.HangServoSubsys;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.DriveSubsys;
+import config.subsystems.HangServoSubsys;
+import config.subsystems.IntakeLimelightSubsys;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @TeleOp(name = "Main TeleOp", group = "_TeleOp")
@@ -30,7 +31,7 @@ public class Main_TeleOp extends OpMode {
     private Intake_DiffyClaw diffyClawIntake;
     private DriveSubsys driveSubsys;
     private IntakeLimelightSubsys ll;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private HangServoSubsys hangServos;
     private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime, hangTimer, loopTime;
@@ -59,14 +60,14 @@ public class Main_TeleOp extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         driveSubsys = new DriveSubsys();
         driveSubsys.init();
         diffyClawIntake = new Intake_DiffyClaw();
         ll = new IntakeLimelightSubsys();
         ll.init();
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
         outtake = new Outtake(hardwareMap);
         hangServos = new HangServoSubsys();
@@ -460,7 +461,7 @@ public class Main_TeleOp extends OpMode {
             case BUCKET_SEQUENCE:
                 switch (bucketSequence){
                     case TRANSFER:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.TRANSFER);
                         outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                         outtake.setClawOpen(true);
                         break;
@@ -474,7 +475,7 @@ public class Main_TeleOp extends OpMode {
                             diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
                         if(outtakeSequenceTime.time() > 1){
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                            outtakeLift.LiftTo(Lift.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
                         }
@@ -495,7 +496,7 @@ public class Main_TeleOp extends OpMode {
 
                 switch(avoidIntakeFsm){
                     case LIFT_SLIDES:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.AVOID_INTAKE);
                         if(!outtakeLift.isBusy()){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                             avoidIntakeFsmTimer.reset();
@@ -520,7 +521,7 @@ public class Main_TeleOp extends OpMode {
                                 break;
                             case FRONT_GRAB:
                                 outtake.setClawOpen(true);
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_PICKUP);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                                 break;
                             case CLOSE_CLAW:
@@ -530,7 +531,7 @@ public class Main_TeleOp extends OpMode {
                                 if (outtakeSequenceTime.time() < 0.02){
                                     gamepad1.rumbleBlips(1);}
                                 outtake.setClawOpen(false);
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
+                                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_SCORE);
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                                 break;
                         }
@@ -541,7 +542,7 @@ public class Main_TeleOp extends OpMode {
                 switch (frontSpecimenSequence){
                     case BACK_GRAB:
                         outtake.setClawOpen(true);
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_PICKUP);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
                         if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
@@ -554,16 +555,16 @@ public class Main_TeleOp extends OpMode {
                             diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
                         if (outtakeSequenceTime.time() > 0.5){
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                            outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                         }
                         break;
                     case FRONT_SCORE:
                         outtake.setClawOpen(false);
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
                         break;
                     case OPEN_CLAW:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
                         if(outtakeSequenceTime.time() > 1){
                             outtake.setClawOpen(true);
@@ -579,7 +580,7 @@ public class Main_TeleOp extends OpMode {
 
                 switch(avoidIntakeFsm){
                     case LIFT_SLIDES:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AVOID_INTAKE);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.AVOID_INTAKE);
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                         avoidIntakeFsmTimer.reset();
                         avoidIntakeFsm = AVOID_INTAKE_FSM.MOVE_INTAKE;
@@ -593,24 +594,24 @@ public class Main_TeleOp extends OpMode {
                         switch (ascentSequence){
                             case SLIDES_UP_LOW:
                                 outtakeLift.stopHang();
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LOW_BAR_WAIT);
+                                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.LOW_BAR_WAIT);
                                 break;
                             case SLIDES_DOWN_LOW:
                                 outtakeLift.useHang();
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LOW_BAR_DONE);
+                                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.LOW_BAR_DONE);
                                 break;
                             case SERVO_HOOKS:
                                 hangServos.hang();
                                 break;
                             case SLIDES_UP_HIGH:
                                 outtakeLift.stopHang();
-                                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_WAIT);
+                                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.HIGH_BAR_WAIT);
                                 break;
                             case SLIDES_UP_GO:
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
                                 if(hangTimer.time() > 0.2){
                                     outtakeLift.useHang();
-                                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_DONE);
+                                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.HIGH_BAR_DONE);
                                 }
                                 if(hangTimer.time() > 0.5){
                                     hangServos.rest();

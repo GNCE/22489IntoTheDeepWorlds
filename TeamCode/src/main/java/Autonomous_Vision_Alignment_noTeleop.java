@@ -1,17 +1,15 @@
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 @Autonomous(name = "Autonomous Vision Alignment NotTeleop")
 public class Autonomous_Vision_Alignment_noTeleop extends OpMode {
@@ -34,7 +32,7 @@ public class Autonomous_Vision_Alignment_noTeleop extends OpMode {
         follower.setStartingPose(startPose);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         diffyClawIntake = new Intake_DiffyClaw();
         diffyClawIntake.init();

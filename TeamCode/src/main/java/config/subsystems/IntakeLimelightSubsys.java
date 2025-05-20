@@ -1,10 +1,12 @@
-package subsystems;
+package config.subsystems;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class IntakeLimelightSubsys extends SubsysCore {
+import config.core.utils.SubsystemCore;
+
+public class IntakeLimelightSubsys extends SubsystemCore {
     public static Limelight3A ll;
     public static Servo light;
     public static UnifiedTelemetry tel = new UnifiedTelemetry();

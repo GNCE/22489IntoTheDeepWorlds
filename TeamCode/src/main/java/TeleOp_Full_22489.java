@@ -18,7 +18,7 @@
 //@Config
 //public class TeleOp_Full_22489 extends OpMode {
 //    private Follower follower;
-//    private Outtake outtake;
+//    private config.subsystems.Outtake outtake;
 //    private OuttakeLiftSubsys outtakeLift;
 //    private Intake_DiffyClaw diffyClawIntake;
 //    private ElapsedTime elapsedTime, intakeSequenceTime, resetEncoderDelay, outtakeSequenceTime;
@@ -35,7 +35,7 @@
 //
 //        SubsysCore.setGlobalParameters(hardwareMap, this);
 //        diffyClawIntake = new Intake_DiffyClaw();
-//        outtake = new Outtake(hardwareMap);
+//        outtake = new config.subsystems.Outtake(hardwareMap);
 //        outtakeLift = new OuttakeLiftSubsys();
 //
 //        elapsedTime = new ElapsedTime();
@@ -67,7 +67,7 @@
 //    @Override
 //    public void start() {
 //        follower.startTeleopDrive();
-//        outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+//        outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.RESET_ENCODER);
 //        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
 //    }
 //
@@ -218,7 +218,7 @@
 //                switch (bucketSequence){
 //                    case TRANSFER:
 //                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-//                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+//                        outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.TRANSFER);
 //                        outtake.setClawOpen(true);
 //                        break;
 //                    case GRAB_AND_LIFT:
@@ -232,14 +232,14 @@
 //                        }
 //                        if(outtakeSequenceTime.time() > 1){
 //                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
-//                            outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+//                            outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.SAMPLESCORE);
 //                            resetEncoderDelay.reset();
 //                        }
 //                        break;
 //                    case SCORE:
 //                        outtake.setClawOpen(true);
 //                        if (resetEncoderDelay.time() > 0.4){
-//                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+//                            outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.RESET_ENCODER);
 //                        }
 //                        if ((resetEncoderDelay.time() > 0.6) && outtakeLift.getCurrentPosition() != 30){
 //                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
@@ -257,14 +257,14 @@
 //                        break;
 //                    case FRONT_GRAB:
 //                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-//                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+//                        outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.SPECFRONTPICKUP);
 //                    break;
 //                    case CLOSE_CLAW:
 //                        outtake.setClawOpen(false);
 //                        break;
 //                    case BACK_SCORE:
 //                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
-//                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+//                        outtake.setOuttakeState(config.subsystems.Outtake.OuttakeState.SPECBACKSCORE);
 //                        break;
 //                }
 //                break;

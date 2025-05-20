@@ -10,10 +10,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @Disabled
@@ -22,7 +23,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private IntakeLimelightSubsys ll;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private ElapsedTime timeSpentInSub;
@@ -52,7 +53,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                 if(scorePreloadPath != null){
                     follower.followPath(scorePreloadPath,false);
                     ll.turnOn();
@@ -145,7 +146,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
             case PRELOAD_DONE_ALIGNING:
                 firstPickupY = follower.getPose().getY();
                 follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 ll.turnOff();
                 if (pathTimer.getElapsedTime() > 0.2){
@@ -165,7 +166,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                 follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 if(pathTimer.getElapsedTime() > 0.2){
                     outtake.setClawOpen(true);
                 }
@@ -185,7 +186,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
@@ -193,7 +194,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
         ll.init();
         ll.setPipelineNumber(Storage.isRed ? 6 : 5);
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
     }
 

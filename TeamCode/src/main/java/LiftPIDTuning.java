@@ -1,23 +1,21 @@
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @TeleOp (name = " PID Tuning", group = "Tuning")
 public class LiftPIDTuning extends OpMode {
-    OuttakeLiftSubsys outtakeLift;
+    Lift outtakeLift;
     private UnifiedTelemetry tel;
     @Override
     public void init(){
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
-        outtakeLift = new OuttakeLiftSubsys();
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
+        outtakeLift = new Lift();
         outtakeLift.init();
     }
     @Override
@@ -25,6 +23,6 @@ public class LiftPIDTuning extends OpMode {
         tel.update();
         outtakeLift.loop();
         outtakeLift.holdLift();
-        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
+        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_SCORE);
     }
 }

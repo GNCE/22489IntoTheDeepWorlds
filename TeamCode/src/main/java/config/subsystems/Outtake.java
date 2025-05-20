@@ -1,10 +1,12 @@
+package config.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-public class Outtake {
+public class Outtake extends SubsystemBase {
     private Servo clamp;
     private Servo Rdiffy;
     private Servo Ldiffy;

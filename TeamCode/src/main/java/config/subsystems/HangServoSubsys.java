@@ -1,11 +1,12 @@
-package subsystems;
+package config.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import config.core.utils.SubsystemCore;
+
 @Config
-public class HangServoSubsys extends SubsysCore {
+public class HangServoSubsys extends SubsystemCore {
     private Servo rpivhigh;
     private Servo lpivhigh;
     public static double armpos = 0.0;

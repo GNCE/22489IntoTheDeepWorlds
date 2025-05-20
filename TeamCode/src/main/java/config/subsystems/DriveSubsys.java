@@ -1,10 +1,13 @@
-package subsystems;
+package config.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class DriveSubsys extends SubsysCore {
+import config.core.utils.SubsystemCore;
+
+public class DriveSubsys extends SubsystemCore {
     DcMotorEx leftRear, leftFront, rightRear, rightFront;
+
     @Override
     public void init(){
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
@@ -16,10 +19,5 @@ public class DriveSubsys extends SubsysCore {
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    @Override
-    public void loop(){
-
     }
 }

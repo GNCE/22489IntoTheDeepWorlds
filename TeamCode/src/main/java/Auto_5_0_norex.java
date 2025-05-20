@@ -1,3 +1,4 @@
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -11,9 +12,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @Disabled
@@ -22,7 +24,7 @@ import subsystems.UnifiedTelemetry;
 public class Auto_5_0_norex extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 39.3;
@@ -210,7 +212,7 @@ public class Auto_5_0_norex extends OpMode {
             case DRIVE_TO_PRELOAD_SCORE:
                 outtake.setClawOpen(false);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     follower.followPath(scorePreloadPath,true);
                     setPathState(AutoState.SCORE_PRELOAD);
@@ -236,7 +238,7 @@ public class Auto_5_0_norex extends OpMode {
                 break;
             case READY_FOR_PUSHING:
                 if (pathTimer.getElapsedTimeSeconds() > 0.4){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_PICKUP);
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                 }
                 if(!follower.isBusy()){
@@ -254,14 +256,14 @@ public class Auto_5_0_norex extends OpMode {
                         counter = 0;
                         setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
                         outtake.setClawOpen(true);
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_PICKUP);
                         follower.followPath(pickupPaths[counter], true);
                     }
                 }
                 break;
             case WALL_PICKUP:
                 if (pathTimer.getElapsedTimeSeconds() > 0.55){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_PICKUP);
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                 }
                 if (!follower.isBusy()){
@@ -284,7 +286,7 @@ public class Auto_5_0_norex extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setClawOpen(false);
                     if(pathTimer.getElapsedTimeSeconds() > 0.28){
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                         follower.followPath(scorePaths[counter], false);
                         setPathState(AutoState.READY_TO_SCORE);
@@ -314,7 +316,7 @@ public class Auto_5_0_norex extends OpMode {
             case PARK:
                 if (pathTimer.getElapsedTimeSeconds() > 0.6){
                     outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.RESET_ENCODER);
                 }
                 break;
             default:
@@ -329,18 +331,18 @@ public class Auto_5_0_norex extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
         buildPaths();
     }
 
     private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
-    private UnifiedTelemetry tel;
+    private MultipleTelemetry tel;
     @Override
     public void init_loop(){
         teamColorButton.input(gamepad1.dpad_up);

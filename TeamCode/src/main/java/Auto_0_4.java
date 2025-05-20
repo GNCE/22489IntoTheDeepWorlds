@@ -1,3 +1,4 @@
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -12,20 +13,21 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 @Autonomous (name = "0+4 auton pls worky")
 public class Auto_0_4 extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private IntakeLimelightSubsys ll;
     private Timer pathTimer, opmodeTimer;
-    private UnifiedTelemetry tel;
+    private MultipleTelemetry tel;
     private ElapsedTime outtakeSequenceTime, intakeSequenceTime, resetEncoderDelay;
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
@@ -150,7 +152,7 @@ public class Auto_0_4 extends OpMode{
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreload, true);
                 outtake.setClawOpen(false);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.LIFT_BUCKET);
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 setPathState(AutoState.SCORE_WAIT);
@@ -171,7 +173,7 @@ public class Auto_0_4 extends OpMode{
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                 }
                 if (pathTimer.getElapsedTimeSeconds()> 1.6){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.TRANSFER);
                     setPathState(AutoState.INTAKE_WAIT);
                 }
                 break;
@@ -216,12 +218,12 @@ public class Auto_0_4 extends OpMode{
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.75){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.LIFT_BUCKET);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.85){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (!follower.isBusy() && Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.OuttakeLiftPositionsCONFIG.BUCKET_POS) <= 5){
+                if (!follower.isBusy() && Math.abs(outtakeLift.getCurrentPosition() - Lift.OuttakeLiftPositionsCONFIG.BUCKET_POS) <= 5){
                     setPathState(AutoState.READY_TO_SCORE);
                 }
                 break;
@@ -248,14 +250,14 @@ public class Auto_0_4 extends OpMode{
                 break;
             case AFTER_SCORE:
                 if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.TRANSFER);
                     setPathState(AutoState.INTAKE_WAIT);
                 }
                 break;
             case PARK:
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 if (pathTimer.getElapsedTimeSeconds() > 0.6){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.TRANSFER);
                 }
                 break;
             default:
@@ -274,13 +276,13 @@ public class Auto_0_4 extends OpMode{
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
 
         outtake = new Outtake(hardwareMap);
 
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
         intake = new Intake_DiffyClaw();
         intake.init();

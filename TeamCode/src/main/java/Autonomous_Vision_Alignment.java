@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 @Autonomous(name = "Autonomous Vision Alignment")
 public class Autonomous_Vision_Alignment extends OpMode {
@@ -30,7 +30,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
         follower.setStartingPose(startPose);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         diffyClawIntake = new Intake_DiffyClaw();
         diffyClawIntake.init();

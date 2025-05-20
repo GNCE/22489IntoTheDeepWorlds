@@ -1,19 +1,19 @@
-package subsystems;
+package config.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.hardware.AnalogSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import config.core.utils.SubsystemCore;
+
 @Config
-public class OuttakeLiftSubsys extends SubsysCore{
+public class Lift extends SubsystemCore {
     DcMotorEx llift, rlift, clift;
     DigitalChannel touchSensor;
 
@@ -26,8 +26,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     private static DcMotor.RunMode internalPrevRunMode = null;
     private static DcMotor.ZeroPowerBehavior internalPrevZPB = null;
 
-    @Override
-    public void init(){
+    public Lift(HardwareMap hardwareMap){
         llift = hardwareMap.get(DcMotorEx.class, "llift");
         rlift = hardwareMap.get(DcMotorEx.class, "rlift");
         clift = hardwareMap.get(DcMotorEx.class, "clift");
@@ -196,8 +195,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         setPower(power);
     }
 
-    @Override
-    public void loop(){
+    public void telemetry(){
         tel.addData("Target", target);
         tel.addData("Current Lift Position", getCurrentPosition());
         tel.addData("Left Lift Position", llift.getCurrentPosition());

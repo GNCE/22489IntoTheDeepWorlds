@@ -3,7 +3,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
-@TeleOp(name = "Outtake Arm Test")
+@TeleOp(name = "config.subsystems.Outtake Arm Test")
 @Config
 public class OuttakeArmTest extends OpMode {
     private Servo rpivhigh;

@@ -10,9 +10,9 @@
 //
 //import pedroPathing.constants.FConstants;
 //import pedroPathing.constants.LConstants;
-//import subsystems.IntakeLimelightSubsys;
+//import config.subsystems.IntakeLimelightSubsys;
 //import subsystems.SubsysCore;
-//import subsystems.UnifiedTelemetry;
+//import config.subsystems.UnifiedTelemetry;
 //
 //
 //@TeleOp(name = "Intake Only - TeleOp", group = "Real OpModes")

@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-import subsystems.IntakeLimelightSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 @Config
-public class Intake_DiffyClaw extends SubsysCore {
+public class Intake_DiffyClaw extends SubsystemCore {
     private Servo IntakeClamp;
     private Servo IntakeRDiffy;
     private Servo IntakeLDiffy;

@@ -9,9 +9,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @Disabled
@@ -19,7 +20,7 @@ import subsystems.UnifiedTelemetry;
 public class Auto_Pathing_Test_Tangential extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private final double scoreX = 39.3;
@@ -86,12 +87,12 @@ public class Auto_Pathing_Test_Tangential extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
         outtake = new Outtake(hardwareMap);
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
         buildPaths();
     }

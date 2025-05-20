@@ -1,9 +1,8 @@
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 
 
 @TeleOp (name = "Horiz PID Tuning", group = "Tuning")
@@ -13,7 +12,7 @@ public class HorizPIDTuning extends OpMode {
 
     @Override
     public void init(){
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
         intakeDiffyClaw = new Intake_DiffyClaw();

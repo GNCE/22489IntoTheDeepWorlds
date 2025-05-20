@@ -10,10 +10,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import subsystems.IntakeLimelightSubsys;
-import subsystems.OuttakeLiftSubsys;
-import subsystems.SubsysCore;
-import subsystems.UnifiedTelemetry;
+import config.subsystems.IntakeLimelightSubsys;
+import config.subsystems.Outtake;
+import config.subsystems.Lift;
+import config.core.utils.SubsystemCore;
+import config.subsystems.UnifiedTelemetry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +25,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private IntakeLimelightSubsys ll;
-    private OuttakeLiftSubsys outtakeLift;
+    private Lift outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
     private ElapsedTime timeSpentInSub;
@@ -137,7 +138,7 @@ public class Auto_6_0_Intaking extends OpMode {
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_WAIT);
                 follower.followPath(follower.pathBuilder()
                         .addBezierCurve(new Point(startPose), new Point(frontScoreX, firstPickupY))
                         .setConstantHeadingInterpolation(startPose.getHeading())
@@ -158,12 +159,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case PRELOAD_DRIVE_DONE:
                 if(!follower.isBusy()){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                    outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(pathTimer.getElapsedTime() > 0.5){
                         outtake.setClawOpen(true);
                     }
                     if(pathTimer.getElapsedTime() > 1){
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
+                        outtakeLift.LiftTo(Lift.OuttakeLiftPositions.BACK_PICKUP_WAIT);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
                         if(ll.isResultValid()){
                             setPathState(AutoState.PRELOAD_DETECTED_SAMPLE);
@@ -271,7 +272,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                outtakeLift.LiftTo(Lift.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 if(pathTimer.getElapsedTime() > 0.2){
                     outtake.setClawOpen(true);
                 }
@@ -422,7 +423,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
-        SubsysCore.setGlobalParameters(hardwareMap, this);
+        SubsystemCore.setGlobalParameters(hardwareMap, this);
 
         ll = new IntakeLimelightSubsys();
         ll.init();
@@ -433,7 +434,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
         outtake = new Outtake(hardwareMap);
 
-        outtakeLift = new OuttakeLiftSubsys();
+        outtakeLift = new Lift();
         outtakeLift.init();
 
         buildStaticPaths();
