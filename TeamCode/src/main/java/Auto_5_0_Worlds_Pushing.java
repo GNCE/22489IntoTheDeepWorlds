@@ -51,7 +51,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
             {
                     new Pose(25.5, 21.45960264900662, Math.toRadians(180)),
                     new Pose(65.0384105960265, 26.70198675496688, Math.toRadians(180)),
-                    new Pose(61.41456953642384, 12.397350993377483, Math.toRadians(180)),
+                    new Pose(57.790728476821194, 12.397350993377483, Math.toRadians(180)),
             },
             {
                     new Pose(57.790728476821194, 12.397350993377483, Math.toRadians(180)),
