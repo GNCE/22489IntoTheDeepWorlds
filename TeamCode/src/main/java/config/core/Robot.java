@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import config.core.utils.Alliance;
 import config.core.utils.Opmode;
 import config.core.utils.SubsystemCore;
+import config.subsystems.LooptimeTracker;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import config.subsystems.Extend;
@@ -26,6 +27,7 @@ public class Robot extends com.arcrobotics.ftclib.command.Robot {
     private Lift l;
     private Extend e;
     private HangServoSubsys hs;
+    private LooptimeTracker lt;
     private Gamepad g1;
     private Gamepad g2;
     private Follower f;
@@ -36,6 +38,7 @@ public class Robot extends com.arcrobotics.ftclib.command.Robot {
         this.l = new Lift();
         this.e = new Extend();
         this.hs = new HangServoSubsys();
+        this.lt = new LooptimeTracker();
     }
 
     public Robot(HardwareMap h, Telemetry tel, Opmode op, Gamepad g1, Gamepad g2, Pose startPose, boolean robotCentric){

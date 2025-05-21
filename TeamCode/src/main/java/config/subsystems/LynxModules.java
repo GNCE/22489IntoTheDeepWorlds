@@ -1,6 +1,8 @@
 package config.subsystems;
 
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.hardware.lynx.commands.core.LynxResetMotorEncoderCommand;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package commands;
+package config.commands;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 

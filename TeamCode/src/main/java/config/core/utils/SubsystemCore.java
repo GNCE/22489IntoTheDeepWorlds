@@ -12,7 +12,7 @@ public abstract class SubsystemCore extends SubsystemBase {
     protected static HardwareMap hardwareMap;
     protected static MultipleTelemetry tel;
 
-    public static void setGlobalParameters(HardwareMap hardwareMap, OpMode opMode, Telemetry tel){
+    public static void setGlobalParameters(HardwareMap hardwareMap, Telemetry tel){
         SubsystemCore.hardwareMap = hardwareMap;
         SubsystemCore.tel = new MultipleTelemetry(tel, FtcDashboard.getInstance().getTelemetry());
     }
@@ -22,5 +22,5 @@ public abstract class SubsystemCore extends SubsystemBase {
         init();
     }
 
-    public abstract void init();
+    public void init(){};
 }
