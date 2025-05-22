@@ -187,7 +187,7 @@ private PathChain goToThirdPush, pushThirdSample, fifthPickupPath, fifthScorePat
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
-                outtake.setClawOpen(false);
+                outtake.setClawState(Outtake.ClawStates.CLOSED);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 3){
@@ -197,7 +197,7 @@ private PathChain goToThirdPush, pushThirdSample, fifthPickupPath, fifthScorePat
                 break;
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     setPathState(AutoState.DRIVE_TO_PUSHING);
                 }
                 break;
@@ -229,7 +229,7 @@ private PathChain goToThirdPush, pushThirdSample, fifthPickupPath, fifthScorePat
                     } else {
                         counter = 0;
                         setPathState(AutoState.READY_FOR_PICKUP);
-                        outtake.setClawOpen(true);
+                        outtake.setClawState(Outtake.ClawStates.OPEN);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                         //follower.followPath(pickupPaths[counter], true);
                     }
@@ -237,14 +237,14 @@ private PathChain goToThirdPush, pushThirdSample, fifthPickupPath, fifthScorePat
                 break;
             case READY_FOR_PICKUP:
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                outtake.setClawOpen(true);
+                outtake.setClawState(Outtake.ClawStates.OPEN);
                 if(!follower.isBusy()){
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
                 if(pathTimer.getElapsedTimeSeconds() > 0.15){
-                    outtake.setClawOpen(false);
+                    outtake.setClawState(Outtake.ClawStates.CLOSED);
                     if(pathTimer.getElapsedTimeSeconds() > 0.5){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
@@ -260,7 +260,7 @@ private PathChain goToThirdPush, pushThirdSample, fifthPickupPath, fifthScorePat
                 break;
             case SCORE:
                 if(pathTimer.getElapsedTimeSeconds() > 0.1){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                         counter++;
                         if (counter < 4) {

@@ -21,6 +21,7 @@ public class Outtake {
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.46;
     public static double CLAW_OPENED = 0.16;
+    public static double CLAW_LOOSE_CLOSED = 0.422;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
     public static double ARM_TRANSFER_POS = 0.48;
@@ -55,6 +56,8 @@ public class Outtake {
         Ldiffy = hardwareMap.get(Servo.class,"outtakeLDiffy");
         Rdiffy.setDirection(Servo.Direction.REVERSE);
         Ldiffy.setDirection(Servo.Direction.FORWARD);
+
+        setClawState(ClawStates.CLOSED);
     }
 
     @Config
@@ -139,10 +142,16 @@ public class Outtake {
         rpivhigh.setPosition(ArmPosition);
         lpivhigh.setPosition(ArmPosition + leftArmOffset);
 
-        if ((clamp.getPosition()!=CLAW_CLOSED) && !clawOpen){
-            clamp.setPosition(CLAW_CLOSED);
-        } else if ((clamp.getPosition()!=CLAW_OPENED) && clawOpen){
-            clamp.setPosition(CLAW_OPENED);
+        switch(clawState){
+            case OPEN:
+                clamp.setPosition(CLAW_OPENED);
+                break;
+            case LOOSE_CLOSED:
+                clamp.setPosition(CLAW_LOOSE_CLOSED);
+                break;
+            case CLOSED:
+                clamp.setPosition(CLAW_CLOSED);
+                break;
         }
     }
 
@@ -150,7 +159,12 @@ public class Outtake {
         this.outtakeState = outtakeState;
     }
 
-    public void setClawOpen(boolean state){
-        clawOpen = state;
+    public enum ClawStates{
+        OPEN, CLOSED, LOOSE_CLOSED;
+    }
+    private ClawStates clawState;
+
+    public void setClawState(ClawStates clawState){
+        this.clawState = clawState;
     }
 }

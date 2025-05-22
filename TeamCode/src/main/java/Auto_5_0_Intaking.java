@@ -160,7 +160,7 @@
 //    public void autonomousPathUpdate(){
 //        switch (autoState){
 //           g case DRIVE_TO_PRELOAD_SCORE:
-//                outtake.setClawOpen(false);
+//                outtake.setClawState(Outtake.ClawStates.CLOSED);
 //                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
 //                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
 //                if(pathTimer.getElapsedTimeSeconds() > 1.7){
@@ -170,7 +170,7 @@
 //                break;
 //            case SCORE_PRELOAD:
 //                if(!follower.isBusy()){
-//                    outtake.setClawOpen(true);
+//                    outtake.setClawState(Outtake.ClawStates.OPEN);
 //                    setPathState(AutoState.DRIVE_TO_INTAKE);
 //                }
 //                break;
@@ -187,7 +187,7 @@
 //                if(!follower.isBusy()){
 //                    intakeDiffyClaw.ExtendTo(subsystems.Intake_DiffyClaw.IntakePositions.AUTO_INTAKE_POSE);
 //                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-//                    intakeDiffyClaw.setClawOpen(true);
+//                    intakeDiffyClaw.setClawState(Outtake.ClawStates.OPEN);
 //                    intakeDiffyClaw.HoldExtension();
 //                    setPathState(AutoState.INTAKING);
 //                }
@@ -197,7 +197,7 @@
 //                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
 //                }
 //                if (pathTimer.getElapsedTimeSeconds()>0.6){
-//                    intakeDiffyClaw.setClawOpen(false);
+//                    intakeDiffyClaw.setClawState(Outtake.ClawStates.CLOSED);
 //                }
 //                if (pathTimer.getElapsedTimeSeconds()>0.8){
 //                    intakeDiffyClaw.setIntakeState(subsystems.Intake_DiffyClaw.IntakeState.DEPOSIT);
@@ -207,7 +207,7 @@
 //                break;
 //            case DEPOSITING:
 //                if(!follower.isBusy()){
-//                    intakeDiffyClaw.setClawOpen(true);
+//                    intakeDiffyClaw.setClawState(Outtake.ClawStates.OPEN);
 //                    counter++;
 //                    if(counter < 3){
 //                        follower.followPath(intakePaths[counter]);
@@ -215,7 +215,7 @@
 //                    } else {
 //                        counter = 0;
 //                        setPathState(AutoState.READY_FOR_PICKUP);
-//                        outtake.setClawOpen(true);
+//                        outtake.setClawState(Outtake.ClawStates.OPEN);
 //                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
 //                        follower.followPath(pickupPaths[counter], true);
 //                    }
@@ -223,14 +223,14 @@
 //                break;
 //            case READY_FOR_PICKUP:
 //                outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.FRONT_PICKUP);
-//                outtake.setClawOpen(true);
+//                outtake.setClawState(Outtake.ClawStates.OPEN);
 //                if(!follower.isBusy()){
 //                    setPathState(AutoState.PICKUP);
 //                }
 //                break;
 //            case PICKUP:
 //                if(pathTimer.getElapsedTimeSeconds() > 0.15){
-//                    outtake.setClawOpen(false);
+//                    outtake.setClawState(Outtake.ClawStates.CLOSED);
 //                    if(pathTimer.getElapsedTimeSeconds() > 0.5){
 //                        outtakeLift.LiftTo(OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
 //                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
@@ -246,7 +246,7 @@
 //                break;
 //            case SCORE:
 //                if(pathTimer.getElapsedTimeSeconds() > 0.05){
-//                    outtake.setClawOpen(true);
+//                    outtake.setClawState(Outtake.ClawStates.OPEN);
 //                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
 //                        counter++;
 //                        if (counter < 3) {

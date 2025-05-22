@@ -161,7 +161,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
                     if(pathTimer.getElapsedTime() > 0.5){
-                        outtake.setClawOpen(true);
+                        outtake.setClawState(Outtake.ClawStates.OPEN);
                     }
                     if(pathTimer.getElapsedTime() > 1){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
@@ -274,7 +274,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 if(pathTimer.getElapsedTime() > 0.2){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if(pathTimer.getElapsedTime() > 0.3){
                     follower.followPath(
@@ -447,7 +447,7 @@ public class Auto_6_0_Intaking extends OpMode {
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
-        outtake.setClawOpen(false);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
 
         double translatedX = gamepad1.touchpad_finger_1_y * 12 + 60; // Range is 48 to 72
         double translatedY = (-gamepad1.touchpad_finger_1_x  * 12.2/2) + 72;

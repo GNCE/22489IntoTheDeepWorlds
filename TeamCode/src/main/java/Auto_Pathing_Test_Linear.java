@@ -104,7 +104,7 @@ public class Auto_Pathing_Test_Linear extends OpMode {
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.outtakeLoop();
-        outtake.setClawOpen(false);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }

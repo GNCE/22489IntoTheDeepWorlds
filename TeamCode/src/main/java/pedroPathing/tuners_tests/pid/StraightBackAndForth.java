@@ -65,7 +65,7 @@ public class StraightBackAndForth extends OpMode {
                 .setConstantHeadingInterpolation(0)
                 .build();
 
-        follower.followPath(forwards, true);
+        follower.followPath(forwards, false);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
@@ -78,26 +78,18 @@ public class StraightBackAndForth extends OpMode {
      * This runs the OpMode, updating the Follower as well as printing out the debug statements to
      * the Telemetry, as well as the FTC Dashboard.
      */
-    boolean followerPrevBusy;
     @Override
     public void loop() {
         follower.update();
         if (!follower.isBusy()) {
-            if(followerPrevBusy != follower.isBusy()){
-                elapsedTime.reset();
-            }
-            if(elapsedTime.time() > 1) {
-                if (forward) {
-                    forward = false;
-                    follower.followPath(backwards, true);
-                } else {
-                    forward = true;
-                    follower.followPath(forwards, true);
-                }
+            if (forward) {
+                forward = false;
+                follower.followPath(backwards, false);
+            } else {
+                forward = true;
+                follower.followPath(forwards, false);
             }
         }
-
-        followerPrevBusy = follower.isBusy();
 
         telemetryA.addData("going forward", forward);
         follower.telemetryDebug(telemetryA);

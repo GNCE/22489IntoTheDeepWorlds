@@ -173,10 +173,10 @@
 //                    case TRANSFER:
 //                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.TRANSFER);
 //                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-//                        outtake.setClawOpen(true);
+//                        outtake.setClawState(Outtake.ClawStates.OPEN);
 //                        break;
 //                    case GRAB_AND_LIFT:
-//                        outtake.setClawOpen(false);
+//                        outtake.setClawState(Outtake.ClawStates.CLOSED);
 //                        if(sequenceTime.time() > 0.1){
 //                            intake.startReverseIntake();
 //                        }
@@ -187,7 +187,7 @@
 //                        }
 //                        break;
 //                    case SCORE:
-//                        outtake.setClawOpen(true);
+//                        outtake.setClawState(Outtake.ClawStates.OPEN);
 //                        if (resetEncoderDelay.time() > 0.4){
 //                            outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
 //                        }
@@ -202,7 +202,7 @@
 //            case SPECIMEN_SEQUENCE:
 //                switch (specimenSequence){
 //                    case OPEN_CLAW:
-//                        outtake.setClawOpen(true);
+//                        outtake.setClawState(Outtake.ClawStates.OPEN);
 //                        break;
 //                    case FRONT_GRAB:
 //                            {
@@ -210,7 +210,7 @@
 //                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);}
 //                        break;
 //                    case CLOSE_CLAW:
-//                        outtake.setClawOpen(false);
+//                        outtake.setClawState(Outtake.ClawStates.CLOSED);
 //                        break;
 //                    case BACK_SCORE:
 //                        outtakeLift.LiftTo(OLD_OuttakeLift.OuttakeLiftPositions.BACK_SCORE);
@@ -236,9 +236,9 @@
 ////        }
 ////
 ////        if (gamepad2.left_bumper){
-////            outtake.setClawOpen(true);
+////            outtake.setClawState(Outtake.ClawStates.OPEN);
 ////        } else {
-////            outtake.setClawOpen(false);
+////            outtake.setClawState(Outtake.ClawStates.CLOSED);
 ////        }
 //
 //        if (gamepad1.right_bumper) misc.startSweep();

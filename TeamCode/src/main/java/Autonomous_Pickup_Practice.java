@@ -280,7 +280,7 @@ public class Autonomous_Pickup_Practice extends OpMode {
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
-                outtake.setClawOpen(false);
+                outtake.setClawState(Outtake.ClawStates.CLOSED);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 0){
@@ -290,7 +290,7 @@ public class Autonomous_Pickup_Practice extends OpMode {
                 break;
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
                     setPathState(AutoState.DRIVE_TO_PUSHING);
                 }
@@ -314,7 +314,7 @@ public class Autonomous_Pickup_Practice extends OpMode {
                 if(!follower.isBusy()){
                     counter = 0;
                     setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                     follower.followPath(pickupPaths[0], false);
                 }
@@ -335,14 +335,14 @@ public class Autonomous_Pickup_Practice extends OpMode {
                 setPathState(AutoState.READY_FOR_PICKUP);
                 break;
             case READY_FOR_PICKUP:
-                outtake.setClawOpen(true);
+                outtake.setClawState(Outtake.ClawStates.OPEN);
                 if(!follower.isBusy()){
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
-                    outtake.setClawOpen(false);
+                    outtake.setClawState(Outtake.ClawStates.CLOSED);
                     if(pathTimer.getElapsedTimeSeconds() > 0.32){
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
@@ -358,7 +358,7 @@ public class Autonomous_Pickup_Practice extends OpMode {
                 break;
             case SCORE:
                 if(pathTimer.getElapsedTimeSeconds() > 0.04){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     if (pathTimer.getElapsedTimeSeconds() > 0.26) {
                         counter++;
                         if (counter < 15) {
@@ -408,7 +408,7 @@ public class Autonomous_Pickup_Practice extends OpMode {
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.outtakeLoop();
-        outtake.setClawOpen(false);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }

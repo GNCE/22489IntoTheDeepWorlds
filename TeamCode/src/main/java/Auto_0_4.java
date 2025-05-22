@@ -150,7 +150,7 @@ public class Auto_0_4 extends OpMode{
         switch (autoState) {
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreload, true);
-                outtake.setClawOpen(false);
+                outtake.setClawState(Outtake.ClawStates.CLOSED);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -165,7 +165,7 @@ public class Auto_0_4 extends OpMode{
                 break;
             case SCORE_PRELOAD:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 1) {
                     follower.followPath(grabPickups[sampleCounter], true);
@@ -211,7 +211,7 @@ public class Auto_0_4 extends OpMode{
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.3){
-                    outtake.setClawOpen(false);
+                    outtake.setClawState(Outtake.ClawStates.CLOSED);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.5){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
@@ -229,7 +229,7 @@ public class Auto_0_4 extends OpMode{
             case READY_TO_SCORE:
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                 if(pathTimer.getElapsedTimeSeconds() > 0.45){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 0.7){
                     setPathState(AutoState.SCORE);
@@ -308,7 +308,7 @@ public class Auto_0_4 extends OpMode{
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
 
-        outtake.setClawOpen(false);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.outtakeLoop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");

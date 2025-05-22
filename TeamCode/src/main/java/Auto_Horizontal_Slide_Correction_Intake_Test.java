@@ -151,7 +151,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                 ll.turnOff();
                 if (pathTimer.getElapsedTime() > 0.2){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if (pathTimer.getElapsedTime() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -168,7 +168,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
                 if(pathTimer.getElapsedTime() > 0.2){
-                    outtake.setClawOpen(true);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if(pathTimer.getElapsedTime() > 0.3){
                     setPathState(AutoState.DRIVE_TO_SPIKE_MARK_3);
@@ -205,7 +205,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
-        outtake.setClawOpen(false);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
 
         double translatedX = gamepad1.touchpad_finger_1_y * 12 + 60; // Range is 48 to 72
         double translatedY = gamepad1.touchpad_finger_1_x  * 16.4 + 72; // Range is 55.6 to 88.4
