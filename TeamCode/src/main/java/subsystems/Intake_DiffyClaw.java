@@ -261,10 +261,9 @@ public class Intake_DiffyClaw extends SubsysCore {
             IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            resetI++;
-            if(resetI > 10){
-                resetI = 0;
+            if(IntakeExtend.getCurrentPosition() == 0){
                 startResetting = false;
+                encoderUpdated++;
             }
         }
 
@@ -289,11 +288,9 @@ public class Intake_DiffyClaw extends SubsysCore {
                 timer.reset();
             }
             power = -1;
-            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 6 && IntakeExtend.getVelocity() == 0 && timer.seconds() > 0.5) {
+            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
                 startResetting = true;
-                resetI = 0;
                 encoderReset = true;
-                encoderUpdated++;
             }
         } else {
             // PIDF Controller

@@ -16,6 +16,7 @@ import subsystems.DriveSubsys;
 import subsystems.HangServoSubsys;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.LynxModules;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -28,6 +29,7 @@ public class Main_TeleOp extends OpMode {
     public static double targetX = 16, targetY = 0;
     private Follower follower;
 
+    private LynxModules lynxModules;
     private Intake_DiffyClaw diffyClawIntake;
     private DriveSubsys driveSubsys;
     private IntakeLimelightSubsys ll;
@@ -47,6 +49,7 @@ public class Main_TeleOp extends OpMode {
 
     @Override
     public void init() {
+
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
         elapsedTime = new ElapsedTime();
@@ -62,6 +65,9 @@ public class Main_TeleOp extends OpMode {
         tel.init(this.telemetry);
         SubsysCore.setGlobalParameters(hardwareMap, this);
 
+
+        lynxModules = new LynxModules();
+        lynxModules.init();
         driveSubsys = new DriveSubsys();
         driveSubsys.init();
         diffyClawIntake = new Intake_DiffyClaw();
@@ -90,6 +96,7 @@ public class Main_TeleOp extends OpMode {
 
     @Override
     public void init_loop(){
+        lynxModules.loop();
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
         follower.update();
@@ -247,6 +254,7 @@ public class Main_TeleOp extends OpMode {
 
     @Override
     public void loop() {
+        lynxModules.loop();
         boolean justChanged = autoScoreToggleButton.input(gamepad2.left_bumper);
         if(justChanged){
             if(autoScoreToggleButton.getVal()){
@@ -665,7 +673,7 @@ public class Main_TeleOp extends OpMode {
 //        tel.addData("Y", follower.getPose().getY());
 //        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 //        tel.addData("Elapsed Time", elapsedTime.toString());
-//        tel.addData("Loop Time", loopTime.toString());
+        tel.addData("Loop Time", loopTime.toString());
         tel.update();
         loopTime.reset();
     }

@@ -15,6 +15,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.Intake_DiffyClaw;
+import subsystems.LynxModules;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -27,6 +28,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     private OuttakeLiftSubsys outtakeLift;
     private Outtake outtake;
     private Timer pathTimer;
+    private LynxModules lynxModules;
     private final double scoreX = 37;
     private final double scoreY = 73;
 
@@ -400,6 +402,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     }
     @Override
     public void init(){
+
         pathTimer = new Timer();
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
@@ -407,6 +410,10 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
         SubsysCore.setGlobalParameters(hardwareMap, this);
+
+
+        lynxModules = new LynxModules();
+        lynxModules.init();
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
@@ -420,6 +427,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     private UnifiedTelemetry tel;
     @Override
     public void init_loop(){
+        lynxModules.loop();
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
@@ -430,6 +438,8 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
     }
     @Override
     public void loop(){
+        lynxModules.loop();
+
         follower.update();
         autonomousPathUpdate();
         outtake.outtakeLoop();
@@ -444,7 +454,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
         tel.addData("VeloX", follower.getVelocity().getMagnitude());
         tel.addData("XPOS", follower.getPose().getX());
         tel.addData("YPOS", follower.getPose().getY());
-        tel.addData("translational error", follower.getTranslationalError());
+        tel.addData("translational error", follower.getTranslationalError().getMagnitude());
         tel.update();
     }
 }
