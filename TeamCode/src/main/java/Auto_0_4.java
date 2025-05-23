@@ -14,6 +14,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -279,7 +280,8 @@ public class Auto_0_4 extends OpMode{
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
 
-        outtake = new Outtake(hardwareMap);
+        outtake = new Outtake();
+        outtake.init();
 
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
@@ -310,7 +312,7 @@ public class Auto_0_4 extends OpMode{
 
         outtake.setClawState(Outtake.ClawStates.CLOSED);
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
-        outtake.outtakeLoop();
+        outtake.loop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }
@@ -324,7 +326,7 @@ public class Auto_0_4 extends OpMode{
         ll.loop();
         outtakeLift.loop();
         outtakeLift.holdLift();
-        outtake.outtakeLoop();
+        outtake.loop();
         autonomousPathUpdate();
         follower.update();
 

@@ -1,10 +1,10 @@
+package subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
-public class Outtake {
+public class Outtake extends SubsysCore {
     private Servo clamp;
     private Servo Rdiffy;
     private Servo Ldiffy;
@@ -45,7 +45,9 @@ public class Outtake {
         SAMPLE_SCORE_WAIT,
 
     }
-    public Outtake(HardwareMap hardwareMap) {
+
+    @Override
+    public void init() {
         clamp = hardwareMap.get(Servo.class, "outtakeClamp");
         clamp.setDirection(Servo.Direction.REVERSE);
         rpivhigh = hardwareMap.get(Servo.class, "outtakeRightArm");
@@ -89,7 +91,9 @@ public class Outtake {
     }
 
     OuttakeState outtakeState = OuttakeState.TRANSFER;
-    public void outtakeLoop(){
+
+    @Override
+    public void loop(){
         switch(outtakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;

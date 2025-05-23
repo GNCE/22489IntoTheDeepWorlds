@@ -26,7 +26,7 @@
 //    private Follower follower;
 //    private subsystems.Intake_DiffyClaw intakeDiffyClaw;
 //    private OuttakeLiftSubsys outtakeLift;
-//    private Outtake outtake;
+//    private subsystems.Outtake outtake;
 //    private Timer pathTimer;
 //    private final double scoreX = 39.3;
 //    private final double scoreY = 78;
@@ -146,8 +146,8 @@
 //    public void autonomousPathUpdate(){
 //        switch (autoState){
 //            case DRIVE_TO_PRELOAD_SCORE:
-//                outtake.setClawState(Outtake.ClawStates.CLOSED);
-//                outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+//                outtake.setClawState(subsystems.Outtake.ClawStates.CLOSED);
+//                outtake.setOuttakeState(subsystems.Outtake.OuttakeState.SPECBACKSCORE);
 //                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
 //                if(pathTimer.getElapsedTimeSeconds() > 0){
 //                    follower.followPath(scorePreloadPath,true);
@@ -156,7 +156,7 @@
 //                break;
 //            case SCORE_PRELOAD:
 //                if(!follower.isBusy()){
-//                    outtake.setClawState(Outtake.ClawStates.OPEN);
+//                    outtake.setClawState(subsystems.Outtake.ClawStates.OPEN);
 //                    setPathState(AutoState.DRIVE_TO_PUSHING);
 //                }
 //                break;
@@ -175,7 +175,7 @@
 //            case READY_FOR_PUSHING:
 //                if (pathTimer.getElapsedTimeSeconds() > 0.4){
 //                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-//                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+//                    outtake.setOuttakeState(subsystems.Outtake.OuttakeState.SPECFRONTPICKUP);
 //                }
 //                if(!follower.isBusy()){
 //                    follower.followPath(pushDonePaths[counter], false);
@@ -191,7 +191,7 @@
 //                    } else {
 //                        counter = 0;
 //                        setPathState(AutoState.READY_FOR_PICKUP); // Skips WALL_PICKUP when first pickup
-//                        outtake.setClawState(Outtake.ClawStates.OPEN);
+//                        outtake.setClawState(subsystems.Outtake.ClawStates.OPEN);
 //                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
 //                        follower.followPath(pickupPaths[counter], true);
 //                    }
@@ -200,7 +200,7 @@
 //            case WALL_PICKUP:
 //                if (pathTimer.getElapsedTimeSeconds() > 0.55){
 //                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-//                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
+//                    outtake.setOuttakeState(subsystems.Outtake.OuttakeState.SPECFRONTPICKUP);
 //                }
 //                if (!follower.isBusy()){
 //                    setPathState(AutoState.WALL_DELAY);
@@ -213,17 +213,17 @@
 //                }
 //                break;
 //            case READY_FOR_PICKUP:
-//                outtake.setClawState(Outtake.ClawStates.OPEN);
+//                outtake.setClawState(subsystems.Outtake.ClawStates.OPEN);
 //                if(!follower.isBusy()){
 //                    setPathState(AutoState.PICKUP);
 //                }
 //                break;
 //            case PICKUP:
 //                if(pathTimer.getElapsedTimeSeconds() > 0){
-//                    outtake.setClawState(Outtake.ClawStates.CLOSED);
+//                    outtake.setClawState(subsystems.Outtake.ClawStates.CLOSED);
 //                    if(pathTimer.getElapsedTimeSeconds() > 0.28){
 //                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_SCORE);
-//                        outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
+//                        outtake.setOuttakeState(subsystems.Outtake.OuttakeState.SPECBACKSCORE);
 //                        follower.followPath(scorePaths[counter], false);
 //                        setPathState(AutoState.READY_TO_SCORE);
 //                    }
@@ -236,7 +236,7 @@
 //                break;
 //            case SCORE:
 //                if(pathTimer.getElapsedTimeSeconds() > 0.04){
-//                    outtake.setClawState(Outtake.ClawStates.OPEN);
+//                    outtake.setClawState(subsystems.Outtake.ClawStates.OPEN);
 //                    if (pathTimer.getElapsedTimeSeconds() > 0.26) {
 //                        counter++;
 //                        if (counter < 4) {
@@ -251,7 +251,7 @@
 //                break;
 //            case PARK:
 //                if (pathTimer.getElapsedTimeSeconds() > 0.6){
-//                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
+//                    outtake.setOuttakeState(subsystems.Outtake.OuttakeState.RESET_ENCODER);
 //                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
 //                }
 //                break;
@@ -271,7 +271,7 @@
 //
 //        intakeDiffyClaw = new subsystems.Intake_DiffyClaw();
 //        intakeDiffyClaw.init();
-//        outtake = new Outtake(hardwareMap);
+//        outtake = new subsystems.Outtake(hardwareMap);
 //        outtakeLift = new OuttakeLiftSubsys();
 //        outtakeLift.init();
 //        buildPaths();
@@ -283,9 +283,9 @@
 //    public void init_loop(){
 //        teamColorButton.input(gamepad1.dpad_up);
 //        Storage.isRed = teamColorButton.getVal();
-//        outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
+//        outtake.setOuttakeState(subsystems.Outtake.OuttakeState.Auto_Wait);
 //        outtake.outtakeLoop();
-//        outtake.setClawState(Outtake.ClawStates.CLOSED);
+//        outtake.setClawState(subsystems.Outtake.ClawStates.CLOSED);
 //        tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
 //        tel.update();
 //    }

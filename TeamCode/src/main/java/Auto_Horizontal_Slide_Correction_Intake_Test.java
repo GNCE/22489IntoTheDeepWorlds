@@ -12,6 +12,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -193,7 +194,8 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
         ll = new IntakeLimelightSubsys();
         ll.init();
         ll.setPipelineNumber(Storage.isRed ? 6 : 5);
-        outtake = new Outtake(hardwareMap);
+        outtake = new Outtake();
+        outtake.init();
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
     }
@@ -216,7 +218,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
         }
 
 
-        outtake.outtakeLoop();
+        outtake.loop();
 
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
 
@@ -244,7 +246,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
     public void loop(){
         follower.update();
         autonomousPathUpdate();
-        outtake.outtakeLoop();
+        outtake.loop();
         outtakeLift.holdLift();
         outtakeLift.loop();
         intakeDiffyClaw.loop();

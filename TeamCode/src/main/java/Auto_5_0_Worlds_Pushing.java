@@ -2,20 +2,17 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.Intake_DiffyClaw;
 import subsystems.LynxModules;
+import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -417,7 +414,8 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
-        outtake = new Outtake(hardwareMap);
+        outtake = new Outtake();
+        outtake.init();
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
         buildPaths();
@@ -432,7 +430,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.setClawState(Outtake.ClawStates.CLOSED);
-        outtake.outtakeLoop();
+        outtake.loop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }
@@ -442,7 +440,7 @@ public class Auto_5_0_Worlds_Pushing extends OpMode {
 
         follower.update();
         autonomousPathUpdate();
-        outtake.outtakeLoop();
+        outtake.loop();
         outtakeLift.holdLift();
         outtakeLift.loop();
         intakeDiffyClaw.loop();

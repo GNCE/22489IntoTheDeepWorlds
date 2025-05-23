@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.Intake_DiffyClaw;
+import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -90,7 +91,7 @@ public class Auto_Pathing_Test_Linear extends OpMode {
 
         intakeDiffyClaw = new Intake_DiffyClaw();
         intakeDiffyClaw.init();
-        outtake = new Outtake(hardwareMap);
+        outtake = new Outtake(); outtake.init();
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
         buildPaths();
@@ -103,7 +104,7 @@ public class Auto_Pathing_Test_Linear extends OpMode {
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
-        outtake.outtakeLoop();
+        outtake.loop();
         outtake.setClawState(Outtake.ClawStates.CLOSED);
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
@@ -112,7 +113,7 @@ public class Auto_Pathing_Test_Linear extends OpMode {
     public void loop(){
         follower.update();
         autonomousPathUpdate();
-        outtake.outtakeLoop();
+        outtake.loop();
         outtakeLift.holdLift();
         outtakeLift.loop();
         intakeDiffyClaw.loop();

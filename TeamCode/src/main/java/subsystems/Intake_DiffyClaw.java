@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
+import utils.Motor;
+
 @Config
 public class Intake_DiffyClaw extends SubsysCore {
     private Servo IntakeClamp;
@@ -17,7 +19,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
     private IntakeLimelightSubsys ll;
-    public DcMotorEx IntakeExtend;
+    public Motor IntakeExtend;
 
     public static int pipelineNumber = 4;
 
@@ -75,11 +77,10 @@ public class Intake_DiffyClaw extends SubsysCore {
         IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
         IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
 
-        IntakeExtend = hardwareMap.get(DcMotorEx.class, "horizExtend");
+        IntakeExtend = new Motor(hardwareMap.get(DcMotorEx.class, "horizExtend"), 0.005);
         IntakeExtend.setDirection(DcMotor.Direction.REVERSE);
         IntakeExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        IntakeExtend.stopAndResetEncoder();
         ll = new IntakeLimelightSubsys();
 
         extensionTime = new ElapsedTime();
@@ -187,8 +188,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
 
         tel.addData("Horizontal Extension Target Position", target);
-        tel.addData("Horizontal Extension Current Position", IntakeExtend.getCurrentPosition());
-        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent(CurrentUnit.AMPS));
+        tel.addData("Horizontal Extension Current Position", IntakeExtend.getPosition());
+        tel.addData("Horizontal Extension Amps", IntakeExtend.getCurrent());
         tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
         tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
         tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
@@ -227,7 +228,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     ElapsedTime timer;
 
     public int getCurrentPosition(){
-        return IntakeExtend.getCurrentPosition();
+        return IntakeExtend.getPosition();
     }
     public int getTargetPosition(){
         return target;
@@ -241,9 +242,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         powerScale = newPowerScale;
     }
 
-    private boolean usingLL = false;
-    private boolean startResetting = false;
-    private int resetI = 0;
+    private boolean usingLL;
 
     public void useVision(){
         usingLL = true;
@@ -257,16 +256,6 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void stopHang(){ hanging = false; }
 
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(startResetting){
-            IntakeExtend.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            IntakeExtend.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-            if(IntakeExtend.getCurrentPosition() == 0){
-                startResetting = false;
-                encoderUpdated++;
-            }
-        }
-
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
             power = opMode.gamepad2.left_trigger;
@@ -288,8 +277,8 @@ public class Intake_DiffyClaw extends SubsysCore {
                 timer.reset();
             }
             power = -1;
-            if (IntakeExtend.getCurrent(CurrentUnit.AMPS) > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
-                startResetting = true;
+            if (IntakeExtend.getCurrent() > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
+                IntakeExtend.resetEncoder();
                 encoderReset = true;
             }
         } else {
@@ -303,8 +292,6 @@ public class Intake_DiffyClaw extends SubsysCore {
         if (getCurrentPosition() >= IntakeExtensionPositions.FULL_EXTENSION_POS-5 && power > 0) power = 0;
 
         power*=powerScale;
-        power = Math.max(power, -1);
-        power = Math.min(power, 1);
         IntakeExtend.setPower(power);
         prevTarget = target;
     }
@@ -349,6 +336,6 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
     }
     public boolean extensionReachedTarget(){
-        return Math.abs(IntakeExtend.getCurrentPosition() - target) <= 20;
+        return Math.abs(IntakeExtend.getPosition() - target) <= 20;
     }
 }

@@ -17,6 +17,7 @@ import subsystems.HangServoSubsys;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
 import subsystems.LynxModules;
+import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
@@ -75,7 +76,8 @@ public class Main_TeleOp extends OpMode {
         ll.init();
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
-        outtake = new Outtake(hardwareMap);
+        outtake = new Outtake();
+        outtake.init();
         hangServos = new HangServoSubsys();
         hangServos.init();
 
@@ -653,7 +655,7 @@ public class Main_TeleOp extends OpMode {
         }
 
         outtakeLift.holdLift();
-        outtake.outtakeLoop();
+        outtake.loop();
 
 
         controlFlipButton.input(gamepad1.dpad_up);

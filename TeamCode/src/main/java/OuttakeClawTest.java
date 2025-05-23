@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name = "Outtake Claw Test")
+@TeleOp(name = "subsystems.Outtake Claw Test")
 @Config
 public class OuttakeClawTest extends OpMode {
     private Servo Rdiffy;
