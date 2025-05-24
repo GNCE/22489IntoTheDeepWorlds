@@ -331,6 +331,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         input = Math.max(input, IntakeExtensionPositions.RETRACTED_POS);
         target = (int) Math.round(input);
     }
+
     public void ExtendTo(IntakeExtensionStates input){
         switch(input){
             case FULL_EXTENSION:

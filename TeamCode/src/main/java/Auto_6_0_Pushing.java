@@ -2,6 +2,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
@@ -29,46 +30,13 @@ public class Auto_6_0_Pushing extends OpMode {
     private final double scoreX = 37;
     private final double scoreY = 73;
 
-    private final double frontScoreX = 36;
+    private final double frontScoreX = 34.5;
 
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, scoreY, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(21.170860927152315, 12.0158940397351, Math.toRadians(-27));
+    private final Pose thirdSpikeMark = new Pose(21.170860927152315, 12.0158940397351, Math.toRadians(-20));
     private final Pose secondSpikeMark = new Pose(21.170860927152315, 12.0158940397351, Math.toRadians(0));
     private final Pose firstSpikeMark = new Pose(21.170860927152315, 23.45960264900662, Math.toRadians(0));
-
-
-    private final Pose[][] samplePushPoses = {
-            {
-                    preloadScorePose,
-                    new Pose(22.50596026490066, 23, Math.toRadians(180)),
-                    new Pose(56.45562913907285, 38.71788079470198, Math.toRadians(180)),
-                    new Pose(57.40927152317881, 25.36688741721855, Math.toRadians(180))
-            },
-            {
-                    new Pose(56.83708609271523, 21.45960264900662, Math.toRadians(180)),
-                    new Pose(18.69139072847682, 24.22251655629138, Math.toRadians(180))
-            },
-            {
-                    new Pose(18.69139072847682, 24.22251655629138, Math.toRadians(180)),
-                    new Pose(51.68741721854305, 25.17615894039735, Math.toRadians(180)),
-                    new Pose(60.46092715231788, 14.495364238410597, Math.toRadians(180)),
-            },
-            {
-                    new Pose(60.46092715231788, 14.495364238410597, Math.toRadians(180)),
-                    new Pose(18.69139072847682, 14.495364238410597, Math.toRadians(180)),
-            },
-            {
-                    new Pose(18.69139072847682, 14.495364238410597, Math.toRadians(180)),
-                    new Pose(49.78013245033112, 14.87682119205298, Math.toRadians(180)),
-                    new Pose(60.46092715231788, 7.5, Math.toRadians(180)),
-            },
-            {
-                    new Pose(60.46092715231788, 7.5, Math.toRadians(180)),
-                    new Pose(9.5, 7.5, Math.toRadians(180))
-            }
-    };
-
 
     private final double scoreControlX = 23;
     private final double scoreYChange = 1.15;
@@ -101,7 +69,9 @@ public class Auto_6_0_Pushing extends OpMode {
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(startPose), new Point(preloadScorePose)))
                 .setConstantHeadingInterpolation(startPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(3)
+                .setZeroPowerAccelerationMultiplier(2)
+                .setPathEndTValueConstraint(0.93)
+                .setPathEndTimeoutConstraint(10)
                 .build();
         spike3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(preloadScorePose), new Point(thirdSpikeMark)))
@@ -109,8 +79,8 @@ public class Auto_6_0_Pushing extends OpMode {
                 .setZeroPowerAccelerationMultiplier(2)
                 .build();
         spike2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(thirdSpikeMark), new Point(secondSpikeMark)))
-                .setLinearHeadingInterpolation(thirdSpikeMark.getHeading(), secondSpikeMark.getHeading())
+                .addPath(new BezierPoint(secondSpikeMark))
+                .setConstantHeadingInterpolation(secondSpikeMark.getHeading())
                 .setZeroPowerAccelerationMultiplier(5)
                 .build();
         spike1 = follower.pathBuilder()
@@ -226,33 +196,34 @@ public class Auto_6_0_Pushing extends OpMode {
                 break;
             case SCORE_PRELOAD:
                 if(!follower.isBusy()){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
-                    if(!outtakeLift.isBusy()){
-                        outtake.setClawState(Outtake.ClawStates.OPEN);
-                        setPathState(AutoState.PRELOAD_AT_SUB);
-                    }
+                    setPathState(AutoState.PRELOAD_AT_SUB);
                 }
                 break;
             case PRELOAD_AT_SUB:
-                if(pathTimer.getElapsedTimeSeconds() > 0.23){ // Time it takes for claw to open
-                    // TODO: do vision things
-                    follower.followPath(spike3, true);
-                    setPathState(AutoState.DRIVE_TO_SPIKE_3);
+                if(pathTimer.getElapsedTimeSeconds() > 1){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                    if(pathTimer.getElapsedTimeSeconds() > 3){
+                        outtake.setClawState(Outtake.ClawStates.OPEN);
+                        if(pathTimer.getElapsedTimeSeconds() > 3.3){ // Time it takes for claw to open
+                            follower.followPath(spike3, true);
+                            setPathState(AutoState.DRIVE_TO_SPIKE_3);
+                        }
+                    }
                 }
                 break;
             case DRIVE_TO_SPIKE_3:
-                if(follower.getCurrentTValue() > 0.4){
+                if(follower.getCurrentTValue()  > 0.3){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
                 }
-                if(follower.getCurrentTValue() > 0.5){
-                    intakeDiffyClaw.ExtendTo(250, Intake_DiffyClaw.ExtensionUnits.ticks);
+                if(follower.getCurrentTValue() > 0.4){
+                    intakeDiffyClaw.ExtendTo(350, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -30;
                 }
                 if(!follower.isBusy()){
                     setPathState(AutoState.AT_SPIKE_3);
                     // TODO: Vision
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-
                 }
                 break;
             case AT_SPIKE_3:
@@ -268,15 +239,16 @@ public class Auto_6_0_Pushing extends OpMode {
                 }
                 break;
             case TO_SPIKE_2:
-                if(!follower.isBusy() && intakeDiffyClaw.getCurrentPosition() < 10){
+                if(Math.abs(follower.getPose().getHeading()) < Math.toRadians(0.02) && intakeDiffyClaw.getCurrentPosition() < 10){
                     setPathState(AutoState.AT_SPIKE_2);
                 }
                 break;
             case AT_SPIKE_2:
                 intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                    intakeDiffyClaw.ExtendTo(300, Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intakeDiffyClaw.ExtendTo(330, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     if(intakeDiffyClaw.extensionReachedTarget()){
                         setPathState(AutoState.PICKUP_SPIKE_2);
                     }
@@ -391,6 +363,7 @@ public class Auto_6_0_Pushing extends OpMode {
         outtakeLift.holdLift();
         outtakeLift.loop();
         intakeDiffyClaw.loop();
+        intakeDiffyClaw.HoldExtension();
 
 
         Storage.CurrentPose = follower.getPose();
