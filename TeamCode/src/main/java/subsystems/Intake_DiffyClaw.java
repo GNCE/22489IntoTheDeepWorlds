@@ -224,6 +224,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private static int prevTarget = 0;
     private static boolean encoderReset = true;
     private static int encoderUpdated = 0;
+    private int encoderResetVar = 0;
 
     ElapsedTime timer;
 
@@ -256,6 +257,14 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void stopHang(){ hanging = false; }
 
     public void HoldExtension(){ //TODO: Call this in the main loop
+        if(encoderResetVar >= 0 && encoderResetVar < 30){
+            IntakeExtend.resetEncoder();
+            encoderResetVar++;
+            if(getCurrentPosition() <=1 && Math.abs(IntakeExtend.getVelocity()) == 0 && IntakeExtend.getCurrent() < 0.05){
+                encoderResetVar = -1;
+            }
+        }
+
         double power;
         if (Math.abs(opMode.gamepad2.left_trigger) > 0.1){
             power = opMode.gamepad2.left_trigger;
@@ -279,6 +288,7 @@ public class Intake_DiffyClaw extends SubsysCore {
             power = -1;
             if (IntakeExtend.getCurrent() > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
                 IntakeExtend.resetEncoder();
+                encoderResetVar = 0;
                 encoderReset = true;
             }
         } else {
