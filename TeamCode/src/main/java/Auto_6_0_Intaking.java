@@ -2,7 +2,6 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.BezierPoint;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
@@ -20,7 +19,7 @@ import subsystems.UnifiedTelemetry;
 
 
 @Autonomous (name = "6 + 0 Autonomous - Pushing")
-public class Auto_6_0_Pushing extends OpMode {
+public class Auto_6_0_Intaking extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
     private OuttakeLiftSubsys outtakeLift;
@@ -250,7 +249,7 @@ public class Auto_6_0_Pushing extends OpMode {
                 break;
             case AT_SPIKE_2:
                 intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -268,6 +267,9 @@ public class Auto_6_0_Pushing extends OpMode {
                         setPathState(AutoState.TO_SPIKE_1);
                         intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                        if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                            intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                        }
                         if(intakeDiffyClaw.getCurrentPosition() < 10){
                             intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
@@ -281,7 +283,7 @@ public class Auto_6_0_Pushing extends OpMode {
                 break;
             case AT_SPIKE_1:
                 intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -305,13 +307,16 @@ public class Auto_6_0_Pushing extends OpMode {
                 }
                 break;
             case BEFORE_PICKUP:
+                if(intakeDiffyClaw.getCurrentPosition() < 50){
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                }
                 if(intakeDiffyClaw.getCurrentPosition() < 10){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                     setPathState(AutoState.PICKINGUPFIRST);
                 }
                 break;
             case PICKINGUPFIRST:
-                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                if(pathTimer.getElapsedTimeSeconds() > 0.4){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
                     if(outtakeLift.getCurrentPosition() < 10 && !follower.isBusy()){
                         outtake.setClawState(Outtake.ClawStates.CLOSED);

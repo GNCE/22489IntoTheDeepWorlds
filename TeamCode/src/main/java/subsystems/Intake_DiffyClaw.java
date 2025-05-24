@@ -101,7 +101,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = 0;
-        public static double DEPOSIT_POS = -50;
+        public static double DEPOSIT_POS = -55;
         public static double VISION_POS = 0;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
