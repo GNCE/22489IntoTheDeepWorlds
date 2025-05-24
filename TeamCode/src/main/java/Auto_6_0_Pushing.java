@@ -295,41 +295,6 @@ public class Auto_6_0_Pushing extends OpMode {
                     }
                 }
                 break;
-
-
-
-            case BEFORE_PUSHING:
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                    setPathState(AutoState.READY_FOR_PUSHING);
-                }
-                break;
-            case READY_FOR_PUSHING:
-                if(!follower.isBusy()){
-                    counter++;
-                    if(counter >= pushPaths.length){
-                        setPathState(AutoState.READY_FOR_PICKUP);
-                        counter=0;
-                    } else {
-                        setPathState(AutoState.READY_FOR_PUSHING);
-                        outtake.setClawState(Outtake.ClawStates.OPEN);
-                        follower.followPath(pushPaths[counter], true);
-                    }
-                }
-                break;
-            case WALL_PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
-                    outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
-                }
-                if (!follower.isBusy()){
-                    setPathState(AutoState.WALL_DELAY);
-                }
-                break;
-            case WALL_DELAY: //no more seperate wall pickup!
-                setPathState(AutoState.READY_FOR_PICKUP);
-                break;
             case READY_FOR_PICKUP:
                 outtake.setClawState(Outtake.ClawStates.OPEN);
                 if(!follower.isBusy()){
