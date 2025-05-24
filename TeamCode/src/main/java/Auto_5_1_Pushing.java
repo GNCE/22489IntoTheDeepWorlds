@@ -19,7 +19,7 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 
 
-@Autonomous (name = "5 + 0 Autonomous - Pushing")
+@Autonomous (name = "5 + 1 Autonomous - Pushing")
 public class Auto_5_1_Pushing extends OpMode {
     private Follower follower;
     private Intake_DiffyClaw intakeDiffyClaw;
@@ -28,7 +28,7 @@ public class Auto_5_1_Pushing extends OpMode {
     private Timer pathTimer;
     private LynxModules lynxModules;
     private final double scoreX = 37;
-    private final double scoreY = 73;
+    private final double scoreY = 71.5;
 
     private final Pose startPose = new Pose(6.55, 63.5, Math.toRadians(180));
     private final Pose preloadScoreControl = new Pose(20, scoreY, Math.toRadians(180));
@@ -48,10 +48,10 @@ public class Auto_5_1_Pushing extends OpMode {
             {
                     new Pose(18.69139072847682, 24.22251655629138, Math.toRadians(180)),
                     new Pose(51.68741721854305, 25.17615894039735, Math.toRadians(180)),
-                    new Pose(60.46092715231788, 14.495364238410597, Math.toRadians(180)),
+                    new Pose(60.46092715231788, 16.495364238410597, Math.toRadians(180)),
             },
             {
-                    new Pose(60.46092715231788, 14.495364238410597, Math.toRadians(180)),
+                    new Pose(60.46092715231788, 16.495364238410597, Math.toRadians(180)),
                     new Pose(18.69139072847682, 14.495364238410597, Math.toRadians(180)),
             },
             {
@@ -61,7 +61,7 @@ public class Auto_5_1_Pushing extends OpMode {
             },
             {
                     new Pose(60.46092715231788, 7.5, Math.toRadians(180)),
-                    new Pose(9.5, 7.5, Math.toRadians(180))
+                    new Pose(9.1, 7.5, Math.toRadians(180))
             }
     };
 
@@ -82,8 +82,9 @@ public class Auto_5_1_Pushing extends OpMode {
     private final Pose fourthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*4, Math.toRadians(180));
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(180));
     private final Pose fifthScoreControl = new Pose(scoreControlX, scoreY - scoreYChange*5, Math.toRadians(180));
-    private final Pose basketScorePose = new Pose(12, 128, Math.toRadians(315));
-    private final Pose parkPose = new Pose(14, 30, Math.toRadians(270));
+    private final Pose basketScorePose = new Pose(7.25, 127, Math.toRadians(270));
+    private final Pose basketMIDPose = new Pose(12, 40, Math.toRadians(270));
+    private final Pose parkPose = new Pose(10, 30, Math.toRadians(270));
     private final double pushPathEndTimeout = 5;
     private final double pickupWaitTimeout = 50;
 
@@ -108,7 +109,7 @@ public class Auto_5_1_Pushing extends OpMode {
         scorePreloadPath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(startPose), new Point(preloadScoreControl), new Point(preloadScorePose)))
                 .setConstantHeadingInterpolation(startPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(3)
+                .setZeroPowerAccelerationMultiplier(2.5)
                 .build();
         goToPush1 = follower.pathBuilder()
                 .addPath(new BezierCurve(samplePushPoses[0]))
@@ -149,8 +150,8 @@ public class Auto_5_1_Pushing extends OpMode {
                 .addPath(new BezierCurve(samplePushPoses[5]))
                 .setConstantHeadingInterpolation(samplePushPoses[5][0].getHeading())
                 .setZeroPowerAccelerationMultiplier(2.5)
-                .setPathEndTimeoutConstraint(pushPathEndTimeout)
-                .setPathEndTValueConstraint(0.995)
+                .setPathEndTimeoutConstraint(10)
+                .setPathEndTValueConstraint(0.93)
                 .build();
         firstPickupPath = follower.pathBuilder() //Unused, combined into 3rd push
                 .addPath(new BezierCurve(new Point(samplePushPoses[5][samplePushPoses[5].length-1]), new Point(outtakeFirstPickupPose)))
@@ -222,20 +223,26 @@ public class Auto_5_1_Pushing extends OpMode {
                 .addPath(new BezierLine(new Point(fifthScorePose), new Point(outtakePickupPose)))
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
+                .setPathEndTimeoutConstraint(10)
+                .setPathEndTValueConstraint(0.825)
                 .build();
         basketScore = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(basketScorePose)))
+                .addPath(new BezierLine(new Point(outtakePickupPose), new Point(basketMIDPose)))
                 .setLinearHeadingInterpolation(outtakePickupPose.getHeading(),basketScorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(3)
+                .addPath(new BezierLine(new Point(basketMIDPose), new Point(basketScorePose)))
+                .setConstantHeadingInterpolation(basketScorePose.getHeading())
+                .setPathEndTimeoutConstraint(50)
+                .setPathEndTValueConstraint(0.99)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
         parkFromFifthPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(basketScorePose), new Point(parkPose)))
                 .setLinearHeadingInterpolation(basketScorePose.getHeading(), parkPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(5.5)
                 .build();
         pushPaths = new PathChain[]{goToPush1, pushSample1, goToPush2, pushSample2, goToPush3, pushSample3};
         pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath};
         scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath, fifthScorePath};
-        basketPaths = new PathChain[]{basketPickup,basketScore};
     }
 
     enum AutoState {
@@ -393,9 +400,9 @@ public class Auto_5_1_Pushing extends OpMode {
                 }
                 break;
             case BASKET_SCORE:
-                if(pathTimer.getElapsedTimeSeconds() > 0.04){
+                if(pathTimer.getElapsedTimeSeconds() > 0.3){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.26) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.1) {
                         {
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                             follower.followPath(parkFromFifthPath, false);
