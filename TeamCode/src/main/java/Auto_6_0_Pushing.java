@@ -31,7 +31,7 @@ public class Auto_6_0_Pushing extends OpMode {
 
     private final double frontScoreX = 36;
 
-    private final Pose startPose = new Pose(6.55, 63.5, Math.toRadians(0));
+    private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, scoreY, Math.toRadians(0));
     private final Pose thirdSpikeMark = new Pose(21.170860927152315, 12.0158940397351, Math.toRadians(-27));
     private final Pose secondSpikeMark = new Pose(21.170860927152315, 12.0158940397351, Math.toRadians(0));
