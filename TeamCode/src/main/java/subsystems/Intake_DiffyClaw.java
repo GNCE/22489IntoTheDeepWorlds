@@ -34,14 +34,15 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_LOOSE = 0.42;
     public static double CLAW_OPENED = 0.93;
     //tune these values vvvvv
-    public static double ARM_REST = 0.05;
-    public static double ARM_TRANSFER_POS = 0.44;
-    public static double ARM_TRANSFER_WAIT_POS = 0.44;
+    public static double ARM_REST = 0.06;
+    public static double ARM_TRANSFER_POS = 0.4;
+    public static double ARM_TRANSFER_WAIT_POS = 0.45;
+    public static double ARM_RETRACTED_HOLD = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
     public static double ARM_HANG = 0.25;
-    public static double ARM_VISION = 0.45;
+    public static double ARM_VISION = 0.38;
 
 
     //EXTENSION CONTROLS
@@ -59,6 +60,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         TRANSFER_WAIT,
         INTAKE_ARM_READY,
         INTAKE_ARM_PICKUP,
+        INTAKE_RETRACT_HOLD,
         INTAKE_REST,
         DEPOSIT,
         VISION,
@@ -97,15 +99,16 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 90;
+        public static double TRANSFER_POS = 85;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
-        public static double REST_POS = 0;
+        public static double REST_POS = -40;
         public static double DEPOSIT_POS = -55;
-        public static double VISION_POS = 0;
+        public static double VISION_POS = 90;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
+        public static double INTAKE_RETRACT_HOLD=-80;
         public static double HANG = 0;
 
     }
@@ -174,6 +177,10 @@ public class Intake_DiffyClaw extends SubsysCore {
             case VISION:
                 ArmPosition = ARM_VISION;
                 setPivotPosition(INTAKE_DIFFY_POSITIONS.VISION_POS, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case INTAKE_RETRACT_HOLD:
+                ArmPosition = ARM_RETRACTED_HOLD;
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.INTAKE_RETRACT_HOLD, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 

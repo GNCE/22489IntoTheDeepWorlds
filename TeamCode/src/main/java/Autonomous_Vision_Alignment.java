@@ -40,42 +40,31 @@ public class Autonomous_Vision_Alignment extends OpMode {
     }
     @Override
     public void start(){
-        follower.startTeleopDrive();
         ll.turnOn();
-        diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
         ll.setPipelineNumber(4);
     }
+    boolean validResult = false;
+    double tx, ty, angle;
+
     @Override
     public void loop(){
+        if(!validResult && ll.isResultValid()) {
+            validResult = true;
+            tx = ll.getTx();
+            ty = ll.getTy();
+            ll.turnOff();
+        }
+        if(validResult){
+            diffyClawIntake.ExtendTo((ll.getTx() + 23) * 4, Intake_DiffyClaw.ExtensionUnits.ticks);
+        }
+
+
         ll.loop();
         diffyClawIntake.HoldExtension();
         diffyClawIntake.loop();
+        tel.update();
         follower.update();
-        if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
-            headingError = targetHeading - follower.getPose().getHeading();
-            headingError = Math.IEEEremainder(headingError + 2*Math.PI, 2*Math.PI);
-            if(headingError > 2*Math.PI - headingError){
-                headingError = headingError - 2*Math.PI;
-            }
-            if(Math.abs(headingError) < Math.toRadians(angleThreshold)){
-                headingCorrection = 0;
-            } else {
-                headingPIDController.setPID(hp, hi, hd);
-                headingCorrection = headingPIDController.calculate(headingError);
-            }
-            follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, -headingCorrection);
-            double angle = ll.getAngle(); // Output 0 is sample angle
-            if(Math.abs(angle) > 85){
-                if(Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED >= 0) angle = 85;
-                else angle = -85;
-            }
-            if(angle < -90) angle = -90;
-            else if(angle > 90) angle = 90;
-
-            Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = angle * 10.5/9;
-        }
-
     }
 }

@@ -53,8 +53,8 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
-                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREOLD);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT_OLD);
                 if(scorePreloadPath != null){
                     follower.followPath(scorePreloadPath,false);
                     ll.turnOn();
@@ -147,7 +147,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
             case PRELOAD_DONE_ALIGNING:
                 firstPickupY = follower.getPose().getY();
                 follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE_OLD);
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 ll.turnOff();
                 if (pathTimer.getElapsedTime() > 0.2){
@@ -167,7 +167,7 @@ public class Auto_Horizontal_Slide_Correction_Intake_Test extends OpMode {
                 follower.holdPoint(new Pose(frontScoreX, firstPickupY, 0));
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE_OLD);
                 if(pathTimer.getElapsedTime() > 0.2){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }

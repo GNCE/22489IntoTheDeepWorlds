@@ -114,8 +114,12 @@ public class Main_TeleOp extends OpMode {
         diffyClawIntake.init();
         loopTime.startTime();
     }
+
+    // Forward: READY > GRAB > RETRACT > TRANSFER_WAIT
+    // EXTEND_DROP < EXTEND_HOLD < RETRACT
+    // RETRACT < READY < GRAB
     public enum INTAKE_SEQUENCE{
-        TRANSFER_WAIT, READY, GRAB;
+        READY, GRAB, RETRACT, TRANSFER_WAIT;
         private static final INTAKE_SEQUENCE[] vals = values();
         public INTAKE_SEQUENCE next(){
             return vals[(this.ordinal() + 1) % vals.length];
@@ -309,11 +313,18 @@ public class Main_TeleOp extends OpMode {
         ll.loop();
         outtakeLift.loop();
         if(intakeSequenceNextButton2.input(gamepad1.left_bumper)){
-            intakeSequence = intakeSequence.next();
+            if(intakeSequence == INTAKE_SEQUENCE.RETRACT){
+                if(outtakeSequence == OUTTAKE_SEQUENCE.BUCKET_SEQUENCE) intakeSequence = intakeSequence.next();
+                else {
+                    intakeSequence = INTAKE_SEQUENCE.READY;
+                }
+            } else {
+                intakeSequence = intakeSequence.next();
+            }
             intakeSequenceTime.reset();
         } else if(intakeSequencePreviousButton2.input(gamepad1.right_bumper)){
-            intakeSequence = intakeSequence.prev();
             intakeSequenceTime.reset();
+            intakeSequence = intakeSequence.prev();
         }
 
         if(headingLockButton.input(gamepad1.dpad_right) || headingLockDuringVision.input(gamepad1.right_stick_button)){
@@ -339,16 +350,16 @@ public class Main_TeleOp extends OpMode {
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x), -headingCorrection);
-        } else if (intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT || intakeSequence == INTAKE_SEQUENCE.GRAB) {
-            follower.setTeleOpMovementVectors(
-                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
-                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
-                    0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-        } else { //if intake is down, then we slow down the driving.
+        } else if (intakeSequence == INTAKE_SEQUENCE.READY) { //if intake is down, then we slow down the driving.
             follower.setTeleOpMovementVectors(
                     flip * 0.15 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.15 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.1 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+        } else {
+            follower.setTeleOpMovementVectors(
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                    flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                    0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         }
         if (intakePipelineSwitchButon.input(gamepad1.a)){
             diffyClawIntake.changePipeline(4);
@@ -400,6 +411,11 @@ public class Main_TeleOp extends OpMode {
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
+                break;
+            case RETRACT:
+                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
+                ll.turnOff();
                 break;
             case TRANSFER_WAIT:
                 ll.turnOff();
@@ -464,7 +480,7 @@ public class Main_TeleOp extends OpMode {
             outtakeSequenceTime.reset();
         } else if(frontSpecSeqPrevButton.input(gamepad2.dpad_down)){
             outtakeSequence = OUTTAKE_SEQUENCE.FRONT_SPEC_SEQUENCE;
-            frontSpecimenSequence = frontSpecimenSequence.next();
+            frontSpecimenSequence = frontSpecimenSequence.prev();
             bucketSequence = BUCKET_SEQUENCE.vals[BUCKET_SEQUENCE.vals.length-1];
             backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
             ascentSequence = ASCENT_SEQUENCE.vals[ASCENT_SEQUENCE.vals.length-1];
@@ -481,16 +497,18 @@ public class Main_TeleOp extends OpMode {
                         break;
                     case GRAB_AND_LIFT:
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                        if (outtakeSequenceTime.time() > 0.23){
+                        if(outtakeSequenceTime.time() > 0.2){
+                            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                        }
+                        if (outtakeSequenceTime.time() > 0.4){
                             outtake.setClawState(
                                     sampleClawLooseToggle.getVal() ? Outtake.ClawStates.LOOSE_CLOSED : Outtake.ClawStates.CLOSED
                             );
                         }
-                        if (outtakeSequenceTime.time() > 0.3){
+                        if (outtakeSequenceTime.time() > 0.5){
                             diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
-                        if(outtakeSequenceTime.time() > 0.47){
+                        if(outtakeSequenceTime.time() > 0.67){
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
                             outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                             resetEncoderDelay.reset();
@@ -505,7 +523,7 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case BACK_SPEC_SEQUENCE:
-                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
+                if((intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT || intakeSequence == INTAKE_SEQUENCE.RETRACT) && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST){
                     avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
                     avoidIntakeFsmTimer.reset();
                 }
@@ -560,13 +578,13 @@ public class Main_TeleOp extends OpMode {
                         outtake.setClawState(Outtake.ClawStates.OPEN);
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
-                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                        if(intakeSequence == INTAKE_SEQUENCE.RETRACT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         }
                         break;
                     case DROP_SAMPLE:
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                        if(intakeSequence == INTAKE_SEQUENCE.RETRACT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         }
                         if(outtakeSequenceTime.time() > 0.5){
@@ -575,30 +593,30 @@ public class Main_TeleOp extends OpMode {
                         break;
                     case CLOSE_CLAW:
                         outtake.setClawState(Outtake.ClawStates.CLOSED);
-                        if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT){
+                        if(intakeSequence == INTAKE_SEQUENCE.RETRACT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                             diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         }
                         if (outtakeSequenceTime.time() > 0.3){
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
+                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
                         }
                         break;
                     case FRONT_SCORE:
                         outtake.setClawState(Outtake.ClawStates.CLOSED);
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_WAIT);
-                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREWAIT);
                         break;
                     case OPEN_CLAW:
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE_DONE);
-                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCORE);
-                        if(outtakeSequenceTime.time() > 1){
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
+                        outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREDONE);
+                        if(outtakeSequenceTime.time() > 0.6){
                             outtake.setClawState(Outtake.ClawStates.OPEN);
                         }
                         break;
                 }
                 break;
             case ASCENT:
-                if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.HANG){
+                if((intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT || intakeSequence == INTAKE_SEQUENCE.RETRACT) && avoidIntakeFsm == AVOID_INTAKE_FSM.NOTHING && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.INTAKE_REST && diffyClawIntake.intakeState != Intake_DiffyClaw.IntakeState.HANG){
                     avoidIntakeFsm = AVOID_INTAKE_FSM.LIFT_SLIDES;
                     avoidIntakeFsmTimer.reset();
                 }

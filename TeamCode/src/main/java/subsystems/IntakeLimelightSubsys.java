@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class IntakeLimelightSubsys extends SubsysCore {
     public static Limelight3A ll;
     public static Servo light;
-    public static UnifiedTelemetry tel = new UnifiedTelemetry();
+    public static UnifiedTelemetry tel;
     public static LLResult llResult;
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
@@ -42,6 +42,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public void init(){
         ll = hardwareMap.get(Limelight3A.class, "limelight");
         light = hardwareMap.get(Servo.class, "light");
+        tel = new UnifiedTelemetry();
         ll.setPollRateHz(100);
         light.setPosition(0);
         turnOff();
@@ -74,17 +75,17 @@ public class IntakeLimelightSubsys extends SubsysCore {
 
         prevllon = llon;
 
-//        tel.addLine("Limelight Data");
-//        tel.addData("Connected?", ll.isConnected());
-//        tel.addData("Running", isRunning());
-//        if(isRunning()){
-//            tel.addData("Pipeline:", getPipelineNumber());
-//            tel.addData("Data Valid", isResultValid());
-//            tel.addData("Data Fresh", isDataFresh());
-//            tel.addData("Detected X", getTx());
-//            tel.addData("Detected Y", getTy());
-//            tel.addData("Detected Area", getTa());
-//            tel.addData("Detected Angle", getAngle());
-//        }
+        tel.addLine("Limelight Data");
+        tel.addData("Connected?", ll.isConnected());
+        tel.addData("Running", isRunning());
+        if(isRunning()){
+            tel.addData("Pipeline:", getPipelineNumber());
+            tel.addData("Data Valid", isResultValid());
+            tel.addData("Data Fresh", isDataFresh());
+            tel.addData("Detected X", getTx());
+            tel.addData("Detected Y", getTy());
+            tel.addData("Detected Area", getTa());
+            tel.addData("Detected Angle", getAngle());
+        }
     }
 }

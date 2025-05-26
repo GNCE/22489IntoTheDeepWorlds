@@ -1,6 +1,7 @@
 package subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.util.MathUtils;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
@@ -28,12 +29,16 @@ public class Outtake extends SubsysCore {
     public static double ARM_TRANSFER_WAIT = 0.52;
     public static double ARM_FRONTPICKUP_POS = 0.38;
     public static double ARM_BACKSCORE_POS = 0.87;
-    public static double ARM_FRONTSCORE_POS = 0.37;
+    public static double OLD_ARM_FRONTSCORE_POS = 0.37;
+    public static double ARM_FRONTSCORE_WAIT_POS = 0.6;
+    public static double ARM_FRONTSCORE_DONE_POS = 0.43;
     public static double ARM_BACKPICKUP_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.6;
     public enum OuttakeState {
         SPECFRONTPICKUP,
-        SPECFRONTSCORE,
+        SPECFRONTSCOREWAIT,
+        SPECFRONTSCOREDONE,
+        SPECFRONTSCOREOLD,
         TRANSFER,
         TRANSFER_WAIT,
         SAMPLESCORE,
@@ -66,14 +71,17 @@ public class Outtake extends SubsysCore {
     public static class DIFFY_POSITIONS {
         public static double AUTO_INIT = 100;
         public static double SAMPLE_SCORE = 40;
-        public static double TRANSFER = -100;
+        public static double TRANSFER = -107;
         public static double SPECIMEN_FRONT_PICKUP = -10;
         public static double SPECIMEN_BACK_SCORE = -60;
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
-        public static double SPECIMEN_FRONT_SCORE = 10;
+        public static double SPECIMEN_FRONT_SCORE_OLD = 10;
+        public static double SPECIMEN_FRONT_SCORE_WAIT = 0;
+        public static double SPECIMEN_FRONT_SCORE_DONE = 0;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
+        public static double ORIENTATION_ALIGNED = 0;
         public static double SAMPLE_SCORE_WAIT = 0;
     }
 
@@ -92,6 +100,10 @@ public class Outtake extends SubsysCore {
 
     OuttakeState outtakeState = OuttakeState.TRANSFER;
 
+    public void setAlignedTo(double newAligned){
+        DIFFY_POSITIONS.ORIENTATION_ALIGNED = MathUtils.clamp(newAligned, -DIFFY_POSITIONS.ORIENTATION_DOWN, DIFFY_POSITIONS.ORIENTATION_DOWN);
+    }
+
     @Override
     public void loop(){
         switch(outtakeState){
@@ -105,15 +117,15 @@ public class Outtake extends SubsysCore {
                 break;
             case SPECFRONTPICKUP:
                 ArmPosition = ARM_FRONTPICKUP_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_DOWN);
                 break;
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSCORE_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case SPECBACKSCOREOUT:
                 ArmPosition = ARM_BACKSCORE_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE_OUT, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE_OUT, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case RESET_ENCODER:
                 ArmPosition = 0.55;
@@ -123,9 +135,9 @@ public class Outtake extends SubsysCore {
                 ArmPosition = ARM_BACKPICKUP_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_PICKUP, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
-            case SPECFRONTSCORE:
-                ArmPosition = ARM_FRONTSCORE_POS;
-                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE, DIFFY_POSITIONS.ORIENTATION_UP);
+            case SPECFRONTSCOREOLD:
+                ArmPosition = OLD_ARM_FRONTSCORE_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE_OLD, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case Auto_Wait:
                 ArmPosition = 0.4;
@@ -138,7 +150,15 @@ public class Outtake extends SubsysCore {
             case SAMPLE_SCORE_WAIT:
                 ArmPosition = ARM_SAMPLE_SCORE_WAIT;
                 setPivotPosition(DIFFY_POSITIONS.SAMPLE_SCORE_WAIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
-
+                break;
+            case SPECFRONTSCOREDONE:
+                ArmPosition = ARM_FRONTSCORE_DONE_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE_DONE, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
+            case SPECFRONTSCOREWAIT:
+                ArmPosition = ARM_FRONTSCORE_WAIT_POS;
+                setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE_WAIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
         }
 
         updatePivotPosition();

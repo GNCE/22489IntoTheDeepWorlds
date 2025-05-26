@@ -2,13 +2,10 @@ package subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.qualcomm.robotcore.hardware.AnalogSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
@@ -71,7 +68,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         clift.setZeroPowerBehavior(zeroPowerBehavior);
     }
     public enum OuttakeLiftPositions {
-        BACK_PICKUP_WAIT, TRANSFER, LIFT_BUCKET, FRONT_SCORE_WAIT, FRONT_SCORE_DONE, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
+        BACK_PICKUP_WAIT, TRANSFER, LIFT_BUCKET, FRONT_SCORE, FRONT_SCORE_WAIT_OLD, FRONT_SCORE_DONE_OLD, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
         LOW_BAR_WAIT, LOW_BAR_DONE,
         HIGH_BAR_WAIT, HIGH_BAR_DONE
     }
@@ -82,11 +79,11 @@ public class OuttakeLiftSubsys extends SubsysCore{
         public static int FRONT_SCORE_WAIT_POS = 1720;
         public static int FRONT_SCORE_DONE_POS = 2320;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 825;
+        public static int BACK_SCORE_POS = 780;
         public static int BACK_PICKUP_POS = 0;
         public static int BACK_PICKUP_WAIT_POS = 600;
 
-
+        public static int FRONT_SCORE = 400;
         public static int LOW_BAR_WAIT = 1750;
         public static int LOW_BAR_DONE = 1166;
         public static int HIGH_BAR_WAIT = 3350;
@@ -100,10 +97,10 @@ public class OuttakeLiftSubsys extends SubsysCore{
             case LIFT_BUCKET:
                 target = OuttakeLiftPositionsCONFIG.BUCKET_POS;
                 break;
-            case FRONT_SCORE_WAIT:
+            case FRONT_SCORE_WAIT_OLD:
                 target = OuttakeLiftPositionsCONFIG.FRONT_SCORE_WAIT_POS;
                 break;
-            case FRONT_SCORE_DONE:
+            case FRONT_SCORE_DONE_OLD:
                 target = OuttakeLiftPositionsCONFIG.FRONT_SCORE_DONE_POS;
                 break;
             case FRONT_PICKUP:
@@ -135,6 +132,9 @@ public class OuttakeLiftSubsys extends SubsysCore{
                 break;
             case HIGH_BAR_DONE:
                 target = OuttakeLiftPositionsCONFIG.HIGH_BAR_DONE;
+                break;
+            case FRONT_SCORE:
+                target = OuttakeLiftPositionsCONFIG.FRONT_SCORE;
                 break;
             default:
                 break;
