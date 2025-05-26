@@ -42,7 +42,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_PICKUP_DOWN = 0.6;
     public static double ARM_DEPOSIT_BACK = 0.05;
     public static double ARM_HANG = 0.25;
-    public static double ARM_VISION = 0.38;
+    public static double ARM_VISION = 0.41;
 
 
     //EXTENSION CONTROLS
@@ -330,7 +330,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public void ExtendTo(double input, ExtensionUnits unit){
         switch (unit){
             case inches:
-                input *= 330/11.5;
+                input *= 390/12.0;
             case ticks:
                 break;
         }

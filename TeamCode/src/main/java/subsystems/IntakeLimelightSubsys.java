@@ -20,7 +20,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public void turnOff(){ llon = false; }
     public boolean isResultValid(){
         if(!llon) return false;
-        return isDataFresh() && (llResult.isValid() || getTa() > 6);
+        return isDataFresh() && (llResult.isValid() || getTa() > 0.5);
     }
 
 
@@ -28,6 +28,10 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public double getTx(){ return tx; }
     public double getTy(){ return ty; }
     public double getAngle(){ return angle; }
+
+    public double getVert(){ return (getTx()*0.198 + 5.41)*2.25; }    // inches
+    public double getHoriz(){ return (getTy()*(-0.197) -0.345)*2.25; } // inches
+
     public void setPipelineNumber(int pipelineNum){
         if(pipelineNum > 6 || pipelineNum < 4) return;
         pipelineNumber = pipelineNum;
@@ -56,7 +60,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
         }
 
         if(llon){
-            light.setPosition(1);
+            // light.setPosition(1);
             ll.pipelineSwitch(pipelineNumber);
             llResult = ll.getLatestResult();
             if(llResult != null){
@@ -70,7 +74,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
                 }
             }
         } else {
-            light.setPosition(0);
+            // light.setPosition(0);
         }
 
         prevllon = llon;

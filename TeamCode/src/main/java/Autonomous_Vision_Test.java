@@ -10,14 +10,16 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.Outtake;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 
-@Autonomous(name = "Autonomous Vision Alignment")
-public class Autonomous_Vision_Alignment extends OpMode {
+@Autonomous(name = "Autonomous Vision Transfer")
+public class Autonomous_Vision_Test extends OpMode {
     private Follower follower;
     private IntakeLimelightSubsys ll;
+    private Outtake outtake;
     private UnifiedTelemetry tel;
     private Intake_DiffyClaw diffyClawIntake;
     private MedianSmoother medianSmoother;
@@ -43,6 +45,8 @@ public class Autonomous_Vision_Alignment extends OpMode {
         medianSmoother = new MedianSmoother(300);
         diffyClawIntake = new Intake_DiffyClaw();
         diffyClawIntake.init();
+        outtake = new Outtake();
+        outtake.init();
         ll = new IntakeLimelightSubsys();
         ll.init();
     }
@@ -76,6 +80,8 @@ public class Autonomous_Vision_Alignment extends OpMode {
     public void loop(){
         switch(visionState){
             case DETECTING:
+                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
+                outtake.setClawState(Outtake.ClawStates.OPEN);
                 if(ll.isResultValid()) {
                     medianSmoother.update(ll.getHoriz(), ll.getVert(), ll.getAngle());
                 }
@@ -112,27 +118,46 @@ public class Autonomous_Vision_Alignment extends OpMode {
                     if(pathTimer.getElapsedTimeSeconds() > 0.5){
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                         if(pathTimer.getElapsedTimeSeconds() > 0.7){
-                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                             diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                            setVisionState(VisionStates.WAITBEFOREDETECTAGAIN);
+                            if(diffyClawIntake.getCurrentPosition() < 10){
+                                setVisionState(VisionStates.WAITBEFOREDETECTAGAIN);
+                            }
                         }
                     }
                 }
                 break;
             case WAITBEFOREDETECTAGAIN:
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                    diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                    if(pathTimer.getElapsedTimeSeconds() > 3){
-                        diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
-                        ll.turnOn();
-                        setVisionState(VisionStates.DETECTING);
+                if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                        outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                        if(pathTimer.getElapsedTimeSeconds() > 0.9){
+                            outtake.setClawState(Outtake.ClawStates.CLOSED);
+                            if(pathTimer.getElapsedTimeSeconds() > 1){
+                                diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                                if(pathTimer.getElapsedTimeSeconds() > 1.17){
+                                    outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
+                                    if(pathTimer.getElapsedTimeSeconds() > 1.4){
+                                        outtake.setClawState(Outtake.ClawStates.OPEN);
+                                        if(pathTimer.getElapsedTimeSeconds() > 3){
+                                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
+                                            ll.turnOn();
+                                            setVisionState(VisionStates.DETECTING);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+
                 }
                 break;
         }
 
 
         ll.loop();
+        outtake.loop();
         diffyClawIntake.HoldExtension();
         diffyClawIntake.loop();
         tel.update();
