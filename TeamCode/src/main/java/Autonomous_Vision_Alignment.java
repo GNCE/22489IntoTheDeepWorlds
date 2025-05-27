@@ -1,3 +1,4 @@
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -14,6 +15,7 @@ import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 
+@Config
 @Autonomous(name = "Autonomous Vision Alignment")
 public class Autonomous_Vision_Alignment extends OpMode {
     private Follower follower;
@@ -22,13 +24,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
     private Intake_DiffyClaw diffyClawIntake;
     private MedianSmoother medianSmoother;
     private Timer pathTimer;
-    public static double mx =  -0.008, my =  -0.021;
-    public static double targetX = 16, targetY = 0;
-    private double targetHeading = 180, headingError, headingCorrection;
 
-    public static double hp = 0.4, hi = 0, hd = 0.00008;
-    public static double angleThreshold = 0.05;
-    PIDController headingPIDController = new PIDController(hp, hi, hd);
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
     @Override
     public void init(){
@@ -72,6 +68,9 @@ public class Autonomous_Vision_Alignment extends OpMode {
         pathTimer.resetTimer();
     }
 
+    public static double inchesToTicks = 20, vertOffset = -1;
+    public static double horizScale = 0.7;
+
     @Override
     public void loop(){
         switch(visionState){
@@ -83,13 +82,13 @@ public class Autonomous_Vision_Alignment extends OpMode {
                     if(medianSmoother.getSize() > 0){
                         follower.followPath(
                                 follower.pathBuilder()
-                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- medianSmoother.getSmoothedX())))
+                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- medianSmoother.getSmoothedX()*horizScale)))
                                         .setZeroPowerAccelerationMultiplier(2)
                                         .setConstantHeadingInterpolation(Math.toRadians(0))
                                         .build(),
                                 true
                         );
-                        diffyClawIntake.ExtendTo(medianSmoother.getSmoothedY()-1.3, Intake_DiffyClaw.ExtensionUnits.inches);
+                        diffyClawIntake.ExtendTo((medianSmoother.getSmoothedY()-vertOffset)* inchesToTicks, Intake_DiffyClaw.ExtensionUnits.ticks);
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = medianSmoother.getSmoothedAngle()*110/90;
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);

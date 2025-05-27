@@ -327,10 +327,12 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static int RETRACTED_POS = 0;
         public static int AUTO_POS = 225;
     }
+    public static double inchesToTicks = 380/14.0;
+
     public void ExtendTo(double input, ExtensionUnits unit){
         switch (unit){
             case inches:
-                input *= 390/12.0;
+                input *= inchesToTicks;
             case ticks:
                 break;
         }

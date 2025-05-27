@@ -20,7 +20,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public void turnOff(){ llon = false; }
     public boolean isResultValid(){
         if(!llon) return false;
-        return isDataFresh() && (llResult.isValid() || getTa() > 0.5);
+        return isDataFresh() && (llResult.isValid() || getTa() > 0.05);
     }
 
 
