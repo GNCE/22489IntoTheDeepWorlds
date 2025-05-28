@@ -1,3 +1,4 @@
+import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -17,8 +18,9 @@ import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
+import utils.MedianSmoother;
 
-
+@Config
 @Autonomous (name = "6 + 0 Autonomous - Intaking")
 public class Auto_6_0_Intaking extends OpMode {
     private Follower follower;
@@ -28,6 +30,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private IntakeLimelightSubsys ll;
     private Timer pathTimer;
     private LynxModules lynxModules;
+    private MedianSmoother medianSmoother;
     private final double scoreX = 44;
     private final double scoreY = 66.5;
 
@@ -37,9 +40,10 @@ public class Auto_6_0_Intaking extends OpMode {
     private final double scoreYChange = 0;
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(24.170860927152315, 12.0158940397351, Math.toRadians(-19));
-    private final Pose secondSpikeMark = new Pose(23.170860927152315, 12.0158940397351, Math.toRadians(0));
-    private final Pose firstSpikeMark = new Pose(23.170860927152315, 23.45960264900662, Math.toRadians(0));
+    private final Pose thirdSpikeMarkControl = new Pose(24.985430463576158, 53.78543046357616, Math.toRadians(0));
+    private final Pose thirdSpikeMark = new Pose(23.970860927152315, 12.0158940397351, Math.toRadians(-18));
+    private final Pose secondSpikeMark = new Pose(22.770860927152315, 12.0158940397351, Math.toRadians(0));
+    private final Pose firstSpikeMark = new Pose(22.770860927152315, 23.45960264900662, Math.toRadians(0));
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 32.8, Math.toRadians(180));
@@ -70,7 +74,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 .setPathEndTValueConstraint(0.95)
                 .build();
         spike3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(preloadScorePose), new Point(thirdSpikeMark)))
+                .addPath(new BezierCurve(new Point(preloadScorePose), new Point(thirdSpikeMarkControl), new Point(thirdSpikeMark)))
                 .setLinearHeadingInterpolation(preloadScorePose.getHeading(), thirdSpikeMark.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.5)
                 .setPathEndTValueConstraint(0.99)
@@ -159,6 +163,9 @@ public class Auto_6_0_Intaking extends OpMode {
         DRIVE_TO_PRELOAD_SCORE,
         PRELOAD_AT_SUB,
         SCORE_PRELOAD,
+        VISION_MOVE,
+        VISION_MOVED,
+        GO_DRIVE,
         DRIVE_TO_SPIKE_3,
         AT_SPIKE_3,
         TO_SPIKE_2,
@@ -187,11 +194,14 @@ public class Auto_6_0_Intaking extends OpMode {
         autoState = newState;
         pathTimer.resetTimer();
     }
+    public static double horizScale = 0.7, vertScale = 24, vertOffset = -0.7;
+    public static double visionWaitTime = 0.5;
 
     private int counter = 0;
     public void autonomousPathUpdate(){
         switch (autoState){
             case DRIVE_TO_PRELOAD_SCORE:
+                ll.turnOn();
                 outtake.setClawState(Outtake.ClawStates.CLOSED);
                 outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREWAIT);
                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
@@ -201,7 +211,6 @@ public class Auto_6_0_Intaking extends OpMode {
             case SCORE_PRELOAD:
                 if(pathTimer.getElapsedTimeSeconds() > 0.2){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
-                    ll.turnOn();
                 }
                 if(!follower.isBusy()){
                     setPathState(AutoState.PRELOAD_AT_SUB);
@@ -210,28 +219,88 @@ public class Auto_6_0_Intaking extends OpMode {
             case PRELOAD_AT_SUB:
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREDONE);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.4){
-                        outtake.setClawState(Outtake.ClawStates.OPEN);
-                        if(pathTimer.getElapsedTimeSeconds() > 0.65){ // Time it takes for claw to open
-                            follower.followPath(spike3, true);
-                            setPathState(AutoState.DRIVE_TO_SPIKE_3);
-                            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
-                            outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.1) {
+                        medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
+                        if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                            outtake.setClawState(Outtake.ClawStates.OPEN);
+                            if (pathTimer.getElapsedTimeSeconds() > 0.65 + visionWaitTime) { // Time it takes for claw to open
+                                if (medianSmoother.getSize() > 0) {
+                                    MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
+                                    follower.followPath(
+                                            follower.pathBuilder()
+                                                    .addPath(new BezierLine(preloadScorePose, new Pose(preloadScorePose.getX(), preloadScorePose.getY() - horizScale * detectedSample.getX())))
+                                                    .setConstantHeadingInterpolation(preloadScorePose.getHeading())
+                                                    .setZeroPowerAccelerationMultiplier(2)
+                                                    .build(),
+                                            true
+                                    );
+                                    intakeDiffyClaw.ExtendTo((detectedSample.getY() + vertOffset) * vertScale, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle() * 110 / 90;
+                                    setPathState(AutoState.VISION_MOVE);
+                                } else {
+                                    setPathState(AutoState.GO_DRIVE);
+                                }
+                            }
                         }
                     }
                 }
                 break;
+            case VISION_MOVE:
+                if(!follower.isBusy() && intakeDiffyClaw.extensionReachedTarget()){
+                    setPathState(AutoState.VISION_MOVED);
+                }
+                break;
+            case VISION_MOVED:
+                if(pathTimer.getElapsedTimeSeconds() > 0.1){
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
+                    if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                        intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
+                        if(pathTimer.getElapsedTimeSeconds() > 0.5){
+                            intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
+                            intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
+                            if(intakeDiffyClaw.getCurrentPosition() < 50){
+                                setPathState(AutoState.GO_DRIVE);
+                            }
+                        }
+                    }
+                }
+                break;
+            case GO_DRIVE:
+                follower.followPath(spike3, true);
+                setPathState(AutoState.DRIVE_TO_SPIKE_3);
+                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                break;
             case DRIVE_TO_SPIKE_3:
                 ll.turnOff();
-                if(follower.getCurrentTValue() > 0.3){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
-                }
-                if(follower.getCurrentTValue() > 0.4){
-                    intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
-                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -30;
+                intakeDiffyClaw.setDontReset(true);
+                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                        if(pathTimer.getElapsedTimeSeconds() > 1.2){
+                            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                            if(pathTimer.getElapsedTimeSeconds() > 1.4){
+                                outtake.setClawState(Outtake.ClawStates.CLOSED);
+                                if(pathTimer.getElapsedTimeSeconds() > 1.5){
+                                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                                    if(pathTimer.getElapsedTimeSeconds() > 1.67){
+                                        outtake.setOuttakeState(Outtake.OuttakeState.AUTO_SAMPLE_DEPOSIT);
+                                        intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -30;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 if(!follower.isBusy()){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP_WAIT);
+                    outtake.setClawState(Outtake.ClawStates.OPEN);
                     setPathState(AutoState.AT_SPIKE_3);
                     // TODO: Vision
                 }
@@ -251,15 +320,15 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case TO_SPIKE_2:
-                double k = follower.getPose().getHeading();
-                if(k > Math.PI) k = 2*Math.PI - k;
-                if(Math.abs(k) < Math.toRadians(5) && intakeDiffyClaw.getCurrentPosition() < 10){
+                if(intakeDiffyClaw.getCurrentPosition() < 50){
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                }
+                if(!follower.isBusy() && intakeDiffyClaw.getCurrentPosition() < 5){
                     setPathState(AutoState.AT_SPIKE_2);
                 }
                 break;
             case AT_SPIKE_2:
-                intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.6){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -270,9 +339,9 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case PICKUP_SPIKE_2:
                 intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.25){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.5){
                         follower.followPath(spike1, true);
                         setPathState(AutoState.TO_SPIKE_1);
                         intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
@@ -437,6 +506,7 @@ public class Auto_6_0_Intaking extends OpMode {
         outtake.setAlignedTo(0);
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
+        medianSmoother = new MedianSmoother(300);
         buildPaths();
     }
 
@@ -447,11 +517,15 @@ public class Auto_6_0_Intaking extends OpMode {
         lynxModules.loop();
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
-        if(Storage.isRed) ll.setPipelineNumber(5);
-        else ll.setPipelineNumber(6);
+        ll.setPipelineNumber(4);
+        ll.setAlliance(Storage.isRed ? IntakeLimelightSubsys.Alliance.RED : IntakeLimelightSubsys.Alliance.BLUE);
+        ll.setSampleType(IntakeLimelightSubsys.SampleType.ALLIANCE);
+
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.setClawState(Outtake.ClawStates.CLOSED);
         outtake.loop();
+        ll.turnOn();
+        ll.loop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }

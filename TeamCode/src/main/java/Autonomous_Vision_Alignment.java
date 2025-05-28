@@ -68,32 +68,40 @@ public class Autonomous_Vision_Alignment extends OpMode {
         pathTimer.resetTimer();
     }
 
-    public static double inchesToTicks = 20, vertOffset = -1;
+    public static double inchesToTicks = 24, vertOffset = -1;
     public static double horizScale = 0.7;
+    public static double visionScanTime = 1;
+
+    IntakeLimelightSubsys.Alliance alliance = IntakeLimelightSubsys.Alliance.RED;
+    IntakeLimelightSubsys.SampleType sampleType = IntakeLimelightSubsys.SampleType.ALLIANCE;
 
     @Override
     public void loop(){
+        ll.setAlliance(alliance);
+        ll.setSampleType(sampleType);
         switch(visionState){
             case DETECTING:
                 if(ll.isResultValid()) {
-                    medianSmoother.update(ll.getHoriz(), ll.getVert(), ll.getAngle());
+                    medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 5){
+                if(pathTimer.getElapsedTimeSeconds() > visionScanTime){
+                    MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
+
                     if(medianSmoother.getSize() > 0){
                         follower.followPath(
                                 follower.pathBuilder()
-                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- medianSmoother.getSmoothedX()*horizScale)))
+                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- detectedSample.getX()*horizScale)))
                                         .setZeroPowerAccelerationMultiplier(2)
                                         .setConstantHeadingInterpolation(Math.toRadians(0))
                                         .build(),
                                 true
                         );
-                        diffyClawIntake.ExtendTo((medianSmoother.getSmoothedY()-vertOffset)* inchesToTicks, Intake_DiffyClaw.ExtensionUnits.ticks);
+                        diffyClawIntake.ExtendTo((detectedSample.getY()+vertOffset)* inchesToTicks, Intake_DiffyClaw.ExtensionUnits.ticks);
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = medianSmoother.getSmoothedAngle()*110/90;
+                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle()*110/90;
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                         ll.turnOff();
-                        medianSmoother.clearVals();
+                        medianSmoother.clear();
                         setVisionState(VisionStates.DETECTED);
                     } else {
                         pathTimer.resetTimer();

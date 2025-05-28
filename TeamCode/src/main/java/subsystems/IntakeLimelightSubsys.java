@@ -3,6 +3,9 @@ package subsystems;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.sun.tools.javac.util.List;
+
+import java.util.Arrays;
 
 public class IntakeLimelightSubsys extends SubsysCore {
     public static Limelight3A ll;
@@ -12,15 +15,35 @@ public class IntakeLimelightSubsys extends SubsysCore {
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
     private static int pipelineNumber=4;
+    private double[] prevPythonInputs = new double[2];
+    private double[] pythonInputs = new double[2];
     private boolean prevllon = false, llon = false;
     public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 100; }
 
     public boolean isRunning(){ return llon; }
     public void turnOn(){ llon = true; }
     public void turnOff(){ llon = false; }
+
     public boolean isResultValid(){
         if(!llon) return false;
         return isDataFresh() && (llResult.isValid() || getTa() > 0.05);
+    }
+
+    public enum Alliance{
+        RED, BLUE
+    }
+
+    public enum SampleType{
+        ALLIANCE, BOTH, NEUTRAL;
+    }
+
+
+    public void setAlliance(Alliance a){
+        pythonInputs[0] = a.ordinal() + 1;
+    }
+
+    public void setSampleType(SampleType s){
+        pythonInputs[1] = s.ordinal() + 1;
     }
 
 
@@ -56,8 +79,13 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public void loop(){
         if(prevllon != llon){
             if(llon) ll.start();
-            else ll.stop();
+            else ll.pause();
         }
+
+        if(!Arrays.equals(prevPythonInputs, pythonInputs)){
+            ll.updatePythonInputs(pythonInputs);
+        }
+        prevPythonInputs = pythonInputs;
 
         if(llon){
             // light.setPosition(1);
@@ -70,7 +98,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
 
                 pythonOutput = llResult.getPythonOutput();
                 if(pythonOutput != null){
-                    if(pythonOutput.length > 0) angle = pythonOutput[0];
+                    if(pythonOutput.length > 0) angle = -pythonOutput[0];
                 }
             }
         } else {

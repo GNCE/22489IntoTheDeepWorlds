@@ -33,6 +33,7 @@ public class Outtake extends SubsysCore {
     public static double ARM_FRONTSCORE_WAIT_POS = 0.6;
     public static double ARM_FRONTSCORE_DONE_POS = 0.43;
     public static double ARM_BACKPICKUP_POS = 0.9;
+    public static double ARM_DEPOSIT_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.6;
     public enum OuttakeState {
         SPECFRONTPICKUP,
@@ -48,6 +49,7 @@ public class Outtake extends SubsysCore {
         RESET_ENCODER,
         Auto_Wait,
         SAMPLE_SCORE_WAIT,
+        AUTO_SAMPLE_DEPOSIT,
 
     }
 
@@ -65,6 +67,7 @@ public class Outtake extends SubsysCore {
         Ldiffy.setDirection(Servo.Direction.FORWARD);
 
         setClawState(ClawStates.CLOSED);
+        DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
     }
 
     @Config
@@ -77,8 +80,9 @@ public class Outtake extends SubsysCore {
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE_OLD = 10;
-        public static double SPECIMEN_FRONT_SCORE_WAIT = 0;
+        public static double SPECIMEN_FRONT_SCORE_WAIT = 15;
         public static double SPECIMEN_FRONT_SCORE_DONE = 0;
+        public static double SAMPLE_DEPOSIT = 90;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
         public static double ORIENTATION_ALIGNED = 0;
@@ -158,6 +162,10 @@ public class Outtake extends SubsysCore {
             case SPECFRONTSCOREWAIT:
                 ArmPosition = ARM_FRONTSCORE_WAIT_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_SCORE_WAIT, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
+            case AUTO_SAMPLE_DEPOSIT:
+                ArmPosition = ARM_DEPOSIT_POS;
+                setPivotPosition(DIFFY_POSITIONS.SAMPLE_DEPOSIT, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 

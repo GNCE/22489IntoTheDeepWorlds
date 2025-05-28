@@ -23,8 +23,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.485;
-    public static double DEFAULT_RDIFFY_POS = 0.485;
+    public static double DEFAULT_LDIFFY_POS = 0.51;
+    public static double DEFAULT_RDIFFY_POS = 0.49;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -76,8 +76,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         LeftArmPivot.setDirection(Servo.Direction.REVERSE);
         IntakeRDiffy = hardwareMap.get(Servo.class,"IntakeRDiffy");
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
-        IntakeRDiffy.setDirection(Servo.Direction.FORWARD);
-        IntakeLDiffy.setDirection(Servo.Direction.REVERSE);
+        IntakeRDiffy.setDirection(Servo.Direction.REVERSE);
+        IntakeLDiffy.setDirection(Servo.Direction.FORWARD);
 
         IntakeExtend = new Motor(hardwareMap.get(DcMotorEx.class, "horizExtend"), 0.005);
         IntakeExtend.setDirection(DcMotor.Direction.REVERSE);
@@ -96,15 +96,16 @@ public class Intake_DiffyClaw extends SubsysCore {
         hangPID = new PIDController(hp, hi, hd);
         hanging = false;
         usingLL = false;
+        dontReset = false;
     }
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 85;
+        public static double TRANSFER_POS = 75;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -80;
         public static double REST_POS = -40;
         public static double DEPOSIT_POS = -55;
-        public static double VISION_POS = 90;
+        public static double VISION_POS = -30;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
         public static double ORIENTATION_ALIGNED = 0;
@@ -114,7 +115,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
-        double ServoRange = 360*5;
+        double ServoRange = 355;
         LdiffyPos = DEFAULT_LDIFFY_POS + UpDownAngle/ServoRange + Orientation*((double) 18/52)/ServoRange;
         RdiffyPos = DEFAULT_RDIFFY_POS + UpDownAngle/ServoRange - Orientation*((double) 18/52)/ServoRange;
     }
@@ -138,6 +139,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         encoderUpdated = 0;
         usingLL = false;
         hanging = false;
+        dontReset = false;
         powerScale = 1;
         target=IntakeExtensionPositions.RETRACTED_POS;
     }
@@ -231,7 +233,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     private static int prevTarget = 0;
     private static boolean encoderReset = true;
     private static int encoderUpdated = 0;
-    private int encoderResetVar = 0;
+    private int encoderResetVar = -1;
 
     ElapsedTime timer;
 
@@ -260,11 +262,17 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     private boolean hanging = false;
+    private boolean dontReset = false;
+
     public void useHang(){ hanging = true; }
     public void stopHang(){ hanging = false; }
 
+    public void setDontReset(boolean dontReset) {
+        this.dontReset = dontReset;
+    }
+
     public void HoldExtension(){ //TODO: Call this in the main loop
-        if(encoderResetVar >= 0 && encoderResetVar < 30){
+        if(!dontReset && encoderResetVar >= 0 && encoderResetVar < 30){
             IntakeExtend.resetEncoder();
             encoderResetVar++;
             if(getCurrentPosition() <=1 && Math.abs(IntakeExtend.getVelocity()) == 0 && IntakeExtend.getCurrent() < 0.05){
@@ -294,7 +302,6 @@ public class Intake_DiffyClaw extends SubsysCore {
             }
             power = -1;
             if (IntakeExtend.getCurrent() > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
-                IntakeExtend.resetEncoder();
                 encoderResetVar = 0;
                 encoderReset = true;
             }

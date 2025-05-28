@@ -1,68 +1,72 @@
 package utils;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.List;
 
 public class MedianSmoother {
-    private int windowSize = 500;
-    private final Deque<Double> xVals = new ArrayDeque<>();
-    private final Deque<Double> yVals = new ArrayDeque<>();
-    private final Deque<Double> angleVals = new ArrayDeque<>();
+    public static class Sample {
+        private final double x, y, angle;
 
-    public MedianSmoother(){
-
-    }
-    public MedianSmoother(int windowSize) {
-        this.windowSize = windowSize;
-    }
-
-    public void setWindowSize(int windowSize) {
-        this.windowSize = windowSize;
-    }
-
-    public void update(double x, double y, double angleDegrees) {
-        addValue(xVals, x);
-        addValue(yVals, y);
-        addValue(angleVals, angleDegrees);
-    }
-
-    public void clearVals(){
-        xVals.clear();
-        yVals.clear();
-        angleVals.clear();
-    }
-
-    public double getSmoothedX() {
-        return median(xVals);
-    }
-
-    public double getSmoothedY() {
-        return median(yVals);
-    }
-
-    public double getSmoothedAngle() {
-        return median(angleVals);
-    }
-
-    private void addValue(Deque<Double> deque, double value) {
-        if(value == 0.0) return;
-        if (deque.size() >= windowSize) {
-            deque.pollFirst();
+        public Sample(double x, double y, double angle) {
+            this.x = x;
+            this.y = y;
+            this.angle = angle;
         }
-        deque.addLast(value);
-    }
 
-    public int getSize(){
-        return xVals.size();
-    }
-
-    private double median(Collection<Double> values) {
-        List<Double> sorted = new ArrayList<>(values);
-        sorted.sort(Double::compare);
-        int n = sorted.size();
-        if (n % 2 == 0) {
-            return (sorted.get(n / 2 - 1) + sorted.get(n / 2)) / 2.0;
-        } else {
-            return sorted.get(n / 2);
+        public double getX() {
+            return x;
         }
+
+        public double getY() {
+            return y;
+        }
+
+        public double getAngle() {
+            return angle;
+        }
+    }
+
+    private int sizeLimit;
+    private final Deque<Sample> samples;
+
+    public MedianSmoother(int sizeLimit) {
+        this.sizeLimit = sizeLimit;
+        this.samples = new ArrayDeque<>();
+    }
+
+    public void add(double x, double y, double angle) {
+        if (x == 0 && y == 0 && angle == 0) return;
+
+        if (samples.size() >= sizeLimit) {
+            samples.removeFirst();
+        }
+        samples.addLast(new Sample(x, y, angle));
+    }
+
+    public Sample getMedian() {
+        if (samples.isEmpty()) return new Sample(0, 0, 0);
+
+        List<Sample> sorted = new ArrayList<>(samples);
+        sorted.sort(Comparator.comparingDouble(Sample::getX));
+        return sorted.get(sorted.size() / 2);
+    }
+
+    public int getSize() {
+        return samples.size();
+    }
+
+    public void setSizeLimit(int newSize) {
+        this.sizeLimit = newSize;
+        while (samples.size() > sizeLimit) {
+            samples.removeFirst();
+        }
+    }
+
+    public void clear() {
+        samples.clear();
     }
 }
+
