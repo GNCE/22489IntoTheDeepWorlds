@@ -69,7 +69,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
     }
     public enum OuttakeLiftPositions {
         BACK_PICKUP_WAIT, TRANSFER, LIFT_BUCKET, FRONT_SCORE, FRONT_SCORE_WAIT_OLD, FRONT_SCORE_DONE_OLD, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
-        LOW_BAR_WAIT, LOW_BAR_DONE,
+        LOW_BAR_WAIT, LOW_BAR_DONE, AUTO_THROW,
         HIGH_BAR_WAIT, HIGH_BAR_DONE
     }
     @Config
@@ -82,7 +82,7 @@ public class OuttakeLiftSubsys extends SubsysCore{
         public static int BACK_SCORE_POS = 780;
         public static int BACK_PICKUP_POS = 0;
         public static int BACK_PICKUP_WAIT_POS = 600;
-
+        public static int AUTO_THROW = 750;
         public static int FRONT_SCORE = 400;
         public static int LOW_BAR_WAIT = 1750;
         public static int LOW_BAR_DONE = 1166;
@@ -120,6 +120,9 @@ public class OuttakeLiftSubsys extends SubsysCore{
                 break;
             case BACK_PICKUP_WAIT:
                 target = OuttakeLiftPositionsCONFIG.BACK_PICKUP_WAIT_POS;
+                break;
+            case AUTO_THROW:
+                target = OuttakeLiftPositionsCONFIG.AUTO_THROW;
                 break;
             case LOW_BAR_WAIT:
                 target = OuttakeLiftPositionsCONFIG.LOW_BAR_WAIT;
