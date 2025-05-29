@@ -75,6 +75,10 @@ public class IntakeLimelightSubsys extends SubsysCore {
         turnOff();
     }
 
+    private boolean connected = false;
+    public boolean isConnected(){ return this.connected; }
+
+
     @Override
     public void loop(){
         if(prevllon != llon){
@@ -106,11 +110,12 @@ public class IntakeLimelightSubsys extends SubsysCore {
         }
 
         prevllon = llon;
+        connected = ll.isConnected();
 
         tel.addLine("Limelight Data");
-        tel.addData("Connected?", ll.isConnected());
-        tel.addData("Running", isRunning());
-        if(isRunning()){
+        tel.addData("Connected?", this.isConnected());
+        tel.addData("Running", this.isRunning());
+        if(this.isRunning() && this.isConnected()){
             tel.addData("Pipeline:", getPipelineNumber());
             tel.addData("Data Valid", isResultValid());
             tel.addData("Data Fresh", isDataFresh());

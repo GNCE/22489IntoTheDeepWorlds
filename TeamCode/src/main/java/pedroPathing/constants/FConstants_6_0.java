@@ -4,7 +4,7 @@ import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Localizers;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class FConstants {
+public class FConstants_6_0 {
     static {
         FollowerConstants.localizers = Localizers.PINPOINT;
 
@@ -31,7 +31,7 @@ public class FConstants {
         FollowerConstants.useSecondaryTranslationalPID = true;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.2,0,0.005,0);
 
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(7,0,0.7,0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(5,0,0.5,0);
         FollowerConstants.useSecondaryHeadingPID = true;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(1.5,0,0.1,0);
 
