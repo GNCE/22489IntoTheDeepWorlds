@@ -85,11 +85,11 @@ public class IntakeLimelightSubsys extends SubsysCore {
             if(llon) ll.start();
             else ll.pause();
         }
-
-        if(!Arrays.equals(prevPythonInputs, pythonInputs)){
-            ll.updatePythonInputs(pythonInputs);
-        }
-        prevPythonInputs = pythonInputs;
+//
+//        if(!Arrays.equals(prevPythonInputs, pythonInputs)){
+//            ll.updatePythonInputs(pythonInputs);
+//        }
+//        prevPythonInputs = pythonInputs;
 
         if(llon){
             // light.setPosition(1);

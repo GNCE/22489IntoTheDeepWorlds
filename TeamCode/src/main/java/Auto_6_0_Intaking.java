@@ -33,7 +33,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private LynxModules lynxModules;
     private MedianSmoother medianSmoother;
     private final double scoreX = 44.25;
-    private final double scoreY = 65.25;
+    private final double scoreY = 65;
 
     private final double frontScoreX = 42.3;
 
@@ -46,22 +46,26 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose secondSpikeMark = new Pose(22, 12.0158940397351, Math.toRadians(0));
     private final Pose firstSpikeMark = new Pose(22, 22, Math.toRadians(0));
 
-    private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
-    private final Pose outtakePickupPose = new Pose(15, 33, Math.toRadians(180));
+    private final Pose outtakeFirstPickupPose = new Pose(17, 23.45960264900662, Math.toRadians(0));
+    private final Pose outtakePickupPose = new Pose(15, 34, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(25, 34, Math.toRadians(180));
+
 
     private final Pose firstScorePose = new Pose(frontScoreX, 67, Math.toRadians(0));
-    private final Pose firstScoreReturnPose = new Pose(32.805298013245036, 64.65695364238411, Math.toRadians(181));
+    private final Pose firstScoreWaitPose = new Pose(32, 67, Math.toRadians(0));
 
     private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(230));
     private final Pose thirdScorePose = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(230));
     private final Pose twohundeAngle = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(205));
     private final Pose fourthScorePose = new Pose(scoreX, scoreY-scoreYChange*4, Math.toRadians(230));
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(230));
-    private final Pose parkPose = new Pose(14, 30, Math.toRadians(359));
+    private final Pose parkPose = new Pose(28, 48, Math.toRadians(240));
 
     // TODO: ZPAM VARIABLES
-    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.8;
+    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.6;
     private final double zeroPowerAccelerationMultiplerForScore = 4.5;
+    private final double pathEndTValueForScore = 0.92;
+    private final double pathEndTimeoutForScore = 1;
 
     private PathChain scorePreloadPath, parkFromFifthPath;
     private PathChain spike3, spike2, spike1;
@@ -90,38 +94,41 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(secondSpikeMark), new Point(firstSpikeMark)))
                 .setLinearHeadingInterpolation(secondSpikeMark.getHeading(), firstSpikeMark.getHeading())
                 .setZeroPowerAccelerationMultiplier(2)
+                .setPathEndTimeoutConstraint(10)
                 .setPathEndTValueConstraint(0.9)
                 .build();
         firstPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(firstSpikeMark), new Point(outtakeFirstPickupPose)))
                 .setConstantHeadingInterpolation(firstSpikeMark.getHeading())
-                .setZeroPowerAccelerationMultiplier(2)
+                .setPathEndTValueConstraint(0.925)
+                .setPathEndTimeoutConstraint(10)
+                .setZeroPowerAccelerationMultiplier(2.3)
                 .build();
         firstScorePath = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(outtakeFirstPickupPose), new Point(firstScorePose)))
-                .setConstantHeadingInterpolation(outtakeFirstPickupPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.7)
+                .addPath(new BezierLine(new Point(outtakeFirstPickupPose), new Point(firstScorePose)))
+                .setConstantHeadingInterpolation(Math.toRadians(0))
+                .setZeroPowerAccelerationMultiplier(2.3)
                 .setPathEndTValueConstraint(0.95)
                 .build();
         secondPickupPath = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(firstScorePose), new Point(36.0476821192053, 63.70331125827815)))
-                .setLinearHeadingInterpolation(firstScorePose.getHeading(), Math.toRadians(230))
-                .addPath(new BezierLine(new Point(36.0476821192053, 63.70331125827815), new Point(21.933774834437088, 40.62516556291391)))
-                .setConstantHeadingInterpolation(Math.toRadians(230))
-                .addPath(new BezierLine(new Point(21.933774834437088, 40.62516556291391), new Point(outtakePickupPose)))
-                .setLinearHeadingInterpolation(Math.toRadians(230), outtakePickupPose.getHeading())
+                .addPath(new BezierLine(new Point(firstScorePose), new Point(outtakePickupWaitPose)))
+                .setLinearHeadingInterpolation(firstScorePose.getHeading(), outtakePickupWaitPose.getHeading())
+                .addPath(new BezierLine(new Point(outtakePickupWaitPose), new Point(outtakePickupPose)))
+                .setConstantHeadingInterpolation(outtakePickupPose.getHeading())
                 .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.99)
+                .setPathEndTValueConstraint(0.9)
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
                 .build();
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupPose), new Point(secondScorePose)))
                 .setLinearHeadingInterpolation(secondScorePose.getHeading(),twohundeAngle.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
+                .setPathEndTValueConstraint(pathEndTValueForScore)
+                .setPathEndTimeoutConstraint(pathEndTimeoutForScore)
                 .build();
         thirdPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(secondScorePose), new Point(outtakePickupPose)))
-                .setLinearHeadingInterpolation(secondScorePose.getHeading(), outtakePickupPose.getHeading())
+                .setLinearHeadingInterpolation(twohundeAngle.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
                 .setPathEndTimeoutConstraint(10)
                 .setPathEndTValueConstraint(0.9)
@@ -130,10 +137,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierCurve(new Point(outtakePickupPose),new Point(thirdScorePose)))
                 .setLinearHeadingInterpolation(secondScorePose.getHeading(),twohundeAngle.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
+                .setPathEndTValueConstraint(pathEndTValueForScore)
+                .setPathEndTimeoutConstraint(pathEndTimeoutForScore)
                 .build();
         fourthPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(thirdScorePose), new Point(outtakePickupPose)))
-                .setLinearHeadingInterpolation(thirdScorePose.getHeading(), outtakePickupPose.getHeading())
+                .setLinearHeadingInterpolation(twohundeAngle.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
                 .setPathEndTimeoutConstraint(10)
                 .setPathEndTValueConstraint(0.9)
@@ -142,10 +151,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(fourthScorePose)))
                 .setLinearHeadingInterpolation(secondScorePose.getHeading(),twohundeAngle.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
+                .setPathEndTValueConstraint(pathEndTValueForScore)
+                .setPathEndTimeoutConstraint(pathEndTimeoutForScore)
                 .build();
         fifthPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(fourthScorePose), new Point(outtakePickupPose)))
-                .setLinearHeadingInterpolation(fourthScorePose.getHeading(), outtakePickupPose.getHeading())
+                .setLinearHeadingInterpolation(twohundeAngle.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
                 .setPathEndTimeoutConstraint(10)
                 .setPathEndTValueConstraint(0.9)
@@ -154,6 +165,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(fifthScorePose)))
                 .setLinearHeadingInterpolation(secondScorePose.getHeading(),twohundeAngle.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplerForScore)
+                .setPathEndTValueConstraint(pathEndTValueForScore)
+                .setPathEndTimeoutConstraint(pathEndTimeoutForScore)
                 .build();
         parkFromFifthPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(fifthScorePose), new Point(parkPose)))
@@ -323,7 +336,10 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case TO_SPIKE_2:
-                if(intakeDiffyClaw.getCurrentPosition() < 35){
+                if(intakeDiffyClaw.getCurrentPosition() < 100){
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                }
+                if(intakeDiffyClaw.getCurrentPosition() < 50){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
                 if(!follower.isBusy() && intakeDiffyClaw.getCurrentPosition() < 5){
@@ -356,17 +372,17 @@ public class Auto_6_0_Intaking extends OpMode {
                 if(intakeDiffyClaw.getCurrentPosition() < 300){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() < 35){
-                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                if(intakeDiffyClaw.getCurrentPosition() < 75){
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
-
                 if(!follower.isBusy() && intakeDiffyClaw.getCurrentPosition() < 10){
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                     setPathState(AutoState.AT_SPIKE_1);
                 }
                 break;
             case AT_SPIKE_1:
                 intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.35){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -390,10 +406,10 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case BEFORE_PICKUP:
-                if(intakeDiffyClaw.getCurrentPosition() < 50){
+                if(intakeDiffyClaw.getCurrentPosition() < 100){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
-                if(intakeDiffyClaw.getCurrentPosition() < 10){
+                if(intakeDiffyClaw.getCurrentPosition() < 50){
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                     setPathState(AutoState.PICKINGUPFIRST);
                 }
