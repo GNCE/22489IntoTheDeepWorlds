@@ -282,13 +282,13 @@
 //        buildPaths();
 //    }
 //
-//    private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
+//    private final ToggleButton teamColorButton = new ToggleButton(utils.Storage.isRed);
 //    @Override
 //    public void init_loop(){
 //        teamColorButton.input(gamepad1.dpad_up);
-//        Storage.isRed = teamColorButton.getVal();
+//        utils.Storage.isRed = teamColorButton.getVal();
 //
-//        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+//        telemetry.addData("Team Color:", utils.Storage.isRed ? "Red" : "Blue");
 //        telemetry.update();
 //    }
 //    @Override
@@ -299,7 +299,7 @@
 //        outtakeLift.holdLift();
 //
 //
-//        Storage.CurrentPose = follower.getPose();
+//        utils.Storage.CurrentPose = follower.getPose();
 //        telemetry.update();
 //    }
 //}

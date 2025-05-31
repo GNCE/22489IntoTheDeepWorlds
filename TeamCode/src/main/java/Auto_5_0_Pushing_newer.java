@@ -277,16 +277,16 @@
 //        buildPaths();
 //    }
 //
-//    private final ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
+//    private final ToggleButton teamColorButton = new ToggleButton(utils.Storage.isRed);
 //    private UnifiedTelemetry tel;
 //    @Override
 //    public void init_loop(){
 //        teamColorButton.input(gamepad1.dpad_up);
-//        Storage.isRed = teamColorButton.getVal();
+//        utils.Storage.isRed = teamColorButton.getVal();
 //        outtake.setOuttakeState(subsystems.Outtake.OuttakeState.Auto_Wait);
 //        outtake.outtakeLoop();
 //        outtake.setClawState(subsystems.Outtake.ClawStates.CLOSED);
-//        tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+//        tel.addData("Team Color:", utils.Storage.isRed ? "Red" : "Blue");
 //        tel.update();
 //    }
 //    @Override
@@ -299,7 +299,7 @@
 //        intakeDiffyClaw.loop();
 //
 //
-//        Storage.CurrentPose = follower.getPose();
+//        utils.Storage.CurrentPose = follower.getPose();
 //        telemetry.update();
 //    }
 //}

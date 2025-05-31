@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.R;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.DriveSubsys;
@@ -23,6 +21,7 @@ import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
+import utils.Storage;
 
 
 @TeleOp(name = "Main TeleOp", group = "_TeleOp")
@@ -381,6 +380,7 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.changePipeline(5);
             }
         }
+        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.GRAB);
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
@@ -632,6 +632,7 @@ public class Main_TeleOp extends OpMode {
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         }
                         if(outtakeSequenceTime.time() > 0.5){
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
                         }
                         break;

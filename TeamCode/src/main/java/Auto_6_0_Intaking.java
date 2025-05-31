@@ -9,7 +9,6 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import pedroPathing.constants.FConstants_5_0;
 import pedroPathing.constants.FConstants_6_0;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
@@ -20,6 +19,7 @@ import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
+import utils.Storage;
 
 @Config
 @Autonomous (name = "6 + 0 Autonomous - Intaking")

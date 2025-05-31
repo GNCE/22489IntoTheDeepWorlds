@@ -23,7 +23,7 @@
 //    private OLD_OuttakeLift outtakeLift;
 //    private Old_Misc_DoNotUse misc;
 //    private ElapsedTime elapsedTime, sequenceTime, resetEncoderDelay;
-//    private final Pose startPose = Storage.CurrentPose;
+//    private final Pose startPose = utils.Storage.CurrentPose;
 //    private double targetHeading = 180, headingError, headingCorrection;
 //    int flip = 1;
 //    int initfsm = 0;
@@ -48,7 +48,7 @@
 //        initfsm = 1;
 //    }
 //
-//    private ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
+//    private ToggleButton teamColorButton = new ToggleButton(utils.Storage.isRed);
 //    private ToggleButton controlFlipButton = new ToggleButton(true);
 //
 //    @Override
@@ -79,11 +79,11 @@
 ////        }
 //
 //        teamColorButton.input(gamepad1.dpad_up);
-//        Storage.isRed = teamColorButton.getVal();
+//        utils.Storage.isRed = teamColorButton.getVal();
 //        follower.update();
-//        Storage.CurrentPose = follower.getPose();
+//        utils.Storage.CurrentPose = follower.getPose();
 //        telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
-//        telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+//        telemetry.addData("Team Color:", utils.Storage.isRed ? "Red" : "Blue");
 //        telemetry.update();
 //    }
 //
@@ -279,7 +279,7 @@
 //                    0.21 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
 //        }
 //        follower.update();
-//        Storage.CurrentPose = follower.getPose();
+//        utils.Storage.CurrentPose = follower.getPose();
 //
 //        telemetry.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
 //        telemetry.addData("Heading Lock:", specimenHeadingLockButton.getVal() ? "Locked" : "Unlocked");

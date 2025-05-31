@@ -1,15 +1,26 @@
 package subsystems;
 
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import utils.Motor;
+
+import utils.Storage;
 
 @Config
 public class Intake_DiffyClaw extends SubsysCore {
@@ -18,6 +29,20 @@ public class Intake_DiffyClaw extends SubsysCore {
     private Servo IntakeLDiffy;
     private Servo RightArmPivot;
     private Servo LeftArmPivot;
+
+    // Color Sensor
+    private NormalizedColorSensor intakeCSensor;
+    private static float COLOR_SENSOR_GAIN = 10;
+    public static float[] hsvValues = new float[3];
+    public static NormalizedRGBA colors;
+    public enum SENSOR_READING {
+        RED, BLUE, YELLOW, NOTHING, CORRECT, INCORRECT, OFF
+    }
+    SENSOR_READING currentSensorReading;
+    static boolean useColorSensor = false;
+    public static double distance;
+
+
     private IntakeLimelightSubsys ll;
     public Motor IntakeExtend;
 
@@ -30,9 +55,9 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static double ArmPosition = 0.285;
     public static double clawPos = 0.93;
-    public static double CLAW_CLOSED = 0.35;
-    public static double CLAW_LOOSE = 0.42;
-    public static double CLAW_OPENED = 0.93;
+    public static double CLAW_CLOSED = 1;
+    public static double CLAW_LOOSE = 0.975;
+    public static double CLAW_OPENED = 0.7;
     //tune these values vvvvv
     public static double ARM_REST = 0.06;
     public static double ARM_TRANSFER_POS = 0.4;
@@ -69,7 +94,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
     public Intake_DiffyClaw() {
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
-        IntakeClamp.setDirection(Servo.Direction.REVERSE);
+        IntakeClamp.setDirection(Servo.Direction.FORWARD);
         RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");
         LeftArmPivot = hardwareMap.get(Servo.class, "leftArmPivot");
         RightArmPivot.setDirection(Servo.Direction.FORWARD);
@@ -78,6 +103,11 @@ public class Intake_DiffyClaw extends SubsysCore {
         IntakeLDiffy = hardwareMap.get(Servo.class,"IntakeLDiffy");
         IntakeRDiffy.setDirection(Servo.Direction.REVERSE);
         IntakeLDiffy.setDirection(Servo.Direction.FORWARD);
+
+        intakeCSensor = hardwareMap.get(NormalizedColorSensor.class, "ISC");
+        if (intakeCSensor instanceof SwitchableLight) {
+            ((SwitchableLight)intakeCSensor).enableLight(true);
+        }
 
         IntakeExtend = new Motor(hardwareMap.get(DcMotorEx.class, "horizExtend"), 0.005);
         IntakeExtend.setDirection(DcMotor.Direction.REVERSE);
@@ -98,12 +128,63 @@ public class Intake_DiffyClaw extends SubsysCore {
         usingLL = false;
         dontReset = false;
     }
+
+    private void updateColorSensorReading(){
+        if (useColorSensor) {
+            intakeCSensor.setGain(COLOR_SENSOR_GAIN);
+
+            colors = intakeCSensor.getNormalizedColors();
+            Color.colorToHSV(colors.toColor(), hsvValues);
+
+            if (intakeCSensor instanceof DistanceSensor)
+                distance = ((DistanceSensor) intakeCSensor).getDistance(DistanceUnit.CM);
+
+            if (distance > 4.5 || hsvValues[1] < 0.5) currentSensorReading = SENSOR_READING.NOTHING;
+            else if (hsvValues[0] <= 35) currentSensorReading = SENSOR_READING.RED;
+            else if (hsvValues[0] >= 200 && hsvValues[0] <= 250)
+                currentSensorReading = SENSOR_READING.BLUE;
+            else if (hsvValues[0] >= 50 && hsvValues[0] <= 120)
+                currentSensorReading = SENSOR_READING.YELLOW;
+            else currentSensorReading = SENSOR_READING.NOTHING;
+        } else {
+            currentSensorReading = SENSOR_READING.OFF;
+        }
+    }
+
+    public SENSOR_READING getCurrentSensorReading(){
+        return currentSensorReading;
+    }
+
+    public SENSOR_READING getCurrentSampleState(boolean allianceSpecific){
+        SENSOR_READING cur = getCurrentSensorReading();
+        boolean correct;
+        switch (cur){
+            case YELLOW:
+                correct = !allianceSpecific;
+                break;
+            case RED:
+                correct = Storage.isRed;
+                break;
+            case BLUE:
+                correct = !Storage.isRed;
+                break;
+            case OFF:
+                correct = false;
+            default:
+                return SENSOR_READING.NOTHING;
+        }
+        return correct ? SENSOR_READING.CORRECT : SENSOR_READING.INCORRECT;
+    }
+    public void setUseColorSensor(boolean use){
+        useColorSensor = use;
+    }
+
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
         public static double TRANSFER_POS = 75;
-        public static double INTAKE_POS = -115;
+        public static double INTAKE_POS = -105;
         public static double INTAKE_FINAL_POS = -80;
-        public static double REST_POS = -40;
+        public static double REST_POS = -10;
         public static double DEPOSIT_POS = -55;
         public static double VISION_POS = -30;
         public static double ORIENTATION_UP = 0;
@@ -140,13 +221,18 @@ public class Intake_DiffyClaw extends SubsysCore {
         usingLL = false;
         hanging = false;
         dontReset = false;
+        useColorSensor = false;
         powerScale = 1;
         target=IntakeExtensionPositions.RETRACTED_POS;
     }
 
+    @SuppressLint("DefaultLocale")
     @Override
     public void loop(){
         //extendTo(extPos);
+        if (useColorSensor){
+            updateColorSensorReading();
+        }
         switch(intakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;
@@ -202,6 +288,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         tel.addData("Horizontal Extension Velocity", IntakeExtend.getVelocity());
         tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
         tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
+        tel.addData("Detected Color", getCurrentSensorReading());
+        tel.addData("HSVValues", String.format("%.2f %.2f %.2f", hsvValues[0], hsvValues[1], hsvValues[2]));
     }
 
     public void setIntakeState(IntakeState intakeState){

@@ -32,7 +32,7 @@ public class IntakeClawTest extends OpMode {
         Ldiffy.setDirection(Servo.Direction.FORWARD);
 
         IntakeClamp = hardwareMap.get(Servo.class, "intakeClamp");
-        IntakeClamp.setDirection(Servo.Direction.REVERSE);
+        IntakeClamp.setDirection(Servo.Direction.FORWARD);
 
         RightArmPivot = hardwareMap.get(Servo.class, "rightArmPivot");
         LeftArmPivot = hardwareMap.get(Servo.class, "leftArmPivot");

@@ -19,6 +19,7 @@ import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
+import utils.Storage;
 
 @Config
 @Autonomous (name = "AutoScore")
