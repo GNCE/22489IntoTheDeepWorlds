@@ -15,8 +15,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
     private static int pipelineNumber=4;
-    private double[] prevPythonInputs = new double[2];
-    private double[] pythonInputs = new double[2];
+    private double[] pythonInputs = {0, 0, 0, 0, 0, 0, 0, 0};
     private boolean prevllon = false, llon = false;
     public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 100; }
 
@@ -70,7 +69,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
         ll = hardwareMap.get(Limelight3A.class, "limelight");
         light = hardwareMap.get(Servo.class, "light");
         tel = new UnifiedTelemetry();
-        ll.setPollRateHz(100);
+        ll.setPollRateHz(70);
         light.setPosition(0);
         turnOff();
     }
@@ -85,11 +84,8 @@ public class IntakeLimelightSubsys extends SubsysCore {
             if(llon) ll.start();
             else ll.pause();
         }
-//
-//        if(!Arrays.equals(prevPythonInputs, pythonInputs)){
-//            ll.updatePythonInputs(pythonInputs);
-//        }
-//        prevPythonInputs = pythonInputs;
+
+        ll.updatePythonInputs(pythonInputs);
 
         if(llon){
             // light.setPosition(1);

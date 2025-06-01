@@ -68,12 +68,12 @@ public class Autonomous_Vision_Alignment extends OpMode {
         pathTimer.resetTimer();
     }
 
-    public static double inchesToTicks = 24, vertOffset = -1;
-    public static double horizScale = 0.7;
+    public static double inchesToTicks = 30, vertOffset = 0;
+    public static double horizScale = 0.72;
     public static double visionScanTime = 1;
 
-    IntakeLimelightSubsys.Alliance alliance = IntakeLimelightSubsys.Alliance.RED;
-    IntakeLimelightSubsys.SampleType sampleType = IntakeLimelightSubsys.SampleType.ALLIANCE;
+    public static IntakeLimelightSubsys.Alliance alliance = IntakeLimelightSubsys.Alliance.RED;
+    public static IntakeLimelightSubsys.SampleType sampleType = IntakeLimelightSubsys.SampleType.ALLIANCE;
 
     @Override
     public void loop(){
@@ -129,7 +129,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
             case WAITBEFOREDETECTAGAIN:
                 if(pathTimer.getElapsedTimeSeconds() > 0.3){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                    if(pathTimer.getElapsedTimeSeconds() > 3){
+                    if(pathTimer.getElapsedTimeSeconds() > 1){
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
                         ll.turnOn();
                         setVisionState(VisionStates.DETECTING);

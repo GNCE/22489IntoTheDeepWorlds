@@ -25,10 +25,11 @@ public class Outtake extends SubsysCore {
     public static double CLAW_LOOSE_CLOSED = 0.41;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.73;
-    public static double ARM_TRANSFER_POS = 0.48;
-    public static double ARM_TRANSFER_WAIT = 0.52;
+    public static double ARM_TRANSFER_POS = 0.49;
+    public static double ARM_TRANSFER_WAIT = 0.53;
     public static double ARM_FRONTPICKUP_POS = 0.38;
     public static double ARM_BACKSCORE_POS = 0.87;
+    public static double ARM_BACKSCORE_OUT = 0.9;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_FRONTSCORE_WAIT_POS = 0.6;
     public static double ARM_FRONTSCORE_DONE_POS = 0.43;
@@ -80,8 +81,8 @@ public class Outtake extends SubsysCore {
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE_OLD = 10;
-        public static double SPECIMEN_FRONT_SCORE_WAIT = 15;
-        public static double SPECIMEN_FRONT_SCORE_DONE = 0;
+        public static double SPECIMEN_FRONT_SCORE_WAIT = -35;
+        public static double SPECIMEN_FRONT_SCORE_DONE = -35;
         public static double SAMPLE_DEPOSIT = 90;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 200;
@@ -128,7 +129,7 @@ public class Outtake extends SubsysCore {
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case SPECBACKSCOREOUT:
-                ArmPosition = ARM_BACKSCORE_POS;
+                ArmPosition = ARM_BACKSCORE_OUT;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_BACK_SCORE_OUT, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
                 break;
             case RESET_ENCODER:

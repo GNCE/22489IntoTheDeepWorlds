@@ -60,8 +60,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_OPENED = 0.7;
     //tune these values vvvvv
     public static double ARM_REST = 0.06;
-    public static double ARM_TRANSFER_POS = 0.4;
-    public static double ARM_TRANSFER_WAIT_POS = 0.45;
+    public static double ARM_TRANSFER_POS = 0.41;
+    public static double ARM_TRANSFER_WAIT_POS = 0.44;
     public static double ARM_RETRACTED_HOLD = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
@@ -72,8 +72,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     //EXTENSION CONTROLS
     private PIDController controller, visionPID, hangPID;
-    public static double p = 0.02, i = 0, d = 0.00053;
-    public static double vp = 0.03, vi = 0, vd = 0.00027;
+    public static double p = 0.015, i = 0, d = 0.0004;
+    public static double vp = 0.023, vi = 0, vd = 0.00027;
     public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0001;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();
@@ -182,10 +182,10 @@ public class Intake_DiffyClaw extends SubsysCore {
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
         public static double TRANSFER_POS = 75;
-        public static double INTAKE_POS = -105;
-        public static double INTAKE_FINAL_POS = -80;
+        public static double INTAKE_POS = -95;
+        public static double INTAKE_FINAL_POS = -75;
         public static double REST_POS = -10;
-        public static double DEPOSIT_POS = -55;
+        public static double DEPOSIT_POS = -10;
         public static double VISION_POS = -30;
         public static double ORIENTATION_UP = 0;
         public static double ORIENTATION_DOWN = 220;
@@ -230,9 +230,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     @Override
     public void loop(){
         //extendTo(extPos);
-        if (useColorSensor){
-            updateColorSensorReading();
-        }
+        updateColorSensorReading();
+
         switch(intakeState){
             case TRANSFER:
                 ArmPosition = ARM_TRANSFER_POS;

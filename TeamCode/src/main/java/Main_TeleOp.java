@@ -30,7 +30,7 @@ public class Main_TeleOp extends OpMode {
     public static double mx =  -0.008, my =  -0.021;
     public static double targetX = 16, targetY = 0;
     private Follower follower;
-
+    public static double hangDelay = 1.4; //for safety cuz at 11.9 volts this is perfect.
     private LynxModules lynxModules;
     private Intake_DiffyClaw diffyClawIntake;
     private DriveSubsys driveSubsys;
@@ -102,10 +102,15 @@ public class Main_TeleOp extends OpMode {
         lynxModules.loop();
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
+        specModeToggleButton.input(gamepad2.right_bumper);
+        Storage.specMode = specModeToggleButton.getVal();
+
+
         follower.update();
         Storage.CurrentPose = follower.getPose();
         telemetry.addLine("DO NOT TOUCH IF THIS IS REAL GAME, or make sure you dont misclick.");
         telemetry.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
+        telemetry.addData("Mode", Storage.specMode ? "Specimen" : "Sample");
         telemetry.update();
     }
 
@@ -169,7 +174,7 @@ public class Main_TeleOp extends OpMode {
         }
     }
     public enum ASCENT_SEQUENCE {
-        SLIDES_UP_LOW, SLIDES_DOWN_LOW, SERVO_HOOKS, SLIDES_UP_HIGH, SLIDES_UP_GO;
+        SLIDES_UP_LOW, SLIDES_DOWN_LOW, SERVO_HOOKS, SLIDES_UP_HIGH, SLIDE_WAIT, SLIDES_UP_GO;
         private static final ASCENT_SEQUENCE[] vals = values();
 
         public ASCENT_SEQUENCE next() {
@@ -202,6 +207,7 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton headingLockDuringVision = new ToggleButton(false);
     private ToggleButton pipelineToggleButton = new ToggleButton(false);
     private ToggleButton autoScoreToggleButton = new ToggleButton(false);
+    private ToggleButton specModeToggleButton = new ToggleButton(false);
     public static Pose[] scorePoses = {
             new Pose(11.1, 32, Math.toRadians(180)),
             new Pose(20, 32, Math.toRadians(180)),
@@ -260,6 +266,9 @@ public class Main_TeleOp extends OpMode {
                 .build();
     }
 
+    boolean prevAutoTransfer = false;
+    INTAKE_SEQUENCE prevIntakeSequence = INTAKE_SEQUENCE.HOLD;
+
     @Override
     public void loop() {
         lynxModules.loop();
@@ -272,6 +281,11 @@ public class Main_TeleOp extends OpMode {
             }
             else autoScore = AUTO_SCORE.NOTHING;
         }
+
+
+        specModeToggleButton.input(gamepad2.right_bumper);
+        Storage.specMode = specModeToggleButton.getVal();
+        telemetry.addData("Mode", Storage.specMode ? "Specimen" : "Sample");
 
         switch(autoScore){
             case DRIVE_TO_PICKUP:
@@ -315,7 +329,9 @@ public class Main_TeleOp extends OpMode {
         ll.loop();
         outtakeLift.loop();
         if(intakeSequenceNextButton2.input(gamepad1.left_bumper)) {
-            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred)){
+            prevIntakeSequence = intakeSequence;
+            prevAutoTransfer = false;
+            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || specModeToggleButton.getVal())){
                 intakeSequence = INTAKE_SEQUENCE.READY;
             } else {
                 if(intakeSequence == INTAKE_SEQUENCE.HOLD) isTransferred = false;
@@ -323,6 +339,8 @@ public class Main_TeleOp extends OpMode {
             }
             intakeSequenceTime.reset();
         } else if(intakeSequencePreviousButton2.input(gamepad1.right_bumper)){
+            prevIntakeSequence = intakeSequence;
+            prevAutoTransfer = false;
             intakeSequenceTime.reset();
             if(intakeSequence == INTAKE_SEQUENCE.READY){
                 intakeSequence = INTAKE_SEQUENCE.RETRACT;
@@ -380,7 +398,7 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.changePipeline(5);
             }
         }
-        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.GRAB);
+        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.HOLD || intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT);
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
@@ -421,12 +439,24 @@ public class Main_TeleOp extends OpMode {
                 if (intakeSequenceTime.time() > 0.4){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                }
+                if(intakeSequenceTime.time() > 0.6){
                     intakeSequence = INTAKE_SEQUENCE.HOLD;
                 }
                 break;
             case HOLD:
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+
+                Intake_DiffyClaw.SENSOR_READING cur = diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal());
+
+                if(cur == Intake_DiffyClaw.SENSOR_READING.INCORRECT){
+                    intakeSequence = INTAKE_SEQUENCE.READY;
+                } else if(cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal()){
+                    intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
+                } else if(prevIntakeSequence == INTAKE_SEQUENCE.READY && cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && specModeToggleButton.getVal()){
+                    intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                }
                 break;
             case RETRACT:
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
@@ -443,6 +473,12 @@ public class Main_TeleOp extends OpMode {
                 }
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+                boolean asdf = intakeSequenceTime.time() > 1.4 && diffyClawIntake.getCurrentPosition() < 20 && diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal()) == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal();
+                if(asdf && !prevAutoTransfer){
+                    bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
+                    outtakeSequenceTime.reset();
+                }
+                prevAutoTransfer = asdf;
                 break;
         }
         if(takeSnapshotButton.input(gamepad1.circle)){
@@ -631,7 +667,7 @@ public class Main_TeleOp extends OpMode {
                         if(intakeSequence == INTAKE_SEQUENCE.RETRACT){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         }
-                        if(outtakeSequenceTime.time() > 0.5){
+                        if(outtakeSequenceTime.time() > 0.35){
                             diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_REST);
                             outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.BACK_PICKUP);
                         }
@@ -687,6 +723,9 @@ public class Main_TeleOp extends OpMode {
                             case SLIDES_DOWN_LOW:
                                 outtakeLift.useHang();
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LOW_BAR_DONE);
+                                if (hangTimer.time() > 0.2){
+                                    ascentSequence = ASCENT_SEQUENCE.SERVO_HOOKS;
+                                }
                                 break;
                             case SERVO_HOOKS:
                                 hangServos.hang();
@@ -694,6 +733,13 @@ public class Main_TeleOp extends OpMode {
                             case SLIDES_UP_HIGH:
                                 outtakeLift.stopHang();
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_WAIT);
+                                ascentSequence = ASCENT_SEQUENCE.SLIDE_WAIT;
+                                break;
+                            case SLIDE_WAIT:
+                                if (hangTimer.time() > hangDelay){
+                                    ascentSequence = ASCENT_SEQUENCE.SLIDES_UP_GO;
+                                    hangTimer.reset();
+                                }
                                 break;
                             case SLIDES_UP_GO:
                                 outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKPICKUP);
@@ -701,7 +747,7 @@ public class Main_TeleOp extends OpMode {
                                     outtakeLift.useHang();
                                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.HIGH_BAR_DONE);
                                 }
-                                if(hangTimer.time() > 0.5){
+                                if(hangTimer.time() > 0.4){
                                     hangServos.rest();
                                 }
                                 if(hangTimer.time() > 3){
@@ -738,6 +784,7 @@ public class Main_TeleOp extends OpMode {
 //        tel.addData("Y", follower.getPose().getY());
 //        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 //        tel.addData("Elapsed Time", elapsedTime.toString());
+        tel.addData("prevIntakeSequence", prevIntakeSequence.name());
         tel.addData("Intake Sequence", intakeSequence.name());
         tel.addData("Outtake Sequence", outtakeSequence.name());
         switch (outtakeSequence){
