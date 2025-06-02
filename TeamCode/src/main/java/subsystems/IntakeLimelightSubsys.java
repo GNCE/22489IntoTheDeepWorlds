@@ -1,5 +1,6 @@
 package subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -7,6 +8,7 @@ import com.sun.tools.javac.util.List;
 
 import java.util.Arrays;
 
+@Config
 public class IntakeLimelightSubsys extends SubsysCore {
     public static Limelight3A ll;
     public static Servo light;
@@ -22,9 +24,13 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public boolean isRunning(){ return llon; }
     public void turnOn(){ llon = true; }
     public void turnOff(){ llon = false; }
+    public static double horizScale = 1;
+    public static double vertOffset = 0.2;
+    public static double vertScale = 32;
 
     public boolean isResultValid(){
         if(!llon) return false;
+        if(!isDataValid()) return false;
         return isDataFresh() && (llResult.isValid() || getTa() > 0.05);
     }
 
@@ -50,9 +56,11 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public double getTx(){ return tx; }
     public double getTy(){ return ty; }
     public double getAngle(){ return angle; }
-
-    public double getVert(){ return (getTx()*0.198 + 5.41)*2.25; }    // inches
-    public double getHoriz(){ return (getTy()*(-0.197) -0.345)*2.25; } // inches
+    private boolean isDataValid(){
+        return !(getTx() == 0 && getTy() == 0 && getAngle() == 0);
+    }
+    public double getVert(){ return ((getTx()*0.198 + 5.41)*2.25+vertOffset)*vertScale; }    // inches
+    public double getHoriz(){ return ((getTy()*(-0.197) -0.345)*2.25)*horizScale; } // inches
 
     public void setPipelineNumber(int pipelineNum){
         if(pipelineNum > 6 || pipelineNum < 4) return;

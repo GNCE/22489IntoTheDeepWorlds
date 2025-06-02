@@ -387,7 +387,7 @@ public class Auto_5_1_Pushing extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 0){
                     outtake.setClawState(Outtake.ClawStates.CLOSED);
                     if(pathTimer.getElapsedTimeSeconds() > 0.32){
-                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                        outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                         outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                         follower.followPath(basketScore, true);
                         setPathState(AutoState.BASKET_READY);

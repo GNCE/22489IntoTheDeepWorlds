@@ -10,14 +10,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import pedroPathing.constants.FConstants;
+import pedroPathing.constants.FConstants_0_4;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.LynxModules;
 import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
+import utils.MedianSmoother;
 import utils.Storage;
 
 @Autonomous (name = "0+4 auton pls worky")
@@ -137,6 +139,8 @@ public class Auto_0_4 extends OpMode{
         SCORE_PRELOAD,
         INTAKE_WAIT,
         INTAKE_SAMPLE,
+        VISION,
+        VISION_DONE,
         PICKUP,
         TRANSFER_SAMPLE,
         OUTTAKE_GRAB_SAMPLE,
@@ -146,6 +150,8 @@ public class Auto_0_4 extends OpMode{
         AFTER_SCORE,
         PARK
     }
+
+    private MedianSmoother medianSmoother;
     private AutoState autoState = AutoState.DRIVE_TO_PRELOAD_SCORE;
     int sampleCounter = 0;
     public void autonomousPathUpdate() {
@@ -153,7 +159,7 @@ public class Auto_0_4 extends OpMode{
             case DRIVE_TO_PRELOAD_SCORE:
                 follower.followPath(scorePreload, true);
                 outtake.setClawState(Outtake.ClawStates.CLOSED);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                 outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 setPathState(AutoState.SCORE_WAIT);
@@ -180,25 +186,54 @@ public class Auto_0_4 extends OpMode{
                 break;
             case INTAKE_WAIT:
                 if (!follower.isBusy()) {
-                    intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_POS);
+                    medianSmoother.clear();
+                    intake.ExtendTo(200, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                    if(sampleCounter == 2) Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 30;
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
                     setPathState(AutoState.INTAKE_SAMPLE);
+                    ll.turnOn();
                 }
                 break;
             case INTAKE_SAMPLE:
+                if(intake.extensionReachedTarget()){
+                    setPathState(AutoState.VISION);
+                }
                 if (pathTimer.getElapsedTimeSeconds() > 1.1) {
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
                 break;
+            case VISION:
+                if(ll.isResultValid()){
+                    medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 1){
+                    MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
+                    intake.ExtendTo(200+ll.getVert(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    follower.followPath(
+                            follower.pathBuilder()
+                                    .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()-detectedSample.getX())))
+                                    .setConstantHeadingInterpolation(follower.getPose().getHeading())
+                                    .build(),
+                            true
+                    );
+                    ll.turnOff();
+                    setPathState(AutoState.VISION_DONE);
+                }
+                break;
+            case VISION_DONE:
+                if(!follower.isBusy() && intake.extensionReachedTarget()){
+                    setPathState(AutoState.PICKUP);
+                }
+                break;
             case PICKUP:
+                intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 if (pathTimer.getElapsedTimeSeconds() > 0.2){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 0.4){
-                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                     follower.followPath(scorePickups[sampleCounter],true);
                     setPathState(AutoState.TRANSFER_SAMPLE);
@@ -209,7 +244,10 @@ public class Auto_0_4 extends OpMode{
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 1){
+                if(pathTimer.getElapsedTimeSeconds() > 1){
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 1.1){
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.3){
@@ -219,12 +257,12 @@ public class Auto_0_4 extends OpMode{
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.75){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 1.85){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (!follower.isBusy() && Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.OuttakeLiftPositionsCONFIG.BUCKET_POS) <= 5){
+                if (!follower.isBusy() && Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.OuttakeLiftPositionsCONFIG.HIGH_BASKET_POS) <= 5){
                     setPathState(AutoState.READY_TO_SCORE);
                 }
                 break;
@@ -269,20 +307,26 @@ public class Auto_0_4 extends OpMode{
         autoState = newState;
         pathTimer.resetTimer();
     }
+    private LynxModules lynxModules;
     @Override
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_0_4.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
 
+        lynxModules = new LynxModules();
+        lynxModules.init();
+
         outtake = new Outtake();
         outtake.init();
+
+        medianSmoother = new MedianSmoother(200);
 
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
@@ -311,6 +355,8 @@ public class Auto_0_4 extends OpMode{
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
 
+        ll.setAlliance(Storage.isRed ? IntakeLimelightSubsys.Alliance.RED : IntakeLimelightSubsys.Alliance.BLUE);
+        ll.setSampleType(IntakeLimelightSubsys.SampleType.BOTH);
         outtake.setClawState(Outtake.ClawStates.CLOSED);
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.loop();
@@ -318,10 +364,9 @@ public class Auto_0_4 extends OpMode{
         tel.update();
     }
 
-    public static double mx =  -0.012, my =  -0.012;
-    public static double targetX = 16, targetY = 0;
     @Override
     public void loop() {
+        lynxModules.resetCache();
         intake.loop();
         intake.HoldExtension();
         ll.loop();

@@ -60,7 +60,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_OPENED = 0.7;
     //tune these values vvvvv
     public static double ARM_REST = 0.06;
-    public static double ARM_TRANSFER_POS = 0.41;
+    public static double ARM_TRANSFER_POS = 0.4;
     public static double ARM_TRANSFER_WAIT_POS = 0.44;
     public static double ARM_RETRACTED_HOLD = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
@@ -137,9 +137,9 @@ public class Intake_DiffyClaw extends SubsysCore {
             Color.colorToHSV(colors.toColor(), hsvValues);
 
             if (intakeCSensor instanceof DistanceSensor)
-                distance = ((DistanceSensor) intakeCSensor).getDistance(DistanceUnit.CM);
+                distance = ((DistanceSensor) intakeCSensor).getDistance(DistanceUnit.MM);
 
-            if (distance > 4.5 || hsvValues[1] < 0.5) currentSensorReading = SENSOR_READING.NOTHING;
+            if (hsvValues[2] < 0.35 || hsvValues[1] < 0.4) currentSensorReading = SENSOR_READING.NOTHING;
             else if (hsvValues[0] <= 35) currentSensorReading = SENSOR_READING.RED;
             else if (hsvValues[0] >= 200 && hsvValues[0] <= 250)
                 currentSensorReading = SENSOR_READING.BLUE;
@@ -288,7 +288,10 @@ public class Intake_DiffyClaw extends SubsysCore {
         tel.addData("Horizontal Extension Motor Encoder Reset?", encoderReset);
         tel.addData("Horizontal Extension Encoder Updated", encoderUpdated);
         tel.addData("Detected Color", getCurrentSensorReading());
-        tel.addData("HSVValues", String.format("%.2f %.2f %.2f", hsvValues[0], hsvValues[1], hsvValues[2]));
+        tel.addData("Intake Hue", hsvValues[0]);
+        tel.addData("Intake Saturation", hsvValues[1]);
+        tel.addData("Intake Value", hsvValues[2]);
+        tel.addData("Distance", distance);
     }
 
     public void setIntakeState(IntakeState intakeState){

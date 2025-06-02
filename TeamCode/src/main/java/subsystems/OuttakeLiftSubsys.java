@@ -68,14 +68,15 @@ public class OuttakeLiftSubsys extends SubsysCore{
         clift.setZeroPowerBehavior(zeroPowerBehavior);
     }
     public enum OuttakeLiftPositions {
-        BACK_PICKUP_WAIT, TRANSFER, LIFT_BUCKET, FRONT_SCORE, FRONT_SCORE_WAIT_OLD, FRONT_SCORE_DONE_OLD, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
+        BACK_PICKUP_WAIT, TRANSFER, LIFT_HIGH_BASKET, LIFT_LOW_BASKET, FRONT_SCORE, FRONT_SCORE_WAIT_OLD, FRONT_SCORE_DONE_OLD, FRONT_PICKUP, BACK_SCORE, BACK_PICKUP, RESET_ENCODER, AVOID_INTAKE,
         LOW_BAR_WAIT, LOW_BAR_DONE, AUTO_THROW,
         HIGH_BAR_WAIT, HIGH_BAR_DONE
     }
     @Config
     public static class OuttakeLiftPositionsCONFIG {
         public static int TRANSFER_POS = 0;
-        public static int BUCKET_POS = 2900;
+        public static int LOW_BASKET_POS = 1500;
+        public static int HIGH_BASKET_POS = 2900;
         public static int FRONT_SCORE_WAIT_POS = 1720;
         public static int FRONT_SCORE_DONE_POS = 2320;
         public static int FRONT_PICKUP_POS = 0;
@@ -94,8 +95,8 @@ public class OuttakeLiftSubsys extends SubsysCore{
             case TRANSFER:
                 target = OuttakeLiftPositionsCONFIG.TRANSFER_POS;
                 break;
-            case LIFT_BUCKET:
-                target = OuttakeLiftPositionsCONFIG.BUCKET_POS;
+            case LIFT_HIGH_BASKET:
+                target = OuttakeLiftPositionsCONFIG.HIGH_BASKET_POS;
                 break;
             case FRONT_SCORE_WAIT_OLD:
                 target = OuttakeLiftPositionsCONFIG.FRONT_SCORE_WAIT_POS;
@@ -139,6 +140,8 @@ public class OuttakeLiftSubsys extends SubsysCore{
             case FRONT_SCORE:
                 target = OuttakeLiftPositionsCONFIG.FRONT_SCORE;
                 break;
+            case LIFT_LOW_BASKET:
+                target = OuttakeLiftPositionsCONFIG.LOW_BASKET_POS;
             default:
                 break;
         }

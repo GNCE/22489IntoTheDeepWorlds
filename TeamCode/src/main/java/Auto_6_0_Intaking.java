@@ -44,9 +44,9 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
     private final Pose thirdSpikeMarkControl = new Pose(22, 55, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(24, 12.5, Math.toRadians(-18));
-    private final Pose secondSpikeMark = new Pose(22, 12, Math.toRadians(0));
-    private final Pose firstSpikeMark = new Pose(22, 22, Math.toRadians(0));
+    private final Pose thirdSpikeMark = new Pose(23.7, 12.5, Math.toRadians(-18));
+    private final Pose secondSpikeMark = new Pose(22.1, 12.2, Math.toRadians(0));
+    private final Pose firstSpikeMark = new Pose(22.1, 22.2, Math.toRadians(0));
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
@@ -253,13 +253,13 @@ public class Auto_6_0_Intaking extends OpMode {
                                 if (medianSmoother.getSize() > 0) {
                                     follower.followPath(
                                             follower.pathBuilder()
-                                                    .addPath(new BezierLine(preloadScorePose, new Pose(preloadScorePose.getX(), preloadScorePose.getY() - horizScale * detectedSample.getX())))
+                                                    .addPath(new BezierLine(preloadScorePose, new Pose(preloadScorePose.getX(), preloadScorePose.getY() - detectedSample.getX())))
                                                     .setConstantHeadingInterpolation(preloadScorePose.getHeading())
                                                     .setZeroPowerAccelerationMultiplier(2)
                                                     .build(),
                                             true
                                     );
-                                    intakeDiffyClaw.ExtendTo((detectedSample.getY() + vertOffset) * vertScale, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                    intakeDiffyClaw.ExtendTo(detectedSample.getY(), Intake_DiffyClaw.ExtensionUnits.ticks);
                                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle() * 110 / 90;
                                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
@@ -300,7 +300,6 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case DRIVE_TO_SPIKE_3:
                 ll.turnOff();
-                intakeDiffyClaw.setDontReset(true);
                 if(pathTimer.getElapsedTimeSeconds() > 0.4){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
@@ -320,6 +319,7 @@ public class Auto_6_0_Intaking extends OpMode {
                                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                                     if(pathTimer.getElapsedTimeSeconds() > 1.67){
                                         outtake.setOuttakeState(Outtake.OuttakeState.AUTO_SAMPLE_DEPOSIT);
+                                        intakeDiffyClaw.setDontReset(true);
                                         intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                                         intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -30;
@@ -337,12 +337,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case AT_SPIKE_3:
-                if(pathTimer.getElapsedTimeSeconds() > 0.2){
+                if(pathTimer.getElapsedTimeSeconds() > 0.1){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.4){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.3){
                         intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                     }
-                    if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.45){
                         intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                         follower.followPath(spike2, true);
@@ -362,7 +362,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case AT_SPIKE_2:
-                if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                if(pathTimer.getElapsedTimeSeconds() > 0.2){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
@@ -393,7 +393,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case AT_SPIKE_1:
                 intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.4){
+                if(pathTimer.getElapsedTimeSeconds() > 0.25){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;

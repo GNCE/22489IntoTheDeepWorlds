@@ -67,6 +67,8 @@ public class Main_TeleOp extends OpMode {
         tel.init(this.telemetry);
         SubsysCore.setGlobalParameters(hardwareMap, this);
 
+        lowBasketToggleButton.setVal(false);
+
 
         lynxModules = new LynxModules();
         lynxModules.init();
@@ -201,6 +203,7 @@ public class Main_TeleOp extends OpMode {
     ASCENT_SEQUENCE ascentSequence = ASCENT_SEQUENCE.SLIDES_UP_GO;
 
     private ToggleButton bucketSequenceNextButton = new ToggleButton(true), bucketSequencePrevButton = new ToggleButton(true), backSpecSeqNextButton = new ToggleButton(true), backSpecSeqPrevButton = new ToggleButton(true), ascentSequencePrevButton = new ToggleButton(true), ascentSequenceNextButton = new ToggleButton(true);
+    private ToggleButton bucketSequenceNextButton2 = new ToggleButton(true);
     private ToggleButton intakeSequenceNextButton2 = new ToggleButton(true), intakeSequencePreviousButton2 = new ToggleButton(true), intakePipelineSwitchButon = new ToggleButton(true);
     private ToggleButton frontSpecSeqNextButton = new ToggleButton(true), frontSpecSeqPrevButton = new ToggleButton(true);
     private ToggleButton headingLockButton = new ToggleButton(false);
@@ -268,6 +271,7 @@ public class Main_TeleOp extends OpMode {
 
     boolean prevAutoTransfer = false;
     INTAKE_SEQUENCE prevIntakeSequence = INTAKE_SEQUENCE.HOLD;
+    private ToggleButton lowBasketToggleButton = new ToggleButton(false);
 
     @Override
     public void loop() {
@@ -321,7 +325,8 @@ public class Main_TeleOp extends OpMode {
                 break;
         }
 
-        sampleClawLooseToggle.input(gamepad2.dpad_left);
+        sampleClawLooseToggle.input(gamepad2.dpad_left || gamepad1.dpad_left);
+
 
 
         diffyClawIntake.loop();
@@ -398,7 +403,7 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.changePipeline(5);
             }
         }
-        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.HOLD || intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT);
+        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.READY||intakeSequence == INTAKE_SEQUENCE.GRAB || intakeSequence == INTAKE_SEQUENCE.HOLD || intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT);
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
@@ -450,12 +455,14 @@ public class Main_TeleOp extends OpMode {
 
                 Intake_DiffyClaw.SENSOR_READING cur = diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal());
 
-                if(cur == Intake_DiffyClaw.SENSOR_READING.INCORRECT){
-                    intakeSequence = INTAKE_SEQUENCE.READY;
-                } else if(cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal()){
-                    intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
-                } else if(prevIntakeSequence == INTAKE_SEQUENCE.READY && cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && specModeToggleButton.getVal()){
-                    intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                if(intakeSequenceTime.time() > 0){
+                    if(cur == Intake_DiffyClaw.SENSOR_READING.INCORRECT || cur == Intake_DiffyClaw.SENSOR_READING.NOTHING){
+                        intakeSequence = INTAKE_SEQUENCE.READY;
+                    } else if(cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal()){
+                        intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
+                    } else if(prevIntakeSequence == INTAKE_SEQUENCE.READY && cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && specModeToggleButton.getVal()){
+                        intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                    }
                 }
                 break;
             case RETRACT:
@@ -489,7 +496,7 @@ public class Main_TeleOp extends OpMode {
         ll.setPipelineNumber(pipelineToggleButton.getVal() ? 4 : (Storage.isRed ?  6 : 5));
 
         //outtake stuff
-        if(bucketSequenceNextButton.input(gamepad2.a)){
+        if(bucketSequenceNextButton.input(gamepad2.a) || bucketSequenceNextButton2.input(gamepad1.a)){
             outtakeSequence = OUTTAKE_SEQUENCE.BUCKET_SEQUENCE;
             bucketSequence = bucketSequence.next();
             backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.vals[BACK_SPECIMEN_SEQUENCE.vals.length-1];
@@ -540,6 +547,8 @@ public class Main_TeleOp extends OpMode {
             outtakeSequenceTime.reset();
         }
 
+        lowBasketToggleButton.input(gamepad1.dpad_down);
+
         switch(outtakeSequence){
             case BUCKET_SEQUENCE:
                 if(diffyClawIntake.intakeState == Intake_DiffyClaw.IntakeState.INTAKE_REST || diffyClawIntake.intakeState == Intake_DiffyClaw.IntakeState.DEPOSIT){
@@ -570,19 +579,19 @@ public class Main_TeleOp extends OpMode {
                                 break;
                             case GRAB_AND_LIFT:
                                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                                if (outtakeSequenceTime.time() > 0.2) {
+                                if (outtakeSequenceTime.time() > 0.25) {
                                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                                 }
-                                if (outtakeSequenceTime.time() > 0.4) {
+                                if (outtakeSequenceTime.time() > 0.45) {
                                     outtake.setClawState(
                                             sampleClawLooseToggle.getVal() ? Outtake.ClawStates.LOOSE_CLOSED : Outtake.ClawStates.CLOSED
                                     );
                                 }
-                                if (outtakeSequenceTime.time() > 0.5) {
+                                if (outtakeSequenceTime.time() > 0.55) {
                                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                                 }
-                                if (outtakeSequenceTime.time() > 0.67) {
-                                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_BUCKET);
+                                if (outtakeSequenceTime.time() > 0.72) {
+                                    outtakeLift.LiftTo(lowBasketToggleButton.getVal() ? OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_LOW_BASKET : OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                                     intakeSequence = INTAKE_SEQUENCE.RETRACT;
                                     isTransferred = true;
@@ -777,6 +786,11 @@ public class Main_TeleOp extends OpMode {
 
         tel.addData("Control:", controlFlipButton.getVal() ? "Normal" : "Flipped");
         tel.addData("Pipeline", pipelineToggleButton.getVal() ? "Yellow" : "Alliance");
+        if(outtakeSequence == OUTTAKE_SEQUENCE.BUCKET_SEQUENCE && !specModeToggleButton.getVal()){
+
+            tel.addData("Bucket Orientation", sampleClawLooseToggle.getVal() ? "Loose" : "Tight");
+            tel.addData("Basket Height", lowBasketToggleButton.getVal() ? "Low" : "High");
+        }
 //        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
 //        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
 //        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));

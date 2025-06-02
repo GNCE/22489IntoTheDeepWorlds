@@ -11,9 +11,11 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.LynxModules;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
+import utils.Storage;
 
 @Config
 @Autonomous(name = "Autonomous Vision Alignment")
@@ -26,6 +28,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
     private Timer pathTimer;
 
     private final Pose startPose = new Pose(0, 0, Math.toRadians(0));
+    private LynxModules lynxModules;
     @Override
     public void init(){
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
@@ -35,6 +38,8 @@ public class Autonomous_Vision_Alignment extends OpMode {
         SubsysCore.setGlobalParameters(hardwareMap, this);
 
         pathTimer = new Timer();
+        lynxModules = new LynxModules();
+        lynxModules.init();
 
         medianSmoother = new MedianSmoother(300);
         diffyClawIntake = new Intake_DiffyClaw();
@@ -67,9 +72,7 @@ public class Autonomous_Vision_Alignment extends OpMode {
         this.visionState = visionState;
         pathTimer.resetTimer();
     }
-
-    public static double inchesToTicks = 30, vertOffset = 0;
-    public static double horizScale = 0.72;
+    public static int startingOffset = 0;
     public static double visionScanTime = 1;
 
     public static IntakeLimelightSubsys.Alliance alliance = IntakeLimelightSubsys.Alliance.RED;
@@ -77,6 +80,8 @@ public class Autonomous_Vision_Alignment extends OpMode {
 
     @Override
     public void loop(){
+        Storage.isRed = alliance == IntakeLimelightSubsys.Alliance.RED;
+        lynxModules.resetCache();
         ll.setAlliance(alliance);
         ll.setSampleType(sampleType);
         switch(visionState){
@@ -90,13 +95,13 @@ public class Autonomous_Vision_Alignment extends OpMode {
                     if(medianSmoother.getSize() > 0){
                         follower.followPath(
                                 follower.pathBuilder()
-                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- detectedSample.getX()*horizScale)))
+                                        .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY()- detectedSample.getX())))
                                         .setZeroPowerAccelerationMultiplier(2)
                                         .setConstantHeadingInterpolation(Math.toRadians(0))
                                         .build(),
                                 true
                         );
-                        diffyClawIntake.ExtendTo((detectedSample.getY()+vertOffset)* inchesToTicks, Intake_DiffyClaw.ExtensionUnits.ticks);
+                        diffyClawIntake.ExtendTo(diffyClawIntake.getCurrentPosition() + detectedSample.getY(), Intake_DiffyClaw.ExtensionUnits.ticks);
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle()*110/90;
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
@@ -119,9 +124,17 @@ public class Autonomous_Vision_Alignment extends OpMode {
                     if(pathTimer.getElapsedTimeSeconds() > 0.5){
                         diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                         if(pathTimer.getElapsedTimeSeconds() > 0.7){
-                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
-                            diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                            setVisionState(VisionStates.WAITBEFOREDETECTAGAIN);
+                            diffyClawIntake.setUseColorSensor(true);
+                            if(pathTimer.getElapsedTimeSeconds() > 0.8){
+                                if(diffyClawIntake.getCurrentSampleState(sampleType == IntakeLimelightSubsys.SampleType.ALLIANCE) == Intake_DiffyClaw.SENSOR_READING.CORRECT){
+                                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
+                                } else {
+                                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
+                                    diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                                }
+                                diffyClawIntake.ExtendTo(startingOffset, Intake_DiffyClaw.ExtensionUnits.ticks);
+                                setVisionState(VisionStates.WAITBEFOREDETECTAGAIN);
+                            }
                         }
                     }
                 }
@@ -129,10 +142,12 @@ public class Autonomous_Vision_Alignment extends OpMode {
             case WAITBEFOREDETECTAGAIN:
                 if(pathTimer.getElapsedTimeSeconds() > 0.3){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                    if(pathTimer.getElapsedTimeSeconds() > 1){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.5){
                         diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
-                        ll.turnOn();
-                        setVisionState(VisionStates.DETECTING);
+                        if(pathTimer.getElapsedTimeSeconds() > 2){
+                            ll.turnOn();
+                            setVisionState(VisionStates.DETECTING);
+                        }
                     }
                 }
                 break;
