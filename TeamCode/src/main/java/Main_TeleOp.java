@@ -336,7 +336,7 @@ public class Main_TeleOp extends OpMode {
         if(intakeSequenceNextButton2.input(gamepad1.left_bumper)) {
             prevIntakeSequence = intakeSequence;
             prevAutoTransfer = false;
-            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || specModeToggleButton.getVal())){
+            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || !specModeToggleButton.getVal())){
                 intakeSequence = INTAKE_SEQUENCE.READY;
             } else {
                 if(intakeSequence == INTAKE_SEQUENCE.HOLD) isTransferred = false;
