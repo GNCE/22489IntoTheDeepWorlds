@@ -96,6 +96,7 @@ public class Main_TeleOp extends OpMode {
         initfsm = 1;
         autoScore = AUTO_SCORE.NOTHING;
         buildAutoScorePaths();
+        follower.startTeleopDrive();
     }
 
     private ToggleButton teamColorButton = new ToggleButton(Storage.isRed);
@@ -109,6 +110,11 @@ public class Main_TeleOp extends OpMode {
         specModeToggleButton.input(gamepad2.right_bumper);
         Storage.specMode = specModeToggleButton.getVal();
 
+        follower.setTeleOpMovementVectors(
+                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
+                flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
+                0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
+
 
         follower.update();
         Storage.CurrentPose = follower.getPose();
@@ -120,7 +126,6 @@ public class Main_TeleOp extends OpMode {
 
     @Override
     public void start() {
-        follower.startTeleopDrive();
         diffyClawIntake.init();
         loopTime.startTime();
     }
@@ -274,9 +279,14 @@ public class Main_TeleOp extends OpMode {
     boolean prevAutoTransfer = false;
     INTAKE_SEQUENCE prevIntakeSequence = INTAKE_SEQUENCE.HOLD;
     private ToggleButton lowBasketToggleButton = new ToggleButton(false);
+    private ToggleButton colorSensorDisableButton = new ToggleButton(false);
+    private ToggleButton limelightDisableButton = new ToggleButton(false);
 
     @Override
     public void loop() {
+        limelightDisableButton.input(gamepad1.square);
+        colorSensorDisableButton.input(gamepad1.triangle);
+
         lynxModules.loop();
         boolean justChanged = autoScoreToggleButton.input(gamepad2.left_bumper);
         if(justChanged){
@@ -338,7 +348,7 @@ public class Main_TeleOp extends OpMode {
         if(intakeSequenceNextButton2.input(gamepad1.left_bumper)) {
             prevIntakeSequence = intakeSequence;
             prevAutoTransfer = false;
-            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || !specModeToggleButton.getVal())){
+            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || specModeToggleButton.getVal())){
                 intakeSequence = INTAKE_SEQUENCE.READY;
             } else {
                 if(intakeSequence == INTAKE_SEQUENCE.HOLD) isTransferred = false;
@@ -396,32 +406,27 @@ public class Main_TeleOp extends OpMode {
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
         }
-        if (intakePipelineSwitchButon.input(gamepad1.a)){
-            diffyClawIntake.changePipeline(4);
-        } else {
-            if (Storage.isRed) {
-                diffyClawIntake.changePipeline(6);
-            } else {
-                diffyClawIntake.changePipeline(5);
-            }
-        }
-        diffyClawIntake.setUseColorSensor(Arrays.asList(INTAKE_SEQUENCE.GRAB, INTAKE_SEQUENCE.HOLD, INTAKE_SEQUENCE.TRANSFER_WAIT).contains(intakeSequence));
+
+        diffyClawIntake.setUseColorSensor(!colorSensorDisableButton.getVal() && Arrays.asList(INTAKE_SEQUENCE.GRAB, INTAKE_SEQUENCE.HOLD, INTAKE_SEQUENCE.TRANSFER_WAIT).contains(intakeSequence));
+
+        if(!limelightDisableButton.getVal() && intakeSequence == INTAKE_SEQUENCE.READY) ll.turnOn();
+        else ll.turnOff();
+
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                ll.turnOn();
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if (ALignmentButtonNext.input(gamepad1.right_trigger == 1)){
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
-//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 100){
-//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -100;
-//                    }
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED += 55;
+                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED > 110){
+                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -110;
+                    }
                 } else if (ALignmentButtonPrev.input(gamepad1.left_trigger == 1)){
-                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 110;
-//                    if (subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -100){
-//                        subsystems.Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 100;
-//                    }
+                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED -= 55;
+                    if (Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED < -110){
+                        Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 110;
+                    }
                 }
                 if (ll.isRunning() && ll.isResultValid() && gamepad1.right_stick_button) {
                     follower.setTeleOpMovementVectors((targetX - ll.getTx()) * mx, (targetY -  ll.getTy()) * my, -headingCorrection);
@@ -438,7 +443,6 @@ public class Main_TeleOp extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                ll.turnOff();
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.2){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
@@ -447,7 +451,7 @@ public class Main_TeleOp extends OpMode {
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
-                if(intakeSequenceTime.time() > 0.6){
+                if(intakeSequenceTime.time() > 0.55){
                     intakeSequence = INTAKE_SEQUENCE.HOLD;
                 }
                 break;
@@ -457,7 +461,7 @@ public class Main_TeleOp extends OpMode {
 
                 Intake_DiffyClaw.SENSOR_READING cur = diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal());
 
-                if(intakeSequenceTime.time() > (prevIntakeSequence == INTAKE_SEQUENCE.READY ? 0 : 0.8)){
+                if(!colorSensorDisableButton.getVal() && intakeSequenceTime.time() > (prevIntakeSequence == INTAKE_SEQUENCE.READY ? 0 : 0.8)){
                     if(cur == Intake_DiffyClaw.SENSOR_READING.INCORRECT || cur == Intake_DiffyClaw.SENSOR_READING.NOTHING){
                         intakeSequence = INTAKE_SEQUENCE.READY;
                     } else if(cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal()){
@@ -473,16 +477,14 @@ public class Main_TeleOp extends OpMode {
                 if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
                 }
-                ll.turnOff();
                 break;
             case TRANSFER_WAIT:
-                ll.turnOff();
                 if (intakeSequenceTime.time() > 0.7){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                boolean asdf = intakeSequenceTime.time() > 1.4 && diffyClawIntake.getCurrentPosition() < 20 && diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal()) == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal();
+                boolean asdf = !colorSensorDisableButton.getVal() && intakeSequenceTime.time() > 1.4 && diffyClawIntake.getCurrentPosition() < 20 && diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal()) == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal();
                 if(asdf && !prevAutoTransfer){
                     bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
                     outtakeSequenceTime.reset();
@@ -493,9 +495,6 @@ public class Main_TeleOp extends OpMode {
         if(takeSnapshotButton.input(gamepad1.circle)){
             ll.captureSnapshot(key+Math.round(elapsedTime.time()));
         }
-
-        pipelineToggleButton.input(gamepad1.square);
-        ll.setPipelineNumber(pipelineToggleButton.getVal() ? 4 : (Storage.isRed ?  6 : 5));
 
         //outtake stuff
         if(bucketSequenceNextButton.input(gamepad2.a) || bucketSequenceNextButton2.input(gamepad1.a)){
@@ -793,6 +792,8 @@ public class Main_TeleOp extends OpMode {
             tel.addData("Bucket Orientation", sampleClawLooseToggle.getVal() ? "Loose" : "Tight");
             tel.addData("Basket Height", lowBasketToggleButton.getVal() ? "Low" : "High");
         }
+        tel.addData("Limelight Enabled", !limelightDisableButton.getVal());
+        tel.addData("Color Sensor Enabled", !colorSensorDisableButton.getVal());
 //        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
 //        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
 //        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));

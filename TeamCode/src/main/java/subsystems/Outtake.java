@@ -31,8 +31,8 @@ public class Outtake extends SubsysCore {
     public static double ARM_BACKSCORE_POS = 0.87;
     public static double ARM_BACKSCORE_OUT = 0.9;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
-    public static double ARM_FRONTSCORE_WAIT_POS = 0.6;
-    public static double ARM_FRONTSCORE_DONE_POS = 0.43;
+    public static double ARM_FRONTSCORE_WAIT_POS = 0.57;
+    public static double ARM_FRONTSCORE_DONE_POS = 0.44;
     public static double ARM_BACKPICKUP_POS = 0.9;
     public static double ARM_DEPOSIT_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.6;
