@@ -10,6 +10,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.Arrays;
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import subsystems.DriveSubsys;
@@ -228,8 +230,8 @@ public class Main_TeleOp extends OpMode {
     };
 
 
-    public static double hp = 0.4, hi = 0, hd = 0.00008;
-    public static double angleThreshold = 0.05;
+    public static double hp = 1, hi = 0, hd = 0.12;
+    public static double angleThreshold = 2.5;
     PIDController headingPIDController = new PIDController(hp, hi, hd);
 
     enum AVOID_INTAKE_FSM {
@@ -403,7 +405,7 @@ public class Main_TeleOp extends OpMode {
                 diffyClawIntake.changePipeline(5);
             }
         }
-        diffyClawIntake.setUseColorSensor(intakeSequence == INTAKE_SEQUENCE.READY||intakeSequence == INTAKE_SEQUENCE.GRAB || intakeSequence == INTAKE_SEQUENCE.HOLD || intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT);
+        diffyClawIntake.setUseColorSensor(Arrays.asList(INTAKE_SEQUENCE.GRAB, INTAKE_SEQUENCE.HOLD, INTAKE_SEQUENCE.TRANSFER_WAIT).contains(intakeSequence));
         switch (intakeSequence){
             case READY:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
@@ -455,7 +457,7 @@ public class Main_TeleOp extends OpMode {
 
                 Intake_DiffyClaw.SENSOR_READING cur = diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal());
 
-                if(intakeSequenceTime.time() > 0){
+                if(intakeSequenceTime.time() > (prevIntakeSequence == INTAKE_SEQUENCE.READY ? 0 : 0.8)){
                     if(cur == Intake_DiffyClaw.SENSOR_READING.INCORRECT || cur == Intake_DiffyClaw.SENSOR_READING.NOTHING){
                         intakeSequence = INTAKE_SEQUENCE.READY;
                     } else if(cur == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal()){
@@ -699,7 +701,7 @@ public class Main_TeleOp extends OpMode {
                     case OPEN_CLAW:
                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
                         outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREDONE);
-                        if(outtakeSequenceTime.time() > 0.6){
+                        if(outtakeSequenceTime.time() > 0.3){
                             outtake.setClawState(Outtake.ClawStates.OPEN);
                         }
                         break;

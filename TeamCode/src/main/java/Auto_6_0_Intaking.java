@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import pedroPathing.constants.FConstants_5_0;
+import pedroPathing.constants.FConstants_6_0;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
@@ -316,7 +317,7 @@ public class Auto_6_0_Intaking extends OpMode {
                             if(pathTimer.getElapsedTimeSeconds() > 1.4){
                                 outtake.setClawState(Outtake.ClawStates.CLOSED);
                                 if(pathTimer.getElapsedTimeSeconds() > 1.5){
-                                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
                                     if(pathTimer.getElapsedTimeSeconds() > 1.67){
                                         outtake.setOuttakeState(Outtake.OuttakeState.AUTO_SAMPLE_DEPOSIT);
                                         intakeDiffyClaw.setDontReset(true);
@@ -364,6 +365,7 @@ public class Auto_6_0_Intaking extends OpMode {
             case AT_SPIKE_2:
                 if(pathTimer.getElapsedTimeSeconds() > 0.2){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     if(intakeDiffyClaw.extensionReachedTarget()){
@@ -396,6 +398,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 if(pathTimer.getElapsedTimeSeconds() > 0.25){
                     intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     if(intakeDiffyClaw.extensionReachedTarget()){
                         setPathState(AutoState.PICKUP_SPIKE_1);
@@ -517,7 +520,7 @@ public class Auto_6_0_Intaking extends OpMode {
         pathTimer = new Timer();
         loopTime = new ElapsedTime();
         loopTime.startTime();
-        follower = new Follower(hardwareMap, FConstants_5_0.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_6_0.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         tel = new UnifiedTelemetry();

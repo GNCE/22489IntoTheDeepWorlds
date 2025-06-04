@@ -55,9 +55,10 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static double ArmPosition = 0.285;
     public static double clawPos = 0.93;
-    public static double CLAW_CLOSED = 1;
-    public static double CLAW_LOOSE = 0.975;
-    public static double CLAW_OPENED = 0.7;
+    public static double CLAW_CLOSED = 0.64;
+    public static double CLAW_LOOSE = 0.58;
+    public static double CLAW_OPENED = 0.2;
+    public static double CLAW_SPIKE_OPEN = 0.1;
     //tune these values vvvvv
     public static double ARM_REST = 0.06;
     public static double ARM_TRANSFER_POS = 0.4;
@@ -300,7 +301,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public enum CLAW_STATE {
         OPEN,
         CLOSED,
-        LOOSE
+        LOOSE,
+        SPIKE
     }
 
     public void setClawState(CLAW_STATE state){
@@ -313,6 +315,9 @@ public class Intake_DiffyClaw extends SubsysCore {
                 break;
             case LOOSE:
                 clawPos = CLAW_LOOSE;
+                break;
+            case SPIKE:
+                clawPos = CLAW_SPIKE_OPEN;
                 break;
         }
     }
