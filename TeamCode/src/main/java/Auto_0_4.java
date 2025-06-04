@@ -22,7 +22,7 @@ import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 import utils.Storage;
 
-@Autonomous (name = "0+4 auton pls worky")
+@Autonomous (name = "0+4 Vision Spikes")
 public class Auto_0_4 extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;
@@ -366,7 +366,8 @@ public class Auto_0_4 extends OpMode{
 
     @Override
     public void loop() {
-        lynxModules.resetCache();
+        lynxModules.loop();
+
         intake.loop();
         intake.HoldExtension();
         ll.loop();

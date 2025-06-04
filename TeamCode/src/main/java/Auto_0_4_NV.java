@@ -10,17 +10,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import pedroPathing.constants.FConstants;
+import pedroPathing.constants.FConstants_0_4;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
+import subsystems.LynxModules;
 import subsystems.Outtake;
 import subsystems.OuttakeLiftSubsys;
 import subsystems.SubsysCore;
 import subsystems.UnifiedTelemetry;
+import utils.MedianSmoother;
 import utils.Storage;
 
-@Autonomous (name = "0+4 No Vision")
+@Autonomous (name = "0+4 NV Spike")
 public class Auto_0_4_NV extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;
@@ -34,16 +36,16 @@ public class Auto_0_4_NV extends OpMode{
     private final Pose startPose = new Pose(7.35, 113.625, Math.toRadians(270));
 
     /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose scorePose = new Pose(12, 128, Math.toRadians(315));
+    private final Pose scorePose = new Pose(13, 129, Math.toRadians(315));
 
     /** Lowest (First) Sample from the Spike Mark */
-    private final Pose pickup1Pose = new Pose(24.5, 120, Math.toRadians(0));
+    private final Pose pickup1Pose = new Pose(24.5, 119, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(24.5, 129, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(25, 128.5, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
-    private final Pose pickup3Pose = new Pose(26, 131, Math.toRadians(25));
+    private final Pose pickup3Pose = new Pose(27, 129.5, Math.toRadians(25));
 
     /** Park Pose for our robot, after we do all of the scoring. */
     private final Pose parkPose = new Pose(60, 100, Math.toRadians(270));
@@ -57,17 +59,17 @@ public class Auto_0_4_NV extends OpMode{
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
     private PathChain[] grabPickups, scorePickups;
     ElapsedTime elapsedTime;
-    private final double LzPAM = 1;
-    private final double LPET = 5;
-    private final double LPETVC = 0.825;
 
+    private final double ZPAM = 1.8;
+    private final double LPETC = 5;
+    private final double LPETVC = 0.8;
 
     public void buildPaths() {
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
-        scorePreload.setZeroPowerAccelerationMultiplier(LzPAM);
-        scorePreload.setPathEndTimeoutConstraint(LPET);
-        scorePreload.setPathEndTValueConstraint(LPETVC);
+        scorePreload.setZeroPowerAccelerationMultiplier(1.3);
+        scorePreload.setPathEndTValueConstraint(0.8);
+        scorePreload.setPathEndTimeoutConstraint(LPETC);
 
         /* Here is an example for Constant Interpolation
         scorePreload.setConstantInterpolation(startPose.getHeading()); */
@@ -76,55 +78,54 @@ public class Auto_0_4_NV extends OpMode{
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
+                .setZeroPowerAccelerationMultiplier(1.3)
                 .setPathEndTValueConstraint(LPETVC)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
-                .setPathEndTValueConstraint(LPETVC)
+                .setZeroPowerAccelerationMultiplier(1.3)
+                .setPathEndTValueConstraint(0.8)
+                .setPathEndTimeoutConstraint(5)
                 .build();
-
 
         /* This is our grabPickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
+                .setZeroPowerAccelerationMultiplier(1.3)
                 .setPathEndTValueConstraint(LPETVC)
+                .setPathEndTimeoutConstraint(5)
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pickup2Pose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickup2Pose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
+                .setZeroPowerAccelerationMultiplier(ZPAM)
                 .setPathEndTValueConstraint(LPETVC)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our grabPickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
-                .setPathEndTValueConstraint(LPETVC)
+                .setZeroPowerAccelerationMultiplier(1)
+                .setPathEndTValueConstraint(0.76)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         scorePickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pickup3Pose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickup3Pose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(LzPAM)
-                .setPathEndTimeoutConstraint(LPET)
+                .setZeroPowerAccelerationMultiplier(ZPAM)
                 .setPathEndTValueConstraint(LPETVC)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
@@ -163,6 +164,8 @@ public class Auto_0_4_NV extends OpMode{
         SCORE_PRELOAD,
         INTAKE_WAIT,
         INTAKE_SAMPLE,
+        VISION,
+        VISION_DONE,
         PICKUP,
         TRANSFER_SAMPLE,
         OUTTAKE_GRAB_SAMPLE,
@@ -172,6 +175,8 @@ public class Auto_0_4_NV extends OpMode{
         AFTER_SCORE,
         PARK
     }
+
+    private MedianSmoother medianSmoother;
     private AutoState autoState = AutoState.DRIVE_TO_PRELOAD_SCORE;
     int sampleCounter = 0;
     public void autonomousPathUpdate() {
@@ -186,36 +191,35 @@ public class Auto_0_4_NV extends OpMode{
                 sampleCounter = 0;
                 break;
             case SCORE_WAIT:
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 1.8){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 1.05){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     setPathState(AutoState.SCORE_PRELOAD);
                 }
                 break;
             case SCORE_PRELOAD:
-                if (pathTimer.getElapsedTimeSeconds() > 0.35){
+                if (pathTimer.getElapsedTimeSeconds() > 0.3){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     follower.followPath(grabPickups[sampleCounter], true);
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 1.3){
+                if (pathTimer.getElapsedTimeSeconds()> 1){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                     setPathState(AutoState.INTAKE_WAIT);
                 }
                 break;
             case INTAKE_WAIT:
                 if (!follower.isBusy()) {
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_POS);
-                    intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                    intake.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
-                    if(sampleCounter == 2) Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 30;
                     setPathState(AutoState.INTAKE_SAMPLE);
                 }
                 break;
             case INTAKE_SAMPLE:
-                if (pathTimer.getElapsedTimeSeconds() > 1.1) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
@@ -232,36 +236,42 @@ public class Auto_0_4_NV extends OpMode{
                 }
                 break;
             case TRANSFER_SAMPLE:
-                if (intake.getCurrentPosition() < 50){
+                if (pathTimer.getElapsedTimeSeconds() > 0.25){
+                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.35){
+                    intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
+                }
+                if(pathTimer.getElapsedTimeSeconds() > 0.45){
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 1){
+                if (pathTimer.getElapsedTimeSeconds() > 0.65){
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.3){
+                if(pathTimer.getElapsedTimeSeconds() > 0.95){
                     outtake.setClawState(Outtake.ClawStates.CLOSED);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.5){
+                if(pathTimer.getElapsedTimeSeconds() > 1.15){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.75){
+                if(pathTimer.getElapsedTimeSeconds() > 1.4){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.85){
+                if(pathTimer.getElapsedTimeSeconds() > 1.6){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3.6){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.4){
                     setPathState(AutoState.READY_TO_SCORE);
                 }
                 break;
             case READY_TO_SCORE:
-                if(pathTimer.getElapsedTimeSeconds() > 0.35){
+                outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                if(pathTimer.getElapsedTimeSeconds() > 0.3){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 0.7){
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
+                if(pathTimer.getElapsedTimeSeconds() > 0.6){
                     setPathState(AutoState.SCORE);
                 }
                 break;
@@ -269,6 +279,7 @@ public class Auto_0_4_NV extends OpMode{
                 sampleCounter++;
                 if (sampleCounter < 3){
                     follower.followPath(grabPickups[sampleCounter], true);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                     setPathState(AutoState.AFTER_SCORE);
                 } else {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
@@ -297,20 +308,26 @@ public class Auto_0_4_NV extends OpMode{
         autoState = newState;
         pathTimer.resetTimer();
     }
+    private LynxModules lynxModules;
     @Override
     public void init() {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_0_4.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);
         tel = new UnifiedTelemetry();
         tel.init(this.telemetry);
 
+        lynxModules = new LynxModules();
+        lynxModules.init();
+
         outtake = new Outtake();
         outtake.init();
+
+        medianSmoother = new MedianSmoother(200);
 
         outtakeLift = new OuttakeLiftSubsys();
         outtakeLift.init();
@@ -339,17 +356,19 @@ public class Auto_0_4_NV extends OpMode{
         teamColorButton.input(gamepad1.dpad_up);
         Storage.isRed = teamColorButton.getVal();
 
-        outtake.setClawState(Outtake.ClawStates.OPEN);
+        ll.setAlliance(Storage.isRed ? IntakeLimelightSubsys.Alliance.RED : IntakeLimelightSubsys.Alliance.BLUE);
+        ll.setSampleType(IntakeLimelightSubsys.SampleType.BOTH);
+        outtake.setClawState(Outtake.ClawStates.CLOSED);
         outtake.setOuttakeState(Outtake.OuttakeState.Auto_Wait);
         outtake.loop();
         tel.addData("Team Color:", Storage.isRed ? "Red" : "Blue");
         tel.update();
     }
 
-    public static double mx =  -0.012, my =  -0.012;
-    public static double targetX = 16, targetY = 0;
     @Override
     public void loop() {
+        lynxModules.loop();
+
         intake.loop();
         intake.HoldExtension();
         ll.loop();
