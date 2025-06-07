@@ -182,7 +182,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 65;
+        public static double TRANSFER_POS = 60;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -95;
         public static double REST_POS = 10;
@@ -427,7 +427,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static int FULL_EXTENSION_POS = 380;
 
         public static int RETRACTED_POS = 0;
-        public static int AUTO_POS = 225;
+        public static int AUTO_POS = 275;
     }
     public static double inchesToTicks = 380/14.0;
 
