@@ -28,8 +28,8 @@ public class Outtake extends SubsysCore {
     public static double ARM_TRANSFER_POS = 0.49;
     public static double ARM_TRANSFER_WAIT = 0.53;
     public static double ARM_FRONTPICKUP_POS = 0.38;
-    public static double ARM_BACKSCORE_POS = 0.87;
-    public static double ARM_BACKSCORE_OUT = 0.9;
+    public static double ARM_BACKSCORE_POS = 0.84;
+    public static double ARM_BACKSCORE_OUT = 0.91;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_FRONTSCORE_WAIT_POS = 0.57;
     public static double ARM_FRONTSCORE_DONE_POS = 0.44;
@@ -77,7 +77,7 @@ public class Outtake extends SubsysCore {
         public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = -107;
         public static double SPECIMEN_FRONT_PICKUP = -10;
-        public static double SPECIMEN_BACK_SCORE = -60;
+        public static double SPECIMEN_BACK_SCORE = -40;
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE_OLD = 10;
