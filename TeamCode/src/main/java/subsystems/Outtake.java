@@ -28,7 +28,8 @@ public class Outtake extends SubsysCore {
     public static double ARM_TRANSFER_POS = 0.49;
     public static double ARM_TRANSFER_WAIT = 0.53;
     public static double ARM_FRONTPICKUP_POS = 0.38;
-    public static double ARM_BACKSCORE_POS = 0.84;
+    public static double ARM_BACKSCORE_POS = 0.83;
+    public static double AUTO_ARM_BACKSCORE_POS = 0.87;
     public static double ARM_BACKSCORE_OUT = 0.91;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
     public static double ARM_FRONTSCORE_WAIT_POS = 0.57;
@@ -45,6 +46,7 @@ public class Outtake extends SubsysCore {
         TRANSFER_WAIT,
         SAMPLESCORE,
         SPECBACKSCORE,
+        AUTO_BACK,
         SPECBACKSCOREOUT,
         SPECBACKPICKUP,
         RESET_ENCODER,
@@ -77,7 +79,8 @@ public class Outtake extends SubsysCore {
         public static double SAMPLE_SCORE = 40;
         public static double TRANSFER = -107;
         public static double SPECIMEN_FRONT_PICKUP = -10;
-        public static double SPECIMEN_BACK_SCORE = -40;
+        public static double SPECIMEN_BACK_SCORE = -50;
+        public static double AUTO_SPECIMEN_BACK_SCORE = -60;
         public static double SPECIMEN_BACK_SCORE_OUT = 0;
         public static double SPECIMEN_BACK_PICKUP = 10;
         public static double SPECIMEN_FRONT_SCORE_OLD = 10;
@@ -168,6 +171,10 @@ public class Outtake extends SubsysCore {
                 ArmPosition = ARM_DEPOSIT_POS;
                 setPivotPosition(DIFFY_POSITIONS.SAMPLE_DEPOSIT, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
+            case AUTO_BACK:
+                ArmPosition = AUTO_ARM_BACKSCORE_POS;
+                setPivotPosition(DIFFY_POSITIONS.AUTO_SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
+
         }
 
         updatePivotPosition();

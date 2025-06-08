@@ -639,6 +639,10 @@ public class Main_TeleOp extends OpMode {
                                 if (outtakeSequenceTime.time() > 0.3){
                                     outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
                                 }
+                                if(outtakeSequenceTime.time() > 0.4){
+                                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
+                                    outtakeSequenceTime.reset();
+                                }
                                 break;
                             case FRONT_GRAB:
                                 outtake.setClawState(Outtake.ClawStates.OPEN);
@@ -647,6 +651,10 @@ public class Main_TeleOp extends OpMode {
                                 break;
                             case CLOSE_CLAW:
                                 outtake.setClawState(Outtake.ClawStates.CLOSED);
+                                if(outtakeSequenceTime.time() > 0.15){
+                                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
+                                    outtakeSequenceTime.reset();
+                                }
                                 break;
                             case BACK_SCORE:
                                 if (outtakeSequenceTime.time() < 0.02){
