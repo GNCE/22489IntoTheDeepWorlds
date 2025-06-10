@@ -444,14 +444,14 @@ public class Main_TeleOp extends OpMode {
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
-                if (intakeSequenceTime.time() > 0.2){
+                if (intakeSequenceTime.time() > 0.15){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
-                if (intakeSequenceTime.time() > 0.4){
+                if (intakeSequenceTime.time() > 0.35){
                     Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
-                if(intakeSequenceTime.time() > 0.55){
+                if(intakeSequenceTime.time() > 0.5){
                     intakeSequence = INTAKE_SEQUENCE.HOLD;
                 }
                 break;
@@ -593,11 +593,17 @@ public class Main_TeleOp extends OpMode {
                                 }
                                 if (outtakeSequenceTime.time() > 0.72) {
                                     outtakeLift.LiftTo(lowBasketToggleButton.getVal() ? OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_LOW_BASKET : OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
-                                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                                     intakeSequence = INTAKE_SEQUENCE.RETRACT;
                                     isTransferred = true;
                                     resetEncoderDelay.reset();
                                 }
+                                if (outtakeSequenceTime.time() > 0.8){
+                                    if (Math.abs(OuttakeLiftSubsys.target - outtakeLift.getCurrentPosition()) < 50){
+                                        outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                                    }
+                                }
+
                                 break;
                             case SCORE:
                                 outtake.setClawState(Outtake.ClawStates.OPEN);
@@ -638,10 +644,6 @@ public class Main_TeleOp extends OpMode {
                                 outtake.setClawState(Outtake.ClawStates.OPEN);
                                 if (outtakeSequenceTime.time() > 0.3){
                                     outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCOREOUT);
-                                }
-                                if(outtakeSequenceTime.time() > 0.4){
-                                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
-                                    outtakeSequenceTime.reset();
                                 }
                                 break;
                             case FRONT_GRAB:
