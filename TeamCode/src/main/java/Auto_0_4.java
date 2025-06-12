@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import pedroPathing.constants.FConstants_0_4;
+import pedroPathing.constants.FConstants_samples;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
@@ -313,7 +313,7 @@ public class Auto_0_4 extends OpMode{
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants_0_4.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_samples.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);

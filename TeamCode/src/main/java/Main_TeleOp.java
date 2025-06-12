@@ -281,7 +281,7 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton lowBasketToggleButton = new ToggleButton(false);
     private ToggleButton colorSensorDisableButton = new ToggleButton(false);
     private ToggleButton limelightDisableButton = new ToggleButton(false);
-
+    boolean samplePivot = false;
     @Override
     public void loop() {
         limelightDisableButton.input(gamepad1.square);
@@ -598,10 +598,15 @@ public class Main_TeleOp extends OpMode {
                                     isTransferred = true;
                                     resetEncoderDelay.reset();
                                 }
-                                if (outtakeSequenceTime.time() > 0.8){
+                                if (outtakeSequenceTime.time() < 0.75){
+                                    samplePivot = false;
+                                } else {
                                     if (Math.abs(OuttakeLiftSubsys.target - outtakeLift.getCurrentPosition()) < 50){
-                                        outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                                        samplePivot = true;
                                     }
+                                }
+                                if (samplePivot){
+                                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                                 }
 
                                 break;

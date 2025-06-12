@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import pedroPathing.constants.FConstants_0_4;
+import pedroPathing.constants.FConstants_samples;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
@@ -22,7 +22,7 @@ import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 import utils.Storage;
 
-@Autonomous (name = "0 + 5 NV Spike")
+@Autonomous (name = "0 + 5 NV")
 public class Auto_0_5_NV extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;
@@ -314,7 +314,6 @@ public class Auto_0_5_NV extends OpMode{
                 } else {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                     follower.followPath(driveToVision);
-                    ll.turnOn();
                     sampleCounter = 0;
                     setPathState(AutoState.VISION);
                 }
@@ -332,6 +331,7 @@ public class Auto_0_5_NV extends OpMode{
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
+                    ll.turnOn();
                 }
                 if (!follower.isBusy()){
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
@@ -340,8 +340,8 @@ public class Auto_0_5_NV extends OpMode{
                 break;
             case VISION_MOVE:
             { if(ll.isResultValid()) {
-                    medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
-                }
+                medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
+            }
                 if (pathTimer.getElapsedTimeSeconds() > 0.275) {
                     if (pathTimer.getElapsedTimeSeconds() > 0.575 + visionWaitTime) { // Time it takes for claw to open
                         MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
@@ -350,7 +350,8 @@ public class Auto_0_5_NV extends OpMode{
                                     follower.pathBuilder()
                                             .addPath(new BezierLine(visionPose, new Pose(visionPose.getX()- detectedSample.getY(), visionPose.getY())))
                                             .setConstantHeadingInterpolation(visionPose.getHeading())
-                                            .setZeroPowerAccelerationMultiplier(2)
+                                            .setZeroPowerAccelerationMultiplier(1.8)
+                                            .setPathEndTValueConstraint(0.8)
                                             .build(),
                                     true
                             );
@@ -366,7 +367,7 @@ public class Auto_0_5_NV extends OpMode{
                     }
                 }
             }
-                break;
+            break;
             case VISION_DONE:
                 if(!follower.isBusy() && intake.extensionReachedTarget()){
                     setPathState(AutoState.VISION_PICKUP);
@@ -392,24 +393,24 @@ public class Auto_0_5_NV extends OpMode{
                 break;
             case SUB_DRIVE:
                 ll.turnOff();
-                if(pathTimer.getElapsedTimeSeconds() > 0.25){
+                if(pathTimer.getElapsedTimeSeconds() > 0.1){
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.35){
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2){
                         intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                        if( pathTimer.getElapsedTimeSeconds() > 0.55){
+                        if( pathTimer.getElapsedTimeSeconds() > 0.4){
                             intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                         }
                     }
-                    if(pathTimer.getElapsedTimeSeconds() > 0.85){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.7){
                         intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                        if(pathTimer.getElapsedTimeSeconds() > 1.05){
+                        if(pathTimer.getElapsedTimeSeconds() > 0.9){
                             outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                            if(pathTimer.getElapsedTimeSeconds() > 1.25){
+                            if(pathTimer.getElapsedTimeSeconds() > 1.1){
                                 outtake.setClawState(Outtake.ClawStates.CLOSED);
-                                if(pathTimer.getElapsedTimeSeconds() > 1.35){
+                                if(pathTimer.getElapsedTimeSeconds() > 1.2){
                                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                                    if(pathTimer.getElapsedTimeSeconds() > 1.52){
+                                    if(pathTimer.getElapsedTimeSeconds() > 1.35){
                                         outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                                         outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                                         setPathState(AutoState.SUB_SCORE_WAIT);
@@ -421,7 +422,7 @@ public class Auto_0_5_NV extends OpMode{
                 }
                 break;
             case SUB_SCORE_WAIT:
-                if (!follower.isBusy()){
+                if (!follower.isBusy() && (Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.target) < 5)){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     setPathState(AutoState.SUB_SCORE);
                 }
@@ -457,13 +458,15 @@ public class Auto_0_5_NV extends OpMode{
                 }
                 if (!follower.isBusy()){
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                    stop();
-                    requestOpModeStop();
-                    terminateOpModeNow();
                     setPathState(AutoState.KILL);
                 }
                 break;
             case KILL:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    stop();
+                    requestOpModeStop();
+                    terminateOpModeNow();
+                }
                 break;
             default:
                 break;
@@ -479,7 +482,7 @@ public class Auto_0_5_NV extends OpMode{
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants_0_4.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_samples.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);

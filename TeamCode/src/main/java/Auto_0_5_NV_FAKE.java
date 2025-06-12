@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import pedroPathing.constants.FConstants_0_4;
+import pedroPathing.constants.FConstants_samples;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
 import subsystems.Intake_DiffyClaw;
@@ -42,7 +42,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
     private final Pose pickup1Pose = new Pose(24.5, 119, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(25, 128.5, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(25, 128.75, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(27, 129.5, Math.toRadians(25));
@@ -50,7 +50,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
     private final Pose visionControlP = new Pose(52, 122, Math.toRadians(0));
 
     /** Park Pose for our robot, after we do all of the scoring. */
-    private final Pose parkPose = new Pose(60, 95, Math.toRadians(90));
+    private final Pose parkPose = new Pose(60, 87.5, Math.toRadians(90));
 
     /** Park Control Pose for our robot, this is used to manipulate the bezier curve that we will create for the parking.
      * The Robot will not go to this pose, it is used a control point for our bezier curve. */
@@ -63,7 +63,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
     ElapsedTime elapsedTime;
     public static double visionWaitTime = 0.66;
     private final double ZPAM = 1.8;
-    private final double LPETC = 5;
+    private final double LPETC = 10;
     private final double LPETVC = 0.8;
 
     public void buildPaths() {
@@ -100,7 +100,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.3)
                 .setPathEndTValueConstraint(LPETVC)
-                .setPathEndTimeoutConstraint(5)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -156,6 +156,9 @@ public class Auto_0_5_NV_FAKE extends OpMode{
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
         park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
+        park.setZeroPowerAccelerationMultiplier(3.5);
+        park.setPathEndTValueConstraint(LPETVC);
+        park.setPathEndTimeoutConstraint(LPETC);
 
         grabPickups = new PathChain[]{grabPickup1, grabPickup2, grabPickup3};
         scorePickups = new PathChain[]{scorePickup1, scorePickup2, scorePickup3};
@@ -249,7 +252,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                 }
                 break;
             case INTAKE_SAMPLE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.7) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.7) { //0.7
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
@@ -458,13 +461,15 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                 }
                 if (!follower.isBusy()){
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECBACKSCORE);
-                    stop();
-                    requestOpModeStop();
-                    terminateOpModeNow();
                     setPathState(AutoState.KILL);
                 }
                 break;
             case KILL:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    stop();
+                    requestOpModeStop();
+                    terminateOpModeNow();
+                }
                 break;
             default:
                 break;
@@ -480,7 +485,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants_0_4.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_samples.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);

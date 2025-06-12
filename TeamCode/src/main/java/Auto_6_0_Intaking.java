@@ -45,13 +45,13 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
     private final Pose thirdSpikeMarkControl = new Pose(22, 55, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(23.7, 12.5, Math.toRadians(-18));
+    private final Pose thirdSpikeMark = new Pose(24.1, 11.75, Math.toRadians(-18));
     private final Pose secondSpikeMark = new Pose(22.1, 12.2, Math.toRadians(0));
     private final Pose firstSpikeMark = new Pose(22.1, 22.2, Math.toRadians(0));
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
-    private final Pose outtakePickupWaitPose = new Pose(18, 35, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(21, 35, Math.toRadians(180));
 
     private final Pose firstScorePose = new Pose(frontScoreX, 67, Math.toRadians(0));
     private final Pose firstScoreReturnPose = new Pose(32.805298013245036, 64.65695364238411, Math.toRadians(181));
@@ -61,7 +61,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose twohundeAngle = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(205));
     private final Pose fourthScorePose = new Pose(scoreX, scoreY-scoreYChange*4, Math.toRadians(230));
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(230));
-    private final Pose parkPose = new Pose(14, 30, Math.toRadians(359));
+    private final Pose parkPose = new Pose(26, 43, Math.toRadians(237.5));
 
     // TODO: ZPAM VARIABLES
     private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.8;
@@ -83,29 +83,29 @@ public class Auto_6_0_Intaking extends OpMode {
         spike3 = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(preloadScorePose), new Point(thirdSpikeMarkControl), new Point(thirdSpikeMark)))
                 .setLinearHeadingInterpolation(preloadScorePose.getHeading(), thirdSpikeMark.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
-                .setPathEndTimeoutConstraint(40)
+                .setZeroPowerAccelerationMultiplier(1.8)
+                .setPathEndTimeoutConstraint(50)
                 .setPathEndTValueConstraint(0.99)
                 .build();
         spike2 = follower.pathBuilder()
                 .addPath(new BezierLine(thirdSpikeMark, secondSpikeMark))
                 .setConstantHeadingInterpolation(secondSpikeMark.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.2)
+                .setZeroPowerAccelerationMultiplier(1.3)
                 .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.925)
+                .setPathEndTValueConstraint(0.875)
                 .build();
         spike1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(secondSpikeMark), new Point(firstSpikeMark)))
                 .setLinearHeadingInterpolation(secondSpikeMark.getHeading(), firstSpikeMark.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.4)
+                .setZeroPowerAccelerationMultiplier(1.3)
                 .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.925)
+                .setPathEndTValueConstraint(0.875)
                 .build();
         firstPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(firstSpikeMark), new Point(outtakeFirstPickupPose)))
                 .setConstantHeadingInterpolation(firstSpikeMark.getHeading())
-                .setZeroPowerAccelerationMultiplier(2)
-                .setPathEndTValueConstraint(0.925)
+                .setZeroPowerAccelerationMultiplier(2.1)
+                .setPathEndTValueConstraint(0.9)
                 .setPathEndTimeoutConstraint(50)
                 .build();
         firstScorePath = follower.pathBuilder()
@@ -119,13 +119,13 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(firstScorePose), new Point(outtakePickupWaitPose)))
                 .setLinearHeadingInterpolation(firstScorePose.getHeading(), outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.9)
-                .setZeroPowerAccelerationMultiplier(3)
+                .setPathEndTValueConstraint(0.82)
+                .setZeroPowerAccelerationMultiplier(2.2)
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose), new Point(outtakePickupPose)))
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.98)
-                .setZeroPowerAccelerationMultiplier(2.8)
+                .setPathEndTValueConstraint(0.9725)
+                .setZeroPowerAccelerationMultiplier(2)
                 .build();
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupPose), new Point(secondScorePose)))
@@ -179,6 +179,8 @@ public class Auto_6_0_Intaking extends OpMode {
         parkFromFifthPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(fifthScorePose), new Point(parkPose)))
                 .setLinearHeadingInterpolation(fifthScorePose.getHeading(), parkPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(4)
+                .setPathEndTValueConstraint(0.875)
                 .build();
         pickupPaths = new PathChain[]{firstPickupPath, secondPickupPath, thirdPickupPath, fourthPickupPath, fifthPickupPath};
         scorePaths = new PathChain[]{firstScorePath, secondScorePath, thirdScorePath, fourthScorePath, fifthScorePath};
@@ -338,12 +340,12 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case AT_SPIKE_3:
-                if(pathTimer.getElapsedTimeSeconds() > 0.1){
+                if(pathTimer.getElapsedTimeSeconds() > 0.4){
                     intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                    if(pathTimer.getElapsedTimeSeconds() > 0.3){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.6){
                         intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                     }
-                    if(pathTimer.getElapsedTimeSeconds() > 0.45){
+                    if(pathTimer.getElapsedTimeSeconds() > 0.75){
                         intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.DEPOSIT);
                         intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                         follower.followPath(spike2, true);
@@ -464,7 +466,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case READY_FOR_PICKUP:
                 outtake.setClawState(Outtake.ClawStates.OPEN);
-                if(pathTimer.getElapsedTimeSeconds() > 0.36){
+                if(pathTimer.getElapsedTimeSeconds() > 0.525){
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTPICKUP);
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_PICKUP);
                 }
@@ -506,9 +508,14 @@ public class Auto_6_0_Intaking extends OpMode {
                 }
                 break;
             case PARK:
-                if (pathTimer.getElapsedTimeSeconds() > 0.6){
-                    outtake.setOuttakeState(Outtake.OuttakeState.RESET_ENCODER);
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.RESET_ENCODER);
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                }
+                if (!follower.isBusy()){
+                    stop();
+                    requestOpModeStop();
+                    terminateOpModeNow();
                 }
                 break;
             default:
