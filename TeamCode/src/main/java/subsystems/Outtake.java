@@ -20,7 +20,7 @@ public class Outtake extends SubsysCore {
     public static double ArmPosition = 0.2;
     public static double leftArmOffset = (double) 0.045;
     public static boolean clawOpen = false;
-    public static double CLAW_CLOSED = 0.39;
+    public static double CLAW_CLOSED = 0.415;
     public static double CLAW_OPENED = 0.13;
     public static double CLAW_LOOSE_CLOSED = 0.34;
     //tune these values vvvvv

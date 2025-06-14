@@ -194,6 +194,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
         INTAKE_SAMPLE,
         PICKUP,
         TRANSFER_SAMPLE,
+        GRAB,
         READY_TO_SCORE,
         SCORE,
         AFTER_SCORE,
@@ -265,37 +266,37 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                     follower.followPath(scorePickups[sampleCounter],true);
-                    setPathState(AutoState.TRANSFER_SAMPLE);
+                    setPathState(AutoState.GRAB);
                 }
                 break;
-            case TRANSFER_SAMPLE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.25){
+            case GRAB:
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.35){
+                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 0.45){
+                if (pathTimer.getElapsedTimeSeconds() > 0.45) {
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.65){
+                if (pathTimer.getElapsedTimeSeconds() > 0.65) {
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 0.95){
+                if (pathTimer.getElapsedTimeSeconds() > 0.825) {
                     outtake.setClawState(Outtake.ClawStates.CLOSED);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.15){
+                if (pathTimer.getElapsedTimeSeconds() > 1.15) {
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.4){
+                if (pathTimer.getElapsedTimeSeconds() > 1.4) {
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 1.6){
+                if (pathTimer.getElapsedTimeSeconds() > 1.6) {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.4){
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.4) {
                     setPathState(AutoState.READY_TO_SCORE);
                 }
                 break;
@@ -305,6 +306,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
                 if(pathTimer.getElapsedTimeSeconds() > 0.6){
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                     setPathState(AutoState.SCORE);
                 }
                 break;
@@ -312,7 +314,6 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                 sampleCounter++;
                 if (sampleCounter < 3){
                     follower.followPath(grabPickups[sampleCounter], true);
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                     setPathState(AutoState.AFTER_SCORE);
                 } else {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
@@ -353,8 +354,9 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                                     follower.pathBuilder()
                                             .addPath(new BezierLine(visionPose, new Pose(visionPose.getX()- detectedSample.getY(), visionPose.getY())))
                                             .setConstantHeadingInterpolation(visionPose.getHeading())
-                                            .setZeroPowerAccelerationMultiplier(1.8)
-                                            .setPathEndTValueConstraint(0.8)
+                                            .setZeroPowerAccelerationMultiplier(1.2)
+                                            .setPathEndTValueConstraint(0.75)
+                                            .setPathEndTimeoutConstraint(100)
                                             .build(),
                                     true
                             );

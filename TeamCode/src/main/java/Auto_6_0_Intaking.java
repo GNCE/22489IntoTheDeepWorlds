@@ -45,9 +45,9 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
     private final Pose thirdSpikeMarkControl = new Pose(22, 55, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(24.1, 11.75, Math.toRadians(-18));
-    private final Pose secondSpikeMark = new Pose(22.1, 12.2, Math.toRadians(0));
-    private final Pose firstSpikeMark = new Pose(22.1, 22.2, Math.toRadians(0));
+    private final Pose thirdSpikeMark = new Pose(24.5, 11.75, Math.toRadians(-18));
+    private final Pose secondSpikeMark = new Pose(22.5, 12.2, Math.toRadians(0));
+    private final Pose firstSpikeMark = new Pose(22.5, 22.2, Math.toRadians(0));
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
@@ -58,7 +58,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
     private final Pose secondScorePose = new Pose(scoreX, scoreY-scoreYChange*2, Math.toRadians(230));
     private final Pose thirdScorePose = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(230));
-    private final Pose twohundeAngle = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(205));
+    private final Pose twohundeAngle = new Pose(scoreX, scoreY-scoreYChange*3, Math.toRadians(192.5));
     private final Pose fourthScorePose = new Pose(scoreX, scoreY-scoreYChange*4, Math.toRadians(230));
     private final Pose fifthScorePose = new Pose(scoreX, scoreY-scoreYChange*5, Math.toRadians(230));
     private final Pose parkPose = new Pose(26, 43, Math.toRadians(237.5));
@@ -84,8 +84,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierCurve(new Point(preloadScorePose), new Point(thirdSpikeMarkControl), new Point(thirdSpikeMark)))
                 .setLinearHeadingInterpolation(preloadScorePose.getHeading(), thirdSpikeMark.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.8)
-                .setPathEndTimeoutConstraint(50)
-                .setPathEndTValueConstraint(0.99)
+                .setPathEndTimeoutConstraint(75)
+                .setPathEndTValueConstraint(0.995)
                 .build();
         spike2 = follower.pathBuilder()
                 .addPath(new BezierLine(thirdSpikeMark, secondSpikeMark))
@@ -106,26 +106,26 @@ public class Auto_6_0_Intaking extends OpMode {
                 .setConstantHeadingInterpolation(firstSpikeMark.getHeading())
                 .setZeroPowerAccelerationMultiplier(2.1)
                 .setPathEndTValueConstraint(0.9)
-                .setPathEndTimeoutConstraint(50)
+                .setPathEndTimeoutConstraint(75)
                 .build();
         firstScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakeFirstPickupPose), new Point(firstScorePose)))
                 .setConstantHeadingInterpolation(outtakeFirstPickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1.7)
-                .setPathEndTimeoutConstraint(10)
+                .setPathEndTimeoutConstraint(50)
                 .setPathEndTValueConstraint(0.93)
                 .build();
         secondPickupPath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(firstScorePose), new Point(outtakePickupWaitPose)))
                 .setLinearHeadingInterpolation(firstScorePose.getHeading(), outtakePickupWaitPose.getHeading())
-                .setPathEndTimeoutConstraint(10)
-                .setPathEndTValueConstraint(0.82)
-                .setZeroPowerAccelerationMultiplier(2.2)
+                .setPathEndTimeoutConstraint(50)
+                .setPathEndTValueConstraint(0.82) //0.82
+                .setZeroPowerAccelerationMultiplier(2)
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose), new Point(outtakePickupPose)))
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(10)
                 .setPathEndTValueConstraint(0.9725)
-                .setZeroPowerAccelerationMultiplier(2)
+                .setZeroPowerAccelerationMultiplier(1.9)
                 .build();
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupPose), new Point(secondScorePose)))
@@ -441,7 +441,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 break;
             case GOTOFIRSTSCORE:
                 if(pathTimer.getElapsedTimeSeconds() > 0.3){
-                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.FRONT_SCORE);
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AUTO_FRONT);
                     outtake.setOuttakeState(Outtake.OuttakeState.SPECFRONTSCOREWAIT);
                     follower.followPath(scorePaths[counter], true);
                     setPathState(AutoState.FRONTSCOREFIRST);
@@ -581,6 +581,7 @@ public class Auto_6_0_Intaking extends OpMode {
         outtake.setAlignedTo(10);
         outtakeLift.holdLift();
         outtakeLift.loop();
+        intakeDiffyClaw.auto = true;
         intakeDiffyClaw.loop();
         intakeDiffyClaw.HoldExtension();
 

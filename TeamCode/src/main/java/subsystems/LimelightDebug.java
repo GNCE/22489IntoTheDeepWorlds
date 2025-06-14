@@ -4,19 +4,16 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.sun.tools.javac.util.List;
-
-import java.util.Arrays;
 
 @Config
-public class IntakeLimelightSubsys extends SubsysCore {
+public class LimelightDebug extends SubsysCore {
     public static Limelight3A ll;
     public static Servo light;
     public static UnifiedTelemetry tel;
     public static LLResult llResult;
     private static double tx, ty, ta, angle;
     private static double[] pythonOutput;
-    private static int pipelineNumber=4;
+    private static int pipelineNumber=7;
     private double[] pythonInputs = {0, 0, 0, 0, 0, 0, 0, 0};
     private boolean prevllon = false, llon = false;
     public boolean isDataFresh(){ return llResult != null && llResult.getStaleness() < 400; }
@@ -93,27 +90,26 @@ public class IntakeLimelightSubsys extends SubsysCore {
             else ll.pause();
         }
 
-        ll.updatePythonInputs(pythonInputs);
-
-        if(llon){
-            // light.setPosition(1);
-            ll.pipelineSwitch(pipelineNumber);
+        if (llon) {
+            ll.pipelineSwitch(7);
             llResult = ll.getLatestResult();
-            if(llResult != null){
+
+            if (llResult != null) {
                 tx = llResult.getTx();
                 ty = llResult.getTy();
                 ta = llResult.getTa();
 
                 pythonOutput = llResult.getPythonOutput();
-                if(pythonOutput != null){
-                    if(pythonOutput.length > 0) angle = -pythonOutput[0];
-                    dataNull = false;
+
+                if (pythonOutput != null && pythonOutput.length > 0) {
+                    angle = -pythonOutput[0]; // test angle reception
+                    tel.addData("Python Output Angle", angle);
                 } else {
-                    dataNull = true;
+                    tel.addLine("No Python output received");
                 }
+            } else {
+                tel.addLine("No LLResult received");
             }
-        } else {
-            // light.setPosition(0);
         }
 
         prevllon = llon;

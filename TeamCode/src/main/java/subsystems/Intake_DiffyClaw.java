@@ -72,8 +72,10 @@ public class Intake_DiffyClaw extends SubsysCore {
 
 
     //EXTENSION CONTROLS
-    private PIDController controller, visionPID, hangPID;
+    private PIDController controller, visionPID, hangPID, autoPID;
     public static double p = 0.015, i = 0, d = 0.0004;
+    public static double ap = 0.012, ai = 0, ad = 0.0005;
+
     public static double vp = 0.023, vi = 0, vd = 0.00027;
     public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0001;
     public int target = 0;
@@ -125,6 +127,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         controller = new PIDController(p, i, d);
         visionPID = new PIDController(vp, vi, vd);
         hangPID = new PIDController(hp, hi, hd);
+        autoPID = new PIDController(ap,ai,ad);
         hanging = false;
         usingLL = false;
         dontReset = false;
@@ -221,6 +224,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         encoderUpdated = 0;
         usingLL = false;
         hanging = false;
+        auto = false;
         dontReset = false;
         useColorSensor = false;
         powerScale = 1;
@@ -357,6 +361,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     }
 
     private boolean hanging = false;
+    public boolean auto = false;
     private boolean dontReset = false;
 
     public void useHang(){ hanging = true; }
@@ -382,6 +387,9 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
+        } else if (auto){
+            autoPID.setPID(ap,ai,ad);
+            power=autoPID.calculate(getCurrentPosition(),target);
         } else if(usingLL && ll.isResultValid()) {
             double error = 13 - ll.getTx();
             visionPID.setPID(vp, vi, vd);
@@ -389,7 +397,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(hanging){
             hangPID.setPIDF(hp, hi, hd, hf);
             power = hangPID.calculate(getCurrentPosition(), target);
-        } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
+        }else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) {
                 encoderReset = false;
