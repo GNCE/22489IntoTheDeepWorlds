@@ -467,7 +467,7 @@ public class Auto_0_5_NV_FAKE extends OpMode{
                 }
                 break;
             case KILL:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                     stop();
                     requestOpModeStop();
                     terminateOpModeNow();

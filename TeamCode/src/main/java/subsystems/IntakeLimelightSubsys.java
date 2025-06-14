@@ -39,7 +39,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     }
 
     public enum SampleType{
-        ALLIANCE, BOTH, NEUTRAL;
+        BOTH, NEUTRAL, ALLIANCE
     }
 
 

@@ -12,8 +12,8 @@ public class Outtake extends SubsysCore {
     private Servo rpivhigh;
     private Servo lpivhigh;
 
-    public static double DEFAULT_LDIFFY_POS = 0.445;
-    public static double DEFAULT_RDIFFY_POS = 0.525;
+    public static double DEFAULT_LDIFFY_POS = 0.52;
+    public static double DEFAULT_RDIFFY_POS = 0.52;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -32,7 +32,7 @@ public class Outtake extends SubsysCore {
     public static double AUTO_ARM_BACKSCORE_POS = 0.87;
     public static double ARM_BACKSCORE_OUT = 0.91;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
-    public static double ARM_FRONTSCORE_WAIT_POS = 0.57;
+    public static double ARM_FRONTSCORE_WAIT_POS = 0.58;
     public static double ARM_FRONTSCORE_DONE_POS = 0.44;
     public static double ARM_BACKPICKUP_POS = 0.9;
     public static double ARM_DEPOSIT_POS = 0.9;
