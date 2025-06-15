@@ -24,14 +24,15 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public boolean isRunning(){ return llon; }
     public void turnOn(){ llon = true; }
     public void turnOff(){ llon = false; }
-    public static double horizScale = 1;
+    public static double horizScale = 0.8;
+    public static double horizOffset = 0.3;
     public static double vertOffset = 0.2;
-    public static double vertScale = 32;
+    public static double vertScale = 27;
 
     public boolean isResultValid(){
         if(!llon) return false;
         if(!isDataValid()) return false;
-        return isDataFresh() && (llResult.isValid() || getTa() > 0.05);
+        return isDataFresh() && isDataValid();
     }
 
     public enum Alliance{
@@ -39,7 +40,7 @@ public class IntakeLimelightSubsys extends SubsysCore {
     }
 
     public enum SampleType{
-        BOTH, NEUTRAL, ALLIANCE
+        ALLIANCE, BOTH, NEUTRAL
     }
 
 
@@ -57,10 +58,10 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public double getTy(){ return ty; }
     public double getAngle(){ return angle; }
     private boolean isDataValid(){
-        return !(getTx() == 0 && getTy() == 0 && getAngle() == 0);
+        return !(getTx() == 0 && getTy() == 0);
     }
-    public double getVert(){ return ((getTx()*0.198 + 5.41)*2.25+vertOffset)*vertScale; }    // inches
-    public double getHoriz(){ return ((getTy()*(-0.197) -0.345)*2.25)*horizScale; } // inches
+    public double getVert(){ return ((getTx()*0.198 + 5.41)*2.25)*vertScale + vertOffset; } // inches
+    public double getHoriz(){ return ((getTy()*(-0.197) -0.345)*2.25)*horizScale + horizOffset; } // inches
 
     public void setPipelineNumber(int pipelineNum){
         if(pipelineNum > 6 || pipelineNum < 4) return;
@@ -123,6 +124,10 @@ public class IntakeLimelightSubsys extends SubsysCore {
         tel.addData("Connected?", this.isConnected());
         tel.addData("Running", this.isRunning());
         if(this.isRunning() && this.isConnected()){
+            tel.addData("Raw Tx", getTx());
+            tel.addData("Raw Ty", getTy());
+            tel.addData("Raw Ta", getTa());
+            tel.addData("Raw Angle", getAngle());
             tel.addData("Pipeline:", getPipelineNumber());
             tel.addData("Data Valid", isResultValid());
             tel.addData("Data Fresh", isDataFresh());

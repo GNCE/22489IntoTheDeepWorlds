@@ -154,8 +154,9 @@ public class OuttakeLiftSubsys extends SubsysCore{
                 break;
         }
     }
+
     public boolean isBusy(){
-        return Math.abs(target - getCurrentPosition()) <= 12;
+        return Math.abs(target - getCurrentPosition()) > 20;
     }
 
     private static int prevTarget = 0;

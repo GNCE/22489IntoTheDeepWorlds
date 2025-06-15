@@ -36,7 +36,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private LynxModules lynxModules;
     private MedianSmoother medianSmoother;
     private final double scoreX = 44.25;
-    private final double scoreY = 66;
+    private final double scoreY = 65;
 
     private final double frontScoreX = 42.3;
 
@@ -45,7 +45,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
     private final Pose thirdSpikeMarkControl = new Pose(22, 55, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(24.5, 11.75, Math.toRadians(-18));
+    private final Pose thirdSpikeMark = new Pose(24.5, 10, Math.toRadians(-18));
     private final Pose secondSpikeMark = new Pose(22.5, 12.2, Math.toRadians(0));
     private final Pose firstSpikeMark = new Pose(22.5, 22.2, Math.toRadians(0));
 
@@ -120,12 +120,11 @@ public class Auto_6_0_Intaking extends OpMode {
                 .setLinearHeadingInterpolation(firstScorePose.getHeading(), outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(50)
                 .setPathEndTValueConstraint(0.82) //0.82
-                .setZeroPowerAccelerationMultiplier(2)
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose), new Point(outtakePickupPose)))
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(5)
                 .setPathEndTValueConstraint(0.99)
-                .setZeroPowerAccelerationMultiplier(2)
+                .setZeroPowerAccelerationMultiplier(2.3)
                 .build();
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupPose), new Point(secondScorePose)))
@@ -221,8 +220,7 @@ public class Auto_6_0_Intaking extends OpMode {
         autoState = newState;
         pathTimer.resetTimer();
     }
-    public static double horizScale = 0.72, vertScale = 30, vertOffset = 0;
-    public static double visionWaitTime = 0.35;
+    public static double visionWaitTime = 0.2;
 
     private int counter = 0;
     public void autonomousPathUpdate(){
