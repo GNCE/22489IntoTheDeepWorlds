@@ -29,6 +29,9 @@ public class IntakeLimelightSubsys extends SubsysCore {
     public static double vertOffset = 0.2;
     public static double vertScale = 27;
 
+    // getTx() * 12.0285 + 12.3725
+    // getTy() * -0.3546 -0.321
+
     public boolean isResultValid(){
         if(!llon) return false;
         if(!isDataValid()) return false;
@@ -62,6 +65,9 @@ public class IntakeLimelightSubsys extends SubsysCore {
     }
     public double getVert(){ return ((getTx()*0.198 + 5.41)*2.25)*vertScale + vertOffset; } // inches
     public double getHoriz(){ return ((getTy()*(-0.197) -0.345)*2.25)*horizScale + horizOffset; } // inches
+    // getTx() * 12.0285 + 12.3725
+    // getTy() * -0.3546 -0.321
+
 
     public void setPipelineNumber(int pipelineNum){
         if(pipelineNum > 6 || pipelineNum < 4) return;
