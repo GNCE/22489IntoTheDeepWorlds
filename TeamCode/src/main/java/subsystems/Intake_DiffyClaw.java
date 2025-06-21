@@ -387,27 +387,24 @@ public class Intake_DiffyClaw extends SubsysCore {
         } else if(Math.abs(opMode.gamepad2.right_trigger) > 0.1) {
             power = -opMode.gamepad2.right_trigger;
             target = getCurrentPosition();
-        } else if (auto){
-            autoPID.setPID(ap,ai,ad);
-            power=autoPID.calculate(getCurrentPosition(),target);
-        } else if(usingLL && ll.isResultValid()) {
-            double error = 13 - ll.getTx();
-            visionPID.setPID(vp, vi, vd);
-            power = visionPID.calculate(error);
-        } else if(hanging){
-            hangPID.setPIDF(hp, hi, hd, hf);
-            power = hangPID.calculate(getCurrentPosition(), target);
-        }else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
+        } else if (target == IntakeExtensionPositions.RETRACTED_POS && (prevTarget != target || !encoderReset)) {
             // If target is zero and either the target was just set to zero or the encoder is not reset yet
             if (prevTarget != target) {
                 encoderReset = false;
                 timer.reset();
             }
+            encoderUpdated++;
             power = -1;
-            if (IntakeExtend.getCurrent() > 5 && Math.abs(IntakeExtend.getVelocity()) <= 20  && timer.seconds() > 0.5) {
+            if (IntakeExtend.getCurrent() > 5 && Math.abs(IntakeExtend.getVelocity()) <= 100  && timer.seconds() > 0.5) {
                 encoderResetVar = 0;
                 encoderReset = true;
             }
+        } else if (auto){
+            autoPID.setPID(ap,ai,ad);
+            power=autoPID.calculate(getCurrentPosition(),target);
+        } else if(hanging){
+            hangPID.setPIDF(hp, hi, hd, hf);
+            power = hangPID.calculate(getCurrentPosition(), target);
         } else {
             // PIDF Controller
             controller.setPID(p, i, d);
