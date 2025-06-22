@@ -284,7 +284,11 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton lowBasketToggleButton = new ToggleButton(false);
     private ToggleButton colorSensorDisableButton = new ToggleButton(false);
     private ToggleButton limelightDisableButton = new ToggleButton(false);
+    private ToggleButton useVisionIntakeButton = new ToggleButton(false);
     boolean samplePivot = false;
+
+    public static double visionScanTime = 0.67;
+
     @Override
     public void loop() {
         limelightDisableButton.input(gamepad1.square);
@@ -298,7 +302,10 @@ public class Main_TeleOp extends OpMode {
                 follower.setPose(scorePoses[0]);
                 follower.update();
             }
-            else autoScore = AUTO_SCORE.NOTHING;
+            else {
+                follower.breakFollowing();
+                autoScore = AUTO_SCORE.NOTHING;
+            }
         }
 
 
@@ -336,7 +343,6 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case NOTHING:
-                if(follower.isBusy()) follower.breakFollowing();
                 break;
         }
 
@@ -351,8 +357,12 @@ public class Main_TeleOp extends OpMode {
         if(intakeSequenceNextButton2.input(gamepad1.left_bumper)) {
             prevIntakeSequence = intakeSequence;
             prevAutoTransfer = false;
-            if (intakeSequence == INTAKE_SEQUENCE.RETRACT && (outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || specModeToggleButton.getVal())){
-                intakeSequence = INTAKE_SEQUENCE.READY;
+            if (intakeSequence == INTAKE_SEQUENCE.RETRACT){
+                if(outtakeSequence != OUTTAKE_SEQUENCE.BUCKET_SEQUENCE || isTransferred || specModeToggleButton.getVal()) {
+                    intakeSequence = INTAKE_SEQUENCE.READY;
+                } else {
+                    intakeSequence = INTAKE_SEQUENCE.TRANSFER_WAIT;
+                }
             } else {
                 if(intakeSequence == INTAKE_SEQUENCE.HOLD) isTransferred = false;
                 intakeSequence = intakeSequence.next();
@@ -366,6 +376,8 @@ public class Main_TeleOp extends OpMode {
                 intakeSequence = INTAKE_SEQUENCE.RETRACT;
             } else if(intakeSequence == INTAKE_SEQUENCE.HOLD){
                 intakeSequence = INTAKE_SEQUENCE.READY;
+            } else if(intakeSequence == INTAKE_SEQUENCE.TRANSFER_WAIT) {
+                intakeSequence = INTAKE_SEQUENCE.RETRACT;
             } else {
                 intakeSequence = intakeSequence.prev();
             }
@@ -394,6 +406,7 @@ public class Main_TeleOp extends OpMode {
             }
         }
 
+        if(!Arrays.asList(INTAKE_SEQUENCE.VISION, INTAKE_SEQUENCE.VISION_GO, INTAKE_SEQUENCE.VISION_MOVE).contains(intakeSequence)){
         if(headingLockButton.getVal() && !gamepad1.right_stick_button){
             follower.setTeleOpMovementVectors(
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
@@ -408,7 +421,7 @@ public class Main_TeleOp extends OpMode {
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_y),
                     flip * 0.48 * Math.tan(1.12 * -gamepad1.left_stick_x),
                     0.225 * Math.tan(1.12 * -gamepad1.right_stick_x), true);
-        }
+        }}
 
         diffyClawIntake.setUseColorSensor(!colorSensorDisableButton.getVal() && Arrays.asList(INTAKE_SEQUENCE.GRAB, INTAKE_SEQUENCE.HOLD, INTAKE_SEQUENCE.TRANSFER_WAIT).contains(intakeSequence));
 
@@ -446,7 +459,7 @@ public class Main_TeleOp extends OpMode {
                 break;
             case GRAB:
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+                //diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
                 if (intakeSequenceTime.time() > 0.15){
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
@@ -459,7 +472,9 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case HOLD:
-                diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+                if(prevIntakeSequence == INTAKE_SEQUENCE.RETRACT){
+                    diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.FULL_EXTENSION);
+                }
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
 
                 Intake_DiffyClaw.SENSOR_READING cur = diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal());
@@ -475,73 +490,73 @@ public class Main_TeleOp extends OpMode {
                 }
                 break;
             case RETRACT:
+                medianSmoother.clear();
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                 if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
                 }
-                if (gamepad1.right_stick_button){
+                if (useVisionIntakeButton.input(gamepad1.right_stick_button)){
+                    follower.setPose(new Pose(follower.getPose().getX(), follower.getPose().getY(), 0));
+                    follower.update();
                     intakeSequence = INTAKE_SEQUENCE.VISION;
+                    intakeSequenceTime.reset();
                 }
                 break;
             case VISION:
                 ll.turnOn();
+                if(specModeToggleButton.getVal()){
+                    ll.setSampleType(IntakeLimelightSubsys.SampleType.ALLIANCE);
+                }else {
+                    ll.setSampleType(IntakeLimelightSubsys.SampleType.BOTH);
+                }
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                        if(ll.isResultValid()) {
-                            medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
-                        }
-                        if (intakeSequenceTime.time() > 0.275) {
-                            outtake.setClawState(Outtake.ClawStates.OPEN);
-                            if (intakeSequenceTime.time() > 0.575 + 0.2) { // Time it takes for claw to open
-                                MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
-                                if (medianSmoother.getSize() > 0) {
-                                    follower.breakFollowing();
-                                    follower.followPath(
-                                            follower.pathBuilder()
-                                                    .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY() - detectedSample.getX())))
-                                                    .setConstantHeadingInterpolation(follower.getPose().getHeading())
-                                                    .setZeroPowerAccelerationMultiplier(1.8)
-                                                    .setPathEndTValueConstraint(0.75)
-                                                    .setPathEndTimeoutConstraint(100)                                                    .build(),
-                                            true
-                                    );
-                                    diffyClawIntake.ExtendTo(detectedSample.getY(), Intake_DiffyClaw.ExtensionUnits.ticks);
-                                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
-                                    Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle() * 110 / 90;
-                                    diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
-                                    intakeSequence = INTAKE_SEQUENCE.VISION_GO;
-                                } else {
-                                    intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                if(intakeSequenceTime.time() > 0.15){
+                    if(ll.isResultValid()) {
+                        medianSmoother.add(ll.getHoriz(), ll.getVert(), ll.getAngle());
+                    }
+                    if (intakeSequenceTime.time() > visionScanTime) { // Time it takes for claw to open
+                        MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
+                        if (medianSmoother.getSize() > 0) {
+                            follower.followPath(
+                                    follower.pathBuilder()
+                                            .addPath(new BezierLine(follower.getPose(), new Pose(follower.getPose().getX(), follower.getPose().getY() - detectedSample.getX())))
+                                            .setConstantHeadingInterpolation(follower.getPose().getHeading())
+                                            .setZeroPowerAccelerationMultiplier(1.8)
+                                            .setPathEndTValueConstraint(0.75)
+                                            .setPathEndTimeoutConstraint(100)
+                                            .build(),
+                                    true
+                            );
+                            diffyClawIntake.ExtendTo(detectedSample.getY(), Intake_DiffyClaw.ExtensionUnits.ticks);
+                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
+                            Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = detectedSample.getAngle() * 110 / 90;
+                            diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
+                            intakeSequence = INTAKE_SEQUENCE.VISION_GO;
+                            intakeSequenceTime.reset();
+                        } else {
+                            intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                            intakeSequenceTime.reset();
                         }
                     }
                 }
-                if (!gamepad1.atRest()){
+                if (useVisionIntakeButton.input(gamepad1.right_stick_button)){
                     intakeSequence = INTAKE_SEQUENCE.RETRACT;
+                    intakeSequenceTime.reset();
                 }
                 break;
             case VISION_GO:
-                if ((!follower.isBusy() && diffyClawIntake.extensionReachedTarget()) || !gamepad1.atRest()){
-                    follower.breakFollowing();
-                    intakeSequence = INTAKE_SEQUENCE.VISION_MOVE;
+                ll.turnOff();
+                if (!follower.isBusy() && diffyClawIntake.extensionReachedTarget()){
+                    follower.startTeleopDrive();
+                    follower.update();
+                    intakeSequence = INTAKE_SEQUENCE.GRAB;
+                    intakeSequenceTime.reset();
                 }
-                if (!gamepad1.atRest()){
+                if (useVisionIntakeButton.input(gamepad1.right_stick_button)){
                     intakeSequence = INTAKE_SEQUENCE.RETRACT;
-                }
-                break;
-            case VISION_MOVE:
-                if(intakeSequenceTime.time() > 0.1){
-                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
-                    if(intakeSequenceTime.time() > 0.3){
-                        diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
-                        if(intakeSequenceTime.time() > 0.5){
-                            diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
-                            diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                            if(diffyClawIntake.getCurrentPosition() < 50){
-                                intakeSequence = INTAKE_SEQUENCE.RETRACT;
-                            }
-                        }
-                    }
+                    intakeSequenceTime.reset();
                 }
                 break;
             case TRANSFER_WAIT:
@@ -875,13 +890,13 @@ public class Main_TeleOp extends OpMode {
         }
         tel.addData("Limelight Enabled", !limelightDisableButton.getVal());
         tel.addData("Color Sensor Enabled", !colorSensorDisableButton.getVal());
-//        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
-//        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
-//        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
-//        tel.addData("X", follower.getPose().getX());
-//        tel.addData("Y", follower.getPose().getY());
-//        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-//        tel.addData("Elapsed Time", elapsedTime.toString());
+        tel.addData("Target Heading in Degrees", Math.toDegrees(targetHeading));
+        tel.addData("Angle Error in Degrees", Math.toDegrees(headingError));
+        tel.addData("Correction Vector in Degrees", Math.toDegrees(headingCorrection));
+        tel.addData("X", follower.getPose().getX());
+        tel.addData("Y", follower.getPose().getY());
+        tel.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        tel.addData("Elapsed Time", elapsedTime.toString());
         tel.addData("prevIntakeSequence", prevIntakeSequence.name());
         tel.addData("Intake Sequence", intakeSequence.name());
         tel.addData("Outtake Sequence", outtakeSequence.name());
