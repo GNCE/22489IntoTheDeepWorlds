@@ -23,7 +23,7 @@ public class Outtake extends SubsysCore {
     public static double CLAW_CLOSED = 0.415;
     public static double CLAW_OPENED = 0.13;
     public static double CLAW_LOOSE_CLOSED = 0.355;
-    public static double zeroOffset = 0.01;
+    public static double zeroOffset = 0.015;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.7;
     public static double ARM_TRANSFER_POS = 0.38;
@@ -36,6 +36,7 @@ public class Outtake extends SubsysCore {
     public static double ARM_FRONTSCORE_WAIT_POS = 0.58;
     public static double ARM_FRONTSCORE_DONE_POS = 0.44;
     public static double ARM_BACKPICKUP_POS = 0.9;
+    public static double ARM_PARK_POS = 1.055 / 2;
     public static double ARM_DEPOSIT_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.65;
     public enum OuttakeState {
@@ -50,6 +51,7 @@ public class Outtake extends SubsysCore {
         AUTO_BACK,
         SPECBACKSCOREOUT,
         SPECBACKPICKUP,
+        PARK,
         RESET_ENCODER,
         Auto_Wait,
         SAMPLE_SCORE_WAIT,
@@ -127,6 +129,10 @@ public class Outtake extends SubsysCore {
             case SPECFRONTPICKUP:
                 ArmPosition = ARM_FRONTPICKUP_POS;
                 setPivotPosition(DIFFY_POSITIONS.SPECIMEN_FRONT_PICKUP, DIFFY_POSITIONS.ORIENTATION_DOWN);
+                break;
+            case PARK:
+                ArmPosition = ARM_PARK_POS;
+                setPivotPosition(DIFFY_POSITIONS.TRANSFER, DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
             case SPECBACKSCORE:
                 ArmPosition = ARM_BACKSCORE_POS;

@@ -46,7 +46,7 @@ public class Auto_0_6_NV extends OpMode{
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(27, 131, Math.toRadians(25));
-    private final Pose visionPose = new Pose(62, 95, Math.toRadians(270));
+    private final Pose visionPose = new Pose(62, 96.5, Math.toRadians(270));
     private final Pose visionControlP = new Pose(52, 122, Math.toRadians(0));
 
     /** Park Pose for our robot, after we do all of the scoring. */
@@ -76,13 +76,27 @@ public class Auto_0_6_NV extends OpMode{
         /* Here is an example for Constant Interpolation
         scorePreload.setConstantInterpolation(startPose.getHeading()); */
 
+
+        //DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+//DEAR THE GODS OF FTC PLEASE NO OVERSHOOT
+
+
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
                 .setZeroPowerAccelerationMultiplier(0.8)
                 .setPathEndTValueConstraint(0.775)
-                .setPathEndTimeoutConstraint(50)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -98,9 +112,9 @@ public class Auto_0_6_NV extends OpMode{
         grabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.3)
+                .setZeroPowerAccelerationMultiplier(1)
                 .setPathEndTValueConstraint(LPETVC)
-                .setPathEndTimeoutConstraint(50)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup2 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -118,7 +132,7 @@ public class Auto_0_6_NV extends OpMode{
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
                 .setZeroPowerAccelerationMultiplier(1)
                 .setPathEndTValueConstraint(0.76)
-                .setPathEndTimeoutConstraint(50)
+                .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
         /* This is our scorePickup3 PathChain. We are using a single path with a BezierLine, which is a straight line. */
@@ -133,9 +147,9 @@ public class Auto_0_6_NV extends OpMode{
         driveToVision = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(visionControlP),new Point(visionPose) ))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), visionPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.5)
-                .setPathEndTValueConstraint(0.67)
-                .setPathEndTimeoutConstraint(150)
+                .setZeroPowerAccelerationMultiplier(0.69)
+                .setPathEndTValueConstraint(0.99)
+                .setPathEndTimeoutConstraint(5)
                 .build();
 
         driveFromVision = follower.pathBuilder()
@@ -148,9 +162,9 @@ public class Auto_0_6_NV extends OpMode{
         parkFromVision = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(visionPose), new Point(visionControlP),new Point(parkPose) ))
                 .setLinearHeadingInterpolation(visionPose.getHeading(), parkPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.7)
-                .setPathEndTValueConstraint(LPETVC)
-                .setPathEndTimeoutConstraint(LPETC)
+                .setZeroPowerAccelerationMultiplier(0.7)
+                .setPathEndTValueConstraint(0.69)
+                .setPathEndTimeoutConstraint(5)
                 .build();
 
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
@@ -235,13 +249,13 @@ public class Auto_0_6_NV extends OpMode{
                 }
                 break;
             case INTAKE_SAMPLE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) { //0.7
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) { //0.7
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_PICKUP);
                     setPathState(AutoState.PICKUP);
                 }
                 break;
             case PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() > 0.25){
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
                 if (pathTimer.getElapsedTimeSeconds() > 0.4){
@@ -294,7 +308,7 @@ public class Auto_0_6_NV extends OpMode{
                     setPathState(AutoState.AFTER_SCORE);
                 } else {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
-                    follower.followPath(driveToVision);
+                    follower.followPath(driveToVision, true);
                     ll.turnOn();
                     sampleCounter = 0;
                     setPathState(AutoState.VISION);
@@ -320,11 +334,11 @@ public class Auto_0_6_NV extends OpMode{
                 }
                 break;
             case VISION_MOVE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     if(ll.isResultValid()) {
                         medianSmoother.add(ll.getVert(), ll.getHoriz(), ll.getAngle());
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3 + visionWaitTime) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.4 + visionWaitTime) {
                         MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
                         if (medianSmoother.getSize() > 0) {
                             follower.followPath(
@@ -392,13 +406,13 @@ public class Auto_0_6_NV extends OpMode{
                 }
                 break;
             case SUB_SCORE_WAIT:
-                if (!follower.isBusy() && (Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.target) < 25)){
+                if (!follower.isBusy() && (Math.abs(outtakeLift.getCurrentPosition() - OuttakeLiftSubsys.target) < 200)){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     setPathState(AutoState.SUB_SCORE);
                 }
                 break;
             case SUB_SCORE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3){
+                if (pathTimer.getElapsedTimeSeconds() > 0.25){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                     setPathState(AutoState.SUB_SCORE_DONE);
                 }
@@ -406,34 +420,37 @@ public class Auto_0_6_NV extends OpMode{
             case SUB_SCORE_DONE:
                 sampleCounter++;
                 if (sampleCounter >= 2){ //number is how many submersible samples you wanna score.
+                    medianSmoother.clear();
                     setPathState(AutoState.PARK);
-                    follower.followPath(park);
                 } else {
                     medianSmoother.clear();
                     setPathState(AutoState.SUB_fix);
                 }
                 break;
             case SUB_fix:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     follower.followPath(driveToVision, true);
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 0.7){
+                if (pathTimer.getElapsedTimeSeconds()> 0.6){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                     outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
                     setPathState(AutoState.VISION);
                 }
                 break;
             case PARK:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    follower.followPath(park, true);
+                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
+                }
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;
                 if (pathTimer.getElapsedTimeSeconds() > 0.6){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
+                    outtake.setOuttakeState(Outtake.OuttakeState.PARK);
                 }
-                if (!follower.isBusy()){
-                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                    setPathState(AutoState.KILL);
-                }
+//                if (!follower.isBusy()){
+//                    setPathState(AutoState.KILL);
+//                }
                 break;
             case KILL:
                 if (pathTimer.getElapsedTimeSeconds() > 0.25) {

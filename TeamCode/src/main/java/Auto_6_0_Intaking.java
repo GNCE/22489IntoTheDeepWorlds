@@ -51,7 +51,7 @@ public class Auto_6_0_Intaking extends OpMode {
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
-    private final Pose outtakePickupWaitPose = new Pose(27.5, 35, Math.toRadians(180));
+    private final Pose outtakePickupWaitPose = new Pose(25.5, 35, Math.toRadians(180));
 
     private final Pose firstScorePose = new Pose(frontScoreX, 67, Math.toRadians(0));
     private final Pose firstScoreReturnPose = new Pose(32.805298013245036, 64.65695364238411, Math.toRadians(181));
@@ -124,7 +124,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(5)
                 .setPathEndTValueConstraint(0.99)
-                .setZeroPowerAccelerationMultiplier(2.3)
+                .setZeroPowerAccelerationMultiplier(2.4)
                 .build();
         secondScorePath = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(outtakePickupPose), new Point(secondScorePose)))
@@ -286,6 +286,7 @@ public class Auto_6_0_Intaking extends OpMode {
                         intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                         if(pathTimer.getElapsedTimeSeconds() > 0.5){
                             intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
+                            intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                             intakeDiffyClaw.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                             if(intakeDiffyClaw.getCurrentPosition() < 50){
                                 setPathState(AutoState.GO_DRIVE);
@@ -297,29 +298,23 @@ public class Auto_6_0_Intaking extends OpMode {
             case GO_DRIVE:
                 follower.followPath(spike3, true);
                 setPathState(AutoState.DRIVE_TO_SPIKE_3);
-                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
-                outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
                 break;
             case DRIVE_TO_SPIKE_3:
                 ll.turnOff();
-                if(pathTimer.getElapsedTimeSeconds() > 0.4){
-                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                    intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5){
-                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                        if( pathTimer.getElapsedTimeSeconds() > 0.7){
-                            intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                        }
-                    }
-                    if(pathTimer.getElapsedTimeSeconds() > 1){
-                        intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                        if(pathTimer.getElapsedTimeSeconds() > 1.2){
-                            outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                            if(pathTimer.getElapsedTimeSeconds() > 1.4){
-                                outtake.setClawState(Outtake.ClawStates.CLOSED);
-                                if(pathTimer.getElapsedTimeSeconds() > 1.5){
+                if (pathTimer.getElapsedTimeSeconds() > 0.15){
+                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
+                    outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                    intakeDiffyClaw.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                }
+                                if(pathTimer.getElapsedTimeSeconds() > 0.7){
+                                    outtake.setClawState(Outtake.ClawStates.CLOSED);
+                                    if (pathTimer.getElapsedTimeSeconds() >0.9){
                                     intakeDiffyClaw.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
-                                    if(pathTimer.getElapsedTimeSeconds() > 1.67){
+                                    if(pathTimer.getElapsedTimeSeconds() > 1.1){
                                         outtake.setOuttakeState(Outtake.OuttakeState.AUTO_SAMPLE_DEPOSIT);
                                         intakeDiffyClaw.setDontReset(true);
                                         intakeDiffyClaw.ExtendTo(380, Intake_DiffyClaw.ExtensionUnits.ticks);
@@ -327,9 +322,6 @@ public class Auto_6_0_Intaking extends OpMode {
                                         Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = -30;
                                     }
                                 }
-                            }
-                        }
-                    }
                 }
                 if(!follower.isBusy()){
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.AUTO_THROW);
