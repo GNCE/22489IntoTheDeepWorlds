@@ -15,8 +15,8 @@ public class IntakeClawTest extends OpMode {
     private Servo LeftArmPivot;
 
 
-    public static double DEFAULT_LDIFFY_POS = 0.48;
-    public static double DEFAULT_RDIFFY_POS = 0.55;
+    public static double DEFAULT_LDIFFY_POS = 0.51;
+    public static double DEFAULT_RDIFFY_POS = 0.49;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 

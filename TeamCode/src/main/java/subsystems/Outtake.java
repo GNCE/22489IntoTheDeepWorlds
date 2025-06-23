@@ -18,15 +18,16 @@ public class Outtake extends SubsysCore {
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
     public static double ArmPosition = 0.2;
-    public static double leftArmOffset = (double) 0.045;
+    public static double leftArmOffset = (double) 0.036;
     public static boolean clawOpen = false;
     public static double CLAW_CLOSED = 0.415;
     public static double CLAW_OPENED = 0.13;
-    public static double CLAW_LOOSE_CLOSED = 0.34;
+    public static double CLAW_LOOSE_CLOSED = 0.355;
+    public static double zeroOffset = 0.01;
     //tune these values vvvvv
-    public static double ARM_SAMPSCORE_POS = 0.73;
-    public static double ARM_TRANSFER_POS = 0.49;
-    public static double ARM_TRANSFER_WAIT = 0.53;
+    public static double ARM_SAMPSCORE_POS = 0.7;
+    public static double ARM_TRANSFER_POS = 0.38;
+    public static double ARM_TRANSFER_WAIT = 0.38;
     public static double ARM_FRONTPICKUP_POS = 0.38;
     public static double ARM_BACKSCORE_POS = 0.87;
     public static double AUTO_ARM_BACKSCORE_POS = 0.87;
@@ -77,7 +78,7 @@ public class Outtake extends SubsysCore {
     public static class DIFFY_POSITIONS {
         public static double AUTO_INIT = 100;
         public static double SAMPLE_SCORE = 40;
-        public static double TRANSFER = -107;
+        public static double TRANSFER = 0;
         public static double SPECIMEN_FRONT_PICKUP = -10;
         public static double SPECIMEN_BACK_SCORE = -60;
         public static double AUTO_SPECIMEN_BACK_SCORE = -60;
@@ -176,6 +177,7 @@ public class Outtake extends SubsysCore {
                 setPivotPosition(DIFFY_POSITIONS.AUTO_SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
 
         }
+        ArmPosition += zeroOffset;
 
         updatePivotPosition();
 

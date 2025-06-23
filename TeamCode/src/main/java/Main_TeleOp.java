@@ -505,11 +505,9 @@ public class Main_TeleOp extends OpMode {
                 break;
             case VISION:
                 ll.turnOn();
-                if(specModeToggleButton.getVal()){
-                    ll.setSampleType(IntakeLimelightSubsys.SampleType.ALLIANCE);
-                }else {
-                    ll.setSampleType(IntakeLimelightSubsys.SampleType.BOTH);
-                }
+                ll.setAlliance(Storage.isRed ? IntakeLimelightSubsys.Alliance.RED : IntakeLimelightSubsys.Alliance.BLUE);
+                ll.setSampleType(specModeToggleButton.getVal() ? IntakeLimelightSubsys.SampleType.ALLIANCE : IntakeLimelightSubsys.SampleType.BOTH);
+
                 diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.VISION);
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 if(intakeSequenceTime.time() > 0.15){
@@ -564,8 +562,8 @@ public class Main_TeleOp extends OpMode {
                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                 }
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER_WAIT);
-                boolean asdf = !colorSensorDisableButton.getVal() && intakeSequenceTime.time() > 1.4 && diffyClawIntake.getCurrentPosition() < 20 && diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal()) == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal();
+                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
+                boolean asdf = !colorSensorDisableButton.getVal() && intakeSequenceTime.time() > 1.3 && diffyClawIntake.getCurrentPosition() < 20 && diffyClawIntake.getCurrentSampleState(specModeToggleButton.getVal()) == Intake_DiffyClaw.SENSOR_READING.CORRECT && !specModeToggleButton.getVal();
                 if(asdf && !prevAutoTransfer){
                     bucketSequence = BUCKET_SEQUENCE.GRAB_AND_LIFT;
                     outtakeSequenceTime.reset();
@@ -656,23 +654,15 @@ public class Main_TeleOp extends OpMode {
                         switch (bucketSequence) {
                             case TRANSFER:
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-                                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER_WAIT);
+                                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
                                 outtake.setClawState(Outtake.ClawStates.OPEN);
                                 break;
                             case GRAB_AND_LIFT:
-                                diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
-                                if (outtakeSequenceTime.time() > 0.25) {
-                                    outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
-                                }
-                                if (outtakeSequenceTime.time() > 0.45) {
-                                    outtake.setClawState(
-                                            sampleClawLooseToggle.getVal() ? Outtake.ClawStates.LOOSE_CLOSED : Outtake.ClawStates.CLOSED
-                                    );
-                                }
-                                if (outtakeSequenceTime.time() > 0.55) {
+                                outtake.setClawState(Outtake.ClawStates.CLOSED);
+                                if(outtakeSequenceTime.time() > 0.1){
                                     diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                                 }
-                                if (outtakeSequenceTime.time() > 0.72) {
+                                if (outtakeSequenceTime.time() > 0.3) {
                                     outtakeLift.LiftTo(lowBasketToggleButton.getVal() ? OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_LOW_BASKET : OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                                     intakeSequence = INTAKE_SEQUENCE.RETRACT;
@@ -688,8 +678,8 @@ public class Main_TeleOp extends OpMode {
                                 }
                                 if (samplePivot){
                                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
+                                    outtake.setClawState(Outtake.ClawStates.LOOSE_CLOSED);
                                 }
-
                                 break;
                             case SCORE:
                                 outtake.setClawState(Outtake.ClawStates.OPEN);

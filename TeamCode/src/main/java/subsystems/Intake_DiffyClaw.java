@@ -48,8 +48,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.505;
-    public static double DEFAULT_RDIFFY_POS = 0.495;
+    public static double DEFAULT_LDIFFY_POS = 0.51;
+    public static double DEFAULT_RDIFFY_POS = 0.49;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -61,8 +61,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double CLAW_SPIKE_OPEN = 0.1;
     //tune these values vvvvv
     public static double ARM_REST = 0.08;
-    public static double ARM_TRANSFER_POS = 0.4;
-    public static double ARM_TRANSFER_WAIT_POS = 0.44;
+    public static double ARM_TRANSFER_POS = 0.55;
+    public static double ARM_TRANSFER_WAIT_POS = 0.55;
     public static double ARM_RETRACTED_HOLD = 0.45;
     public static double ARM_PICKUP_READY = 0.52;
     public static double ARM_PICKUP_DOWN = 0.6;
@@ -185,7 +185,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     @Config
     public static class INTAKE_DIFFY_POSITIONS {
-        public static double TRANSFER_POS = 70;
+        public static double TRANSFER_POS = 100;
         public static double INTAKE_POS = -115;
         public static double INTAKE_FINAL_POS = -95;
         public static double REST_POS = 10;
