@@ -42,7 +42,7 @@ public class Auto_0_6_NV extends OpMode{
     private final Pose pickup1Pose = new Pose(24.5, 119, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(25, 130, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(25, 129.25, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(27, 131, Math.toRadians(25));
@@ -112,7 +112,7 @@ public class Auto_0_6_NV extends OpMode{
         grabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1)
+                .setZeroPowerAccelerationMultiplier(0.9)
                 .setPathEndTValueConstraint(LPETVC)
                 .setPathEndTimeoutConstraint(LPETC)
                 .build();
@@ -334,11 +334,11 @@ public class Auto_0_6_NV extends OpMode{
                 }
                 break;
             case VISION_MOVE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     if(ll.isResultValid()) {
                         medianSmoother.add(ll.getVert(), ll.getHoriz(), ll.getAngle());
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0.4 + visionWaitTime) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.35 + visionWaitTime) {
                         MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
                         if (medianSmoother.getSize() > 0) {
                             follower.followPath(

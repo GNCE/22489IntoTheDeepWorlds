@@ -7,6 +7,7 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,6 +15,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.Arrays;
 
 import pedroPathing.constants.FConstants;
+import pedroPathing.constants.FConstants_6_0;
+import pedroPathing.constants.FConstants_Teleop_Autoscore;
 import pedroPathing.constants.LConstants;
 import subsystems.DriveSubsys;
 import subsystems.HangServoSubsys;
@@ -57,7 +60,7 @@ public class Main_TeleOp extends OpMode {
     @Override
     public void init() {
 
-        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_Teleop_Autoscore.class, LConstants.class);
         follower.setStartingPose(startPose);
         elapsedTime = new ElapsedTime();
         intakeSequenceTime = new ElapsedTime();
@@ -221,22 +224,14 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton pipelineToggleButton = new ToggleButton(false);
     private ToggleButton autoScoreToggleButton = new ToggleButton(false);
     private ToggleButton specModeToggleButton = new ToggleButton(false);
-    public static Pose[] scorePoses = {
-            new Pose(11.1, 32, Math.toRadians(180)),
-            new Pose(20, 32, Math.toRadians(180)),
-            new Pose(20, 32, Math.toRadians(180)),
-            new Pose(30, 65, Math.toRadians(180)),
-            new Pose(39.3, 68, Math.toRadians(180))
-    };
-    public static Pose[] pickupPoses = {
-            new Pose(39.3, 68, Math.toRadians(180)),
-            new Pose(35, 68, Math.toRadians(180)),
-            new Pose(30, 68, Math.toRadians(180)),
-            new Pose(20, 32, Math.toRadians(180)),
-            new Pose(15, 32, Math.toRadians(180)),
-            new Pose(11.1, 32, Math.toRadians(180))
-    };
 
+    private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
+    private final Pose outtakePickupControl1 = new Pose(26, 66, Math.toRadians(180));
+    private final Pose outtakePickupControl2 = new Pose(35, 37, Math.toRadians(180));
+    private final Pose scorePose = new Pose(44.75, 67, Math.toRadians(200)); //can revert if coocked
+    private final Pose scorePoseControl = new Pose(20, 66, Math.toRadians(200)); //can revert if coocked
+
+    private final Pose twohundeAngle = new Pose(44.25, 65, Math.toRadians(186));
 
     public static double hp = 1, hi = 0, hd = 0.12;
     public static double angleThreshold = 2.5;
@@ -256,7 +251,7 @@ public class Main_TeleOp extends OpMode {
     private ToggleButton sampleClawLooseToggle = new ToggleButton(false);
 
     enum AUTO_SCORE {
-        DRIVE_TO_PICKUP, PICKUP_AND_GO, DRIVE_TO_SCORE, SCORE_AND_GO, NOTHING;
+        DRIVE_TO_PICKUP, PICKUP_AND_GO, DRIVE_TO_SCORE, READY_SCORE, SCORE_AND_GO, NOTHING;
     }
     AUTO_SCORE autoScore;
     ElapsedTime autoScoreTimer;
@@ -270,12 +265,18 @@ public class Main_TeleOp extends OpMode {
 
     public void buildAutoScorePaths(){
         pickupSpec = follower.pathBuilder()
-                .addPath(new BezierCurve(pickupPoses))
-                .setLinearHeadingInterpolation(pickupPoses[0].getHeading(), pickupPoses[pickupPoses.length-1].getHeading())
+                .addPath(new BezierCurve(new Point(scorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupPose)))
+                .setLinearHeadingInterpolation(twohundeAngle.getHeading(), outtakePickupPose.getHeading())
+                .setZeroPowerAccelerationMultiplier(1.9)
+                .setPathEndTimeoutConstraint(5)
+                .setPathEndTValueConstraint(0.825)
                 .build();
         scoreSpec = follower.pathBuilder()
-                .addPath(new BezierCurve(scorePoses))
-                .setLinearHeadingInterpolation(scorePoses[0].getHeading(), scorePoses[scorePoses.length-1].getHeading())
+                .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(scorePoseControl),new Point(scorePose)))
+                .setLinearHeadingInterpolation(scorePose.getHeading(),twohundeAngle.getHeading())
+                .setZeroPowerAccelerationMultiplier(5.7)
+                .setPathEndTValueConstraint(0.93)
+                .setPathEndTimeoutConstraint(2.5)
                 .build();
     }
 
@@ -298,12 +299,14 @@ public class Main_TeleOp extends OpMode {
         boolean justChanged = autoScoreToggleButton.input(gamepad2.left_bumper);
         if(justChanged){
             if(autoScoreToggleButton.getVal()){
+                ll.turnOff();
                 autoScore = AUTO_SCORE.PICKUP_AND_GO;
-                follower.setPose(scorePoses[0]);
+                follower.setPose(outtakePickupPose);
                 follower.update();
             }
             else {
                 follower.breakFollowing();
+                follower.startTeleopDrive();
                 autoScore = AUTO_SCORE.NOTHING;
             }
         }
@@ -315,30 +318,38 @@ public class Main_TeleOp extends OpMode {
 
         switch(autoScore){
             case DRIVE_TO_PICKUP:
+                if (autoScoreTimer.time() > 0.575){
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
+                }
                 if(!follower.isBusy()){
+                    outtakeSequenceTime.reset();
                     setAutoScoreState(AUTO_SCORE.PICKUP_AND_GO);
                 }
                 break;
             case PICKUP_AND_GO:
-                backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.CLOSE_CLAW;
-                if(autoScoreTimer.time() > 0.5){
+                if (autoScoreTimer.time() > 0){
+                    outtakeSequenceTime.reset();
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.CLOSE_CLAW;
+                    setAutoScoreState(AUTO_SCORE.READY_SCORE);
+                }
+                break;
+            case READY_SCORE:
+                if (autoScoreTimer.time() > 0.15){
                     follower.followPath(scoreSpec, true);
                     setAutoScoreState(AUTO_SCORE.DRIVE_TO_SCORE);
                 }
                 break;
             case DRIVE_TO_SCORE:
-                if(autoScoreTimer.time() > 0.2){
-                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.BACK_SCORE;
-                }
                 if(!follower.isBusy()){
+                    outtakeSequenceTime.reset();
+                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
                     setAutoScoreState(AUTO_SCORE.SCORE_AND_GO);
                 }
                 break;
             case SCORE_AND_GO:
-                backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.OPEN_CLAW;
-                if(autoScoreTimer.time() > 0.5){
+                if(autoScoreTimer.time() > 0.15){
                     follower.followPath(pickupSpec, true);
-                    backSpecimenSequence = BACK_SPECIMEN_SEQUENCE.FRONT_GRAB;
+                    outtakeSequenceTime.reset();
                     setAutoScoreState(AUTO_SCORE.DRIVE_TO_PICKUP);
                 }
                 break;

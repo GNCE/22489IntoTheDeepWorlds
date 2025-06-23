@@ -23,13 +23,13 @@ public class Outtake extends SubsysCore {
     public static double CLAW_CLOSED = 0.415;
     public static double CLAW_OPENED = 0.13;
     public static double CLAW_LOOSE_CLOSED = 0.355;
-    public static double zeroOffset = 0.015;
+    public static double zeroOffset = 0.013;
     //tune these values vvvvv
     public static double ARM_SAMPSCORE_POS = 0.7;
     public static double ARM_TRANSFER_POS = 0.38;
     public static double ARM_TRANSFER_WAIT = 0.38;
     public static double ARM_FRONTPICKUP_POS = 0.38;
-    public static double ARM_BACKSCORE_POS = 0.87;
+    public static double ARM_BACKSCORE_POS = 0.88;
     public static double AUTO_ARM_BACKSCORE_POS = 0.87;
     public static double ARM_BACKSCORE_OUT = 0.91;
     public static double OLD_ARM_FRONTSCORE_POS = 0.37;
@@ -185,10 +185,10 @@ public class Outtake extends SubsysCore {
         }
         ArmPosition += zeroOffset;
 
-        updatePivotPosition();
+//        updatePivotPosition();
 
-        rpivhigh.setPosition(ArmPosition);
-        lpivhigh.setPosition(ArmPosition + leftArmOffset);
+//        rpivhigh.setPosition(ArmPosition);
+//        lpivhigh.setPosition(ArmPosition + leftArmOffset);
 
         switch(clawState){
             case OPEN:
