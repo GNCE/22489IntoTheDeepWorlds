@@ -421,15 +421,16 @@ public class Auto_0_6_NV extends OpMode{
                 sampleCounter++;
                 if (sampleCounter >= 2){ //number is how many submersible samples you wanna score.
                     medianSmoother.clear();
+                    follower.followPath(park, true);
                     setPathState(AutoState.PARK);
                 } else {
                     medianSmoother.clear();
+                    follower.followPath(driveToVision, true);
                     setPathState(AutoState.SUB_fix);
                 }
                 break;
             case SUB_fix:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    follower.followPath(driveToVision, true);
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
                 if (pathTimer.getElapsedTimeSeconds()> 0.6){
@@ -440,7 +441,6 @@ public class Auto_0_6_NV extends OpMode{
                 break;
             case PARK:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    follower.followPath(park, true);
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
                 Intake_DiffyClaw.INTAKE_DIFFY_POSITIONS.ORIENTATION_ALIGNED = 0;

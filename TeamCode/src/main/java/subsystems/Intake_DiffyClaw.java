@@ -49,7 +49,7 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.57;
+    public static double DEFAULT_LDIFFY_POS = 0.61;
     public static double DEFAULT_RDIFFY_POS = 0.52;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
@@ -77,7 +77,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double p = 0.015, i = 0, d = 0.0004;
     public static double ap = 0.012, ai = 0, ad = 0.0005;
 
-    public static double vp = 0.023, vi = 0, vd = 0.00027;
+    public static double vp = 0.015, vi = 0, vd = 0.0004;
     public static double hp = 0.03, hi=0, hd = 0.00027, hf = -0.0001;
     public int target = 0;
     private UnifiedTelemetry tel = new UnifiedTelemetry();

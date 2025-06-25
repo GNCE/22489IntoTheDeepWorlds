@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import pedroPathing.constants.FConstants_0_7;
 import pedroPathing.constants.FConstants_samples;
 import pedroPathing.constants.LConstants;
 import subsystems.IntakeLimelightSubsys;
@@ -22,7 +23,7 @@ import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 import utils.Storage;
 
-@Autonomous (name = "0 + 6 but ken :D")
+@Autonomous (name = "0 + 7 ken :D")
 public class Auto_0_7_RealKen_NV extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;
@@ -62,9 +63,9 @@ public class Auto_0_7_RealKen_NV extends OpMode{
     private PathChain[] grabPickups, scorePickups;
     ElapsedTime elapsedTime;
     public static double visionWaitTime = 0.55;
-    private final double ZPAM = 1.8;
+    private final double ZPAM = 1;
     private final double LPETC = 10;
-    private final double LPETVC = 0.8;
+    private final double LPETVC = 0.69;
 
     public void buildPaths() {
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
@@ -94,7 +95,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         grabPickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup1Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup1Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(0.567)
+                .setZeroPowerAccelerationMultiplier(0.69)
                 .setPathEndTValueConstraint(0.775)
                 .setPathEndTimeoutConstraint(LPETC)
                 .build();
@@ -103,8 +104,8 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         scorePickup1 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(pickup1Pose), new Point(scorePose)))
                 .setLinearHeadingInterpolation(pickup1Pose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.3)
-                .setPathEndTValueConstraint(0.8)
+                .setZeroPowerAccelerationMultiplier(ZPAM)
+                .setPathEndTValueConstraint(LPETVC)
                 .setPathEndTimeoutConstraint(5)
                 .build();
 
@@ -112,8 +113,8 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         grabPickup2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup2Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup2Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(0.420)
-                .setPathEndTValueConstraint(LPETVC)
+                .setZeroPowerAccelerationMultiplier(0.567)
+                .setPathEndTValueConstraint(0.7420)
                 .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
@@ -130,8 +131,8 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         grabPickup3 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(scorePose), new Point(pickup3Pose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), pickup3Pose.getHeading())
-                .setZeroPowerAccelerationMultiplier(0.567)
-                .setPathEndTValueConstraint(0.76)
+                .setZeroPowerAccelerationMultiplier(0.67)
+                .setPathEndTValueConstraint(0.7567)
                 .setPathEndTimeoutConstraint(LPETC)
                 .build();
 
@@ -147,20 +148,21 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         driveToVision = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(visionControlP),new Point(visionPose) ))
                 .setLinearHeadingInterpolation(scorePose.getHeading(), visionPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(0.67)
-                .setPathEndTValueConstraint(0.82)
+                .setZeroPowerAccelerationMultiplier(1)
+                .setPathEndTValueConstraint(0.69)
                 .setPathEndTimeoutConstraint(5)
+                .setPathEndHeadingConstraint(Math.toRadians(10))
                 .build();
 
         driveFromVision = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(visionPose), new Point(visionControlP),new Point(scorePose) ))
                 .setLinearHeadingInterpolation(visionPose.getHeading(), scorePose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.7)
-                .setPathEndTValueConstraint(LPETVC)
+                .setZeroPowerAccelerationMultiplier(4.69)
+                .setPathEndTValueConstraint(0.767)
                 .setPathEndTimeoutConstraint(LPETC)
                 .build();
         parkFromVision = follower.pathBuilder()
-                .addPath(new BezierCurve(new Point(visionPose), new Point(visionControlP),new Point(parkPose) ))
+                .addPath(new BezierCurve(new Point(visionPose), new Point(parkPose) ))
                 .setLinearHeadingInterpolation(visionPose.getHeading(), parkPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(0.7)
                 .setPathEndTValueConstraint(0.69)
@@ -171,7 +173,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
         park.setZeroPowerAccelerationMultiplier(3.5);
-        park.setPathEndTValueConstraint(LPETVC);
+        park.setPathEndTValueConstraint(0.8);
         park.setPathEndTimeoutConstraint(LPETC);
 
         grabPickups = new PathChain[]{grabPickup1, grabPickup2, grabPickup3};
@@ -227,13 +229,13 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case SCORE_PRELOAD:
-                if (pathTimer.getElapsedTimeSeconds() > 0.25){
+                if (pathTimer.getElapsedTimeSeconds() > 0.075){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
-                if (pathTimer.getElapsedTimeSeconds()> 0.6){
+                if (pathTimer.getElapsedTimeSeconds()> 0.35){
                     follower.followPath(grabPickups[sampleCounter], true);
                     setPathState(AutoState.INTAKE_WAIT);
                 }
@@ -255,13 +257,13 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() > 0.167){
+                if (pathTimer.getElapsedTimeSeconds() > 0.075){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.3){
+                if (pathTimer.getElapsedTimeSeconds() > 0.2){
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.TRANSFER);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.4){
+                if (pathTimer.getElapsedTimeSeconds() > 0.3){
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.LOOSE);
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
                     follower.followPath(scorePickups[sampleCounter],true);
@@ -269,19 +271,19 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case TRANSFER_SAMPLE:
-                if(intake.getCurrentPosition() < 10){
+                if(intake.getCurrentPosition() < 115.696969){
                     outtake.setClawState(Outtake.ClawStates.CLOSED);
                     setPathState(AutoState.GRAB);
                 }
                 break;
             case GRAB:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.125) {
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.OPEN);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                     outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.LIFT_HIGH_BASKET);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.425) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                 }
                 if (!follower.isBusy() && outtakeLift.getCurrentPosition() > 1700) {
@@ -289,16 +291,16 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case READY_TO_SCORE:
+                outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                 if ((sampleCounter + 1) < 3) {
-                    outtake.setOuttakeState(Outtake.OuttakeState.SAMPLESCORE);
                     intake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.AUTO_POS);
                     intake.setClawState(Intake_DiffyClaw.CLAW_STATE.SPIKE);
                     intake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_ARM_READY);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 0.25){
+                if(pathTimer.getElapsedTimeSeconds() > 0.075){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                 }
-                if(pathTimer.getElapsedTimeSeconds() > 0.4){
+                if(pathTimer.getElapsedTimeSeconds() > 0.2){
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
                     setPathState(AutoState.SCORE);
                 }
@@ -311,7 +313,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                     setPathState(AutoState.AFTER_SCORE);
                 } else {
                     outtake.setOuttakeState(Outtake.OuttakeState.SAMPLE_SCORE_WAIT);
-                    follower.followPath(driveToVision, true);
+                    follower.followPath(driveToVision);
                     ll.turnOn();
                     sampleCounter = 0;
                     setPathState(AutoState.VISION);
@@ -337,19 +339,19 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case VISION_MOVE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                     if(ll.isResultValid()) {
                         medianSmoother.add(ll.getVert(), ll.getHoriz(), ll.getAngle());
                     }
-                    if (pathTimer.getElapsedTimeSeconds() > 0.35 + visionWaitTime) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25 + visionWaitTime) {
                         MedianSmoother.Sample detectedSample = medianSmoother.getMedian();
                         if (medianSmoother.getSize() > 0) {
                             follower.followPath(
                                     follower.pathBuilder()
                                             .addPath(new BezierLine(visionPose, new Pose(visionPose.getX()- detectedSample.getY(), visionPose.getY())))
                                             .setConstantHeadingInterpolation(visionPose.getHeading())
-                                            .setZeroPowerAccelerationMultiplier(1.2)
-                                            .setPathEndTValueConstraint(0.75)
+                                            .setZeroPowerAccelerationMultiplier(1.169)
+                                            .setPathEndTValueConstraint(0.76)
                                             .setPathEndTimeoutConstraint(100)
                                             .build(),
                                     true
@@ -415,7 +417,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                 }
                 break;
             case SUB_SCORE:
-                if (pathTimer.getElapsedTimeSeconds() > 0.25){
+                if (pathTimer.getElapsedTimeSeconds() > 0.1){
                     outtake.setClawState(Outtake.ClawStates.OPEN);
                     setPathState(AutoState.SUB_SCORE_DONE);
                 }
@@ -428,7 +430,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
                     setPathState(AutoState.PARK);
                 } else {
                     medianSmoother.clear();
-                    follower.followPath(driveToVision, true);
+                    follower.followPath(driveToVision);
                     setPathState(AutoState.SUB_fix);
                 }
                 break;
@@ -476,7 +478,7 @@ public class Auto_0_7_RealKen_NV extends OpMode{
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap, FConstants_samples.class, LConstants.class);
+        follower = new Follower(hardwareMap, FConstants_0_7.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         SubsysCore.setGlobalParameters(hardwareMap, this);
