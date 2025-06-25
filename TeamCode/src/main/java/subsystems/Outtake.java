@@ -185,10 +185,10 @@ public class Outtake extends SubsysCore {
         }
         ArmPosition += zeroOffset;
 
-//        updatePivotPosition();
+        updatePivotPosition();
 
-//        rpivhigh.setPosition(ArmPosition);
-//        lpivhigh.setPosition(ArmPosition + leftArmOffset);
+        rpivhigh.setPosition(ArmPosition);
+        lpivhigh.setPosition(ArmPosition + leftArmOffset);
 
         switch(clawState){
             case OPEN:

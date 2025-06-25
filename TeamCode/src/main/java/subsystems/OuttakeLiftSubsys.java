@@ -76,12 +76,12 @@ public class OuttakeLiftSubsys extends SubsysCore{
     @Config
     public static class OuttakeLiftPositionsCONFIG {
         public static int TRANSFER_POS = 0;
-        public static int LOW_BASKET_POS = 750;
+        public static int LOW_BASKET_POS = 610;
         public static int HIGH_BASKET_POS = 2600;
         public static int FRONT_SCORE_WAIT_POS = 1720;
         public static int FRONT_SCORE_DONE_POS = 2320;
         public static int FRONT_PICKUP_POS = 0;
-        public static int BACK_SCORE_POS = 780;
+        public static int BACK_SCORE_POS = 750;
         public static int AUTO_BACK_SCORE_POS = 820;
         public static int BACK_PICKUP_POS = 0;
         public static int BACK_PICKUP_WAIT_POS = 600;

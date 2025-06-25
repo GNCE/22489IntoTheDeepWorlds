@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -48,8 +49,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.51;
-    public static double DEFAULT_RDIFFY_POS = 0.49;
+    public static double DEFAULT_LDIFFY_POS = 0.57;
+    public static double DEFAULT_RDIFFY_POS = 0.52;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -113,7 +114,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         }
 
         IntakeExtend = new Motor(hardwareMap.get(DcMotorEx.class, "horizExtend"), 0.005);
-        IntakeExtend.setDirection(DcMotor.Direction.REVERSE);
+        IntakeExtend.setDirection(DcMotor.Direction.FORWARD);
         IntakeExtend.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         IntakeExtend.stopAndResetEncoder();
         ll = new IntakeLimelightSubsys();
@@ -187,7 +188,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static class INTAKE_DIFFY_POSITIONS {
         public static double TRANSFER_POS = 100;
         public static double INTAKE_POS = -115;
-        public static double INTAKE_FINAL_POS = -95;
+        public static double INTAKE_FINAL_POS = -87;
         public static double REST_POS = 10;
         public static double DEPOSIT_POS = -10;
         public static double VISION_POS = -50;

@@ -267,14 +267,14 @@ public class Main_TeleOp extends OpMode {
         pickupSpec = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(scorePose), new Point(outtakePickupControl1), new Point(outtakePickupControl2), new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(twohundeAngle.getHeading(), outtakePickupPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(1.9)
+                .setZeroPowerAccelerationMultiplier(1.7)
                 .setPathEndTimeoutConstraint(5)
-                .setPathEndTValueConstraint(0.825)
+                .setPathEndTValueConstraint(0.78)
                 .build();
         scoreSpec = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(scorePoseControl),new Point(scorePose)))
                 .setLinearHeadingInterpolation(scorePose.getHeading(),twohundeAngle.getHeading())
-                .setZeroPowerAccelerationMultiplier(5.7)
+                .setZeroPowerAccelerationMultiplier(5.420)
                 .setPathEndTValueConstraint(0.93)
                 .setPathEndTimeoutConstraint(2.5)
                 .build();
