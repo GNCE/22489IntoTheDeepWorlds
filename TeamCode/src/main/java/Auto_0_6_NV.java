@@ -22,7 +22,7 @@ import subsystems.UnifiedTelemetry;
 import utils.MedianSmoother;
 import utils.Storage;
 
-@Autonomous (name = "0 + 6 NV")
+@Autonomous (name = "0 + 6 NV do not run")
 public class Auto_0_6_NV extends OpMode{
     private Follower follower;
     private Intake_DiffyClaw intake;

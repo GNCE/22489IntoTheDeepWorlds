@@ -843,7 +843,7 @@ public class Main_TeleOp extends OpMode {
                                 ascentSequence = ASCENT_SEQUENCE.SLIDE_WAIT;
                                 break;
                             case SLIDE_WAIT:
-                                if (hangTimer.time() > hangDelay){
+                                if (outtakeLift.getCurrentPosition() > 3250){
                                     ascentSequence = ASCENT_SEQUENCE.SLIDES_UP_GO;
                                     hangTimer.reset();
                                 }

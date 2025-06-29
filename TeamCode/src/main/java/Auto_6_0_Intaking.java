@@ -45,9 +45,9 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose startPose = new Pose(8.55, 63.5, Math.toRadians(0));
     private final Pose preloadScorePose = new Pose(frontScoreX, 69, Math.toRadians(0));
     private final Pose thirdSpikeMarkControl = new Pose(22, 55, Math.toRadians(0));
-    private final Pose thirdSpikeMark = new Pose(24.5, 10, Math.toRadians(-18));
-    private final Pose secondSpikeMark = new Pose(22.5, 12.2, Math.toRadians(0));
-    private final Pose firstSpikeMark = new Pose(22.5, 22.2, Math.toRadians(0));
+    private final Pose thirdSpikeMark = new Pose(24.25, 10, Math.toRadians(-18));
+    private final Pose secondSpikeMark = new Pose(22.25, 12.2, Math.toRadians(0));
+    private final Pose firstSpikeMark = new Pose(22.25, 22.2, Math.toRadians(0));
 
     private final Pose outtakeFirstPickupPose = new Pose(17.6, 23.45960264900662, Math.toRadians(0));
     private final Pose outtakePickupPose = new Pose(15, 35, Math.toRadians(180));
@@ -64,7 +64,7 @@ public class Auto_6_0_Intaking extends OpMode {
     private final Pose parkPose = new Pose(26, 43, Math.toRadians(237.5));
 
     // TODO: ZPAM VARIABLES
-    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 2.8;
+    private final double zeroPowerAccelerationMultiplierForPICKUP_WAIT = 1.9;
     private final double zeroPowerAccelerationMultiplerForScore = 4.5;
     private final double pathEndTValueForScore = 0.93;
     private final double pathEndTimeoutForScore = 2.5;
@@ -126,7 +126,7 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(outtakePickupWaitPose), new Point(outtakePickupPose)))
                 .setConstantHeadingInterpolation(outtakePickupWaitPose.getHeading())
                 .setPathEndTimeoutConstraint(5)
-                .setPathEndTValueConstraint(0.867)
+                .setPathEndTValueConstraint(0.98)
                 .setZeroPowerAccelerationMultiplier(1.867676767)
                 .build();
         secondScorePath = follower.pathBuilder()
@@ -140,8 +140,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(secondScorePose), new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(secondScorePose.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
-                .setPathEndTimeoutConstraint(5)
-                .setPathEndTValueConstraint(0.875)
+                .setPathEndTimeoutConstraint(25)
+                .setPathEndTValueConstraint(0.95)
                 .build();
         thirdScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose),new Point(thirdScorePose)))
@@ -154,8 +154,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(thirdScorePose), new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(thirdScorePose.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
-                .setPathEndTimeoutConstraint(15)
-                .setPathEndTValueConstraint(0.825)
+                .setPathEndTimeoutConstraint(25)
+                .setPathEndTValueConstraint(0.95)
                 .build();
         fourthScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(fourthScorePose)))
@@ -168,8 +168,8 @@ public class Auto_6_0_Intaking extends OpMode {
                 .addPath(new BezierLine(new Point(fourthScorePose), new Point(outtakePickupPose)))
                 .setLinearHeadingInterpolation(fourthScorePose.getHeading(), outtakePickupPose.getHeading())
                 .setZeroPowerAccelerationMultiplier(zeroPowerAccelerationMultiplierForPICKUP_WAIT)
-                .setPathEndTimeoutConstraint(5)
-                .setPathEndTValueConstraint(0.875)
+                .setPathEndTimeoutConstraint(25)
+                .setPathEndTValueConstraint(0.95)
                 .build();
         fifthScorePath = follower.pathBuilder()
                 .addPath(new BezierCurve(new Point(outtakePickupPose), new Point(fifthScorePose)))

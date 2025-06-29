@@ -42,7 +42,7 @@ public class Auto_0_6_7_NV extends OpMode{
     private final Pose pickup1Pose = new Pose(24.5, 119, Math.toRadians(0));
 
     /** Middle (Second) Sample from the Spike Mark */
-    private final Pose pickup2Pose = new Pose(25, 129.25, Math.toRadians(0));
+    private final Pose pickup2Pose = new Pose(25, 129.6, Math.toRadians(0));
 
     /** Highest (Third) Sample from the Spike Mark */
     private final Pose pickup3Pose = new Pose(27, 131, Math.toRadians(25));
@@ -170,8 +170,8 @@ public class Auto_0_6_7_NV extends OpMode{
         /* This is our park path. We are using a BezierCurve with 3 points, which is a curved line that is curved based off of the control point */
         park = new Path(new BezierCurve(new Point(scorePose), /* Control Point */ new Point(parkControlPose), new Point(parkPose)));
         park.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
-        park.setZeroPowerAccelerationMultiplier(3.5);
-        park.setPathEndTValueConstraint(LPETVC);
+        park.setZeroPowerAccelerationMultiplier(2);
+        park.setPathEndTValueConstraint(0.76);
         park.setPathEndTimeoutConstraint(LPETC);
 
         grabPickups = new PathChain[]{grabPickup1, grabPickup2, grabPickup3};

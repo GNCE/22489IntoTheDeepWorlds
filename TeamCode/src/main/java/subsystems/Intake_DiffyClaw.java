@@ -49,8 +49,8 @@ public class Intake_DiffyClaw extends SubsysCore {
 
     public static int pipelineNumber = 4;
 
-    public static double DEFAULT_LDIFFY_POS = 0.61;
-    public static double DEFAULT_RDIFFY_POS = 0.52;
+    public static double DEFAULT_LDIFFY_POS = 0.46;
+    public static double DEFAULT_RDIFFY_POS = 0.5;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
