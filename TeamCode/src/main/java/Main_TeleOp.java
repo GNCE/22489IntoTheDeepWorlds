@@ -504,7 +504,9 @@ public class Main_TeleOp extends OpMode {
                 medianSmoother.clear();
                 diffyClawIntake.setClawState(Intake_DiffyClaw.CLAW_STATE.CLOSED);
                 diffyClawIntake.ExtendTo(Intake_DiffyClaw.IntakeExtensionStates.RETRACTED);
-                if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
+                if(outtakeSequence == OUTTAKE_SEQUENCE.BUCKET_SEQUENCE && specModeToggleButton.getVal()){
+                    diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_SAFE);
+                } else if(outtakeSequence != OUTTAKE_SEQUENCE.BACK_SPEC_SEQUENCE && outtakeSequence != OUTTAKE_SEQUENCE.ASCENT){
                     diffyClawIntake.setIntakeState(Intake_DiffyClaw.IntakeState.INTAKE_RETRACT_HOLD);
                 }
                 if (useVisionIntakeButton.input(gamepad1.right_stick_button)){
@@ -665,7 +667,7 @@ public class Main_TeleOp extends OpMode {
                         switch (bucketSequence) {
                             case TRANSFER:
                                 outtakeLift.LiftTo(OuttakeLiftSubsys.OuttakeLiftPositions.TRANSFER);
-                                outtake.setOuttakeState(Outtake.OuttakeState.TRANSFER);
+                                outtake.setOuttakeState(specModeToggleButton.getVal() ? Outtake.OuttakeState.SAFE_POS : Outtake.OuttakeState.TRANSFER);
                                 outtake.setClawState(Outtake.ClawStates.OPEN);
                                 break;
                             case GRAB_AND_LIFT:

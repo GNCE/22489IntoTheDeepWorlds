@@ -48,9 +48,8 @@ public class Intake_DiffyClaw extends SubsysCore {
     public Motor IntakeExtend;
 
     public static int pipelineNumber = 4;
-
-    public static double DEFAULT_LDIFFY_POS = 0.46;
-    public static double DEFAULT_RDIFFY_POS = 0.5;
+    public static double DEFAULT_LDIFFY_POS = 0.49;
+    public static double DEFAULT_RDIFFY_POS = 0.51;
     public static double LdiffyPos = DEFAULT_LDIFFY_POS;
     public static double RdiffyPos = DEFAULT_RDIFFY_POS;
 
@@ -70,6 +69,7 @@ public class Intake_DiffyClaw extends SubsysCore {
     public static double ARM_DEPOSIT_BACK = 0.08;
     public static double ARM_HANG = 0.25;
     public static double ARM_VISION = 0.41;
+    public static double ARM_SAFE = 0.21;
 
 
     //EXTENSION CONTROLS
@@ -93,7 +93,8 @@ public class Intake_DiffyClaw extends SubsysCore {
         INTAKE_REST,
         DEPOSIT,
         VISION,
-        HANG
+        HANG,
+        INTAKE_SAFE,
 
     }
     public Intake_DiffyClaw() {
@@ -197,6 +198,7 @@ public class Intake_DiffyClaw extends SubsysCore {
         public static double ORIENTATION_ALIGNED = 0;
         public static double INTAKE_RETRACT_HOLD=-80;
         public static double HANG = 0;
+        public static double SAFE = -140;
 
     }
 
@@ -274,6 +276,10 @@ public class Intake_DiffyClaw extends SubsysCore {
             case INTAKE_RETRACT_HOLD:
                 ArmPosition = ARM_RETRACTED_HOLD;
                 setPivotPosition(INTAKE_DIFFY_POSITIONS.INTAKE_RETRACT_HOLD, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
+            case INTAKE_SAFE:
+                ArmPosition = ARM_SAFE;
+                setPivotPosition(INTAKE_DIFFY_POSITIONS.SAFE, INTAKE_DIFFY_POSITIONS.ORIENTATION_UP);
                 break;
         }
 

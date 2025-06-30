@@ -39,6 +39,7 @@ public class Outtake extends SubsysCore {
     public static double ARM_PARK_POS = 1.055 / 2;
     public static double ARM_DEPOSIT_POS = 0.9;
     public static double ARM_SAMPLE_SCORE_WAIT = 0.65;
+    public static double ARM_SAFE_POS = 0.5;
     public enum OuttakeState {
         SPECFRONTPICKUP,
         SPECFRONTSCOREWAIT,
@@ -56,6 +57,7 @@ public class Outtake extends SubsysCore {
         Auto_Wait,
         SAMPLE_SCORE_WAIT,
         AUTO_SAMPLE_DEPOSIT,
+        SAFE_POS,
 
     }
 
@@ -94,6 +96,7 @@ public class Outtake extends SubsysCore {
         public static double ORIENTATION_DOWN = 200;
         public static double ORIENTATION_ALIGNED = 0;
         public static double SAMPLE_SCORE_WAIT = 0;
+        public static double SAFE = 90;
     }
 
     private void setPivotPosition(double UpDownAngle, double Orientation){
@@ -181,6 +184,11 @@ public class Outtake extends SubsysCore {
             case AUTO_BACK:
                 ArmPosition = AUTO_ARM_BACKSCORE_POS;
                 setPivotPosition(DIFFY_POSITIONS.AUTO_SPECIMEN_BACK_SCORE, DIFFY_POSITIONS.ORIENTATION_ALIGNED);
+                break;
+            case SAFE_POS:
+                ArmPosition = ARM_SAFE_POS;
+                setPivotPosition(DIFFY_POSITIONS.SAFE, DIFFY_POSITIONS.ORIENTATION_UP);
+                break;
 
         }
         ArmPosition += zeroOffset;
